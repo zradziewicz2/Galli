@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Traipse</title>
+  <!-- Minimal reset + fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#f5f6f7; --card:#fff; --text:#1f2937; --muted:#6b7280; --brand:#00d4db; --chip:#eef2f7; --ring:#d1d5db;
+      --radius:18px; --shadow:0 2px 8px rgba(0,0,0,.06);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--text)}
+    a{color:inherit}
+    .container{max-width:1200px;margin:0 auto;padding:20px}
+    header{display:flex;align-items:center;gap:16px;justify-content:space-between;margin-bottom:16px}
+    .brand{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:.5px}
+    .brand .logo{width:28px;height:28px;background:var(--brand);border-radius:10px;transform:rotate(18deg)}
+    .top-actions{display:flex;align-items:center;gap:18px}
+    .chip{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--ring);background:var(--card);padding:8px 10px;border-radius:12px;font-size:13px;color:var(--muted)}
+    .pill{border:1px solid var(--ring);background:var(--card);padding:8px 12px;border-radius:999px}
+    .search{min-width:260px}
+    .tabs{display:flex;gap:18px;font-weight:700;margin:10px 0 6px}
+    .tab{letter-spacing:.04em;color:var(--muted);cursor:pointer}
+    .tab.active{color:var(--text)}
+    .layout{display:grid;grid-template-columns:260px 1fr;gap:18px}
+    @media (max-width:980px){.layout{grid-template-columns:1fr}.sidebar{order:2}}
+    .sidebar{position:sticky;top:12px;align-self:start}
+    .sidebar-card{background:var(--card);border:1px solid var(--ring);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px}
+    .sidebar h3{margin:4px 0 8px;font-size:13px;color:#111;text-transform:uppercase;letter-spacing:.08em}
+    .filter-group{padding:8px 6px 4px}
+    .filter-group label{display:flex;align-items:center;gap:8px;font-size:14px;color:#111;margin:7px 0}
+    .filter-group input{width:16px;height:16px}
+    .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+    @media (max-width:1200px){.grid{grid-template-columns:repeat(3,1fr)}}
+    @media (max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}}
+    @media (max-width:600px){.grid{grid-template-columns:1fr}}
+    .card{background:var(--card);border:1px solid var(--ring);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;position:relative}
+    .card-inner{padding:10px 14px 14px}
+    .badge-type{position:absolute;top:10px;left:10px;background:#111;color:#fff;font-size:11px;padding:4px 8px;border-radius:999px;opacity:.9}
+    .fav{position:absolute;top:10px;right:10px;width:32px;height:32px;border-radius:999px;background:rgba(255,255,255,.85);display:grid;place-items:center;border:1px solid var(--ring);cursor:pointer}
+    .fav svg{width:18px;height:18px;fill:none;stroke:#ef4444;stroke-width:2}
+    .fav.active svg{fill:#ef4444}
+    .image{width:100%;height:160px;background:#dfe3ea;object-fit:cover;border-bottom:1px solid var(--ring)}
+    .title{font-weight:800;margin:10px 0 4px;font-size:20px}
+    .meta{font-size:13px;color:var(--muted);display:flex;gap:8px;flex-wrap:wrap}
+    .desc{font-size:14px;line-height:1.4;margin:8px 0 10px;color:#111;min-height:48px}
+    .chips{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+    .chips .chip{background:var(--chip);border:none}
+    .icons{display:flex;gap:12px;margin-top:6px;color:var(--muted)}
+    .icons a{display:inline-flex;align-items:center;gap:6px;text-decoration:none;font-size:13px}
+    .icons svg{width:16px;height:16px}
+    .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+    .links{display:flex;gap:16px}
+    .sr-only{position:absolute!important;height:1px;width:1px;overflow:hidden;clip:rect(1px,1px,1px,1px);white-space:nowrap}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="brand">
+        <div class="logo" aria-hidden="true"></div>
+        <div>TRAIPSE</div>
+      </div>
+      <div class="top-actions">
+        <input id="cityInput" class="pill search" placeholder="CITY" aria-label="City" />
+        <nav class="links">
+          <a class="pill" href="#">MY PLACES</a>
+          <a class="pill" href="#">NEW SITE SUBMISSION</a>
+          <a class="pill" href="#">CONNECT</a>
+        </nav>
+      </div>
+    </header>
+
+    <div class="topbar">
+      <div class="tabs" role="tablist" aria-label="Content tabs">
+        <button class="tab active" data-tab="all" role="tab" aria-selected="true">ALL</button>
+        <button class="tab" data-tab="site" role="tab">SITES</button>
+        <button class="tab" data-tab="tour" role="tab">TOURS</button>
+      </div>
+      <button id="viewMap" class="chip" title="View in map">🗺️ <span>View in map</span></button>
+    </div>
+
+    <div class="layout">
+      <aside class="sidebar">
+        <div class="sidebar-card">
+          <h3>Category</h3>
+          <div id="categoryFilters" class="filter-group" aria-label="Category filters">
+            <!-- Checkboxes injected here -->
+          </div>
+        </div>
+      </aside>
+
+      <main>
+        <section id="cards" class="grid" aria-live="polite"></section>
+      </main>
+    </div>
+  </div>
+
+  <template id="cardTemplate">
+    <article class="card">
+      <span class="badge-type"></span>
+      <button class="fav" title="Save to My Places" aria-label="Save">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s-7-4.35-7-10a4 4 0 0 1 7-2 4 4 0 0 1 7 2c0 5.65-7 10-7 10z"/></svg>
+      </button>
+      <img class="image" alt="" />
+      <div class="card-inner">
+        <h3 class="title"></h3>
+        <div class="meta"></div>
+        <p class="desc"></p>
+        <div class="icons"></div>
+        <div class="chips"></div>
+      </div>
+    </article>
+  </template>
+
+  <script>
+    /**
+     * EXPECTED locations.json SHAPE (flexible):
+     * [
+     *  {
+     *    id: "slug-1",
+     *    name: "Molly Brown House",
+     *    type: "Site" | "Tour",
+     *    categories: ["Local History","Architecture"],
+     *    distance_miles: 3.5,
+     *    price: "Free" | "$10" | number,
+     *    duration_hours: 1.5, // tours
+     *    description: "...",
+     *    image: "images/molly.jpg",
+     *    website: "https://...",
+     *    externalLinks: { tripadvisor:"", getyourguide:"", viator:"", airbnb:"", guruwalk:"" },
+     *    tags: ["ADA-Accessible","Dog-Friendly","Luggage Storage"]
+     *  }
+     * ]
+     */
+
+    const state = {
+      items: [],
+      tab: 'all',
+      categories: new Set(),
+      selectedCategories: new Set(JSON.parse(localStorage.getItem('traipse:selectedCategories')||'[]')),
+      favorites: new Set(JSON.parse(localStorage.getItem('traipse:favorites')||'[]')),
+    };
+
+    // Utility formatters
+    const fmt = {
+      distance(mi){ return (mi||mi===0) ? `${mi} miles away` : '' },
+      price(p){ if(p==null) return ''; if(typeof p==='number') return `$${p}`; return String(p); },
+      duration(h){ if(!h && h!==0) return ''; const v = Number(h); if(!isFinite(v)) return String(h); return v >= 1 ? `${v} hour${v===1?'':'s'}` : `${Math.round(v*60)} min`; },
+    }
+
+    function uniqueCategories(items){
+      const set = new Set();
+      items.forEach(it => (it.categories||[]).forEach(c => set.add(c)));
+      return Array.from(set).sort();
+    }
+
+    function buildCategoryFilters(list){
+      const wrap = document.getElementById('categoryFilters');
+      wrap.innerHTML = '';
+      list.forEach(cat => {
+        const id = `cat-${cat.replace(/[^a-z0-9]+/gi,'-')}`;
+        const label = document.createElement('label');
+        label.innerHTML = `<input type="checkbox" id="${id}"> <span>${cat}</span>`;
+        const input = label.querySelector('input');
+        input.checked = state.selectedCategories.has(cat);
+        input.addEventListener('change', () => {
+          if(input.checked) state.selectedCategories.add(cat); else state.selectedCategories.delete(cat);
+          localStorage.setItem('traipse:selectedCategories', JSON.stringify(Array.from(state.selectedCategories)));
+          render();
+        });
+        wrap.appendChild(label);
+      });
+    }
+
+    function filterItems(){
+      return state.items.filter(it => {
+        if(state.tab !== 'all' && (it.type||'').toLowerCase() !== state.tab) return false;
+        if(state.selectedCategories.size){
+          const cats = new Set(it.categories||[]);
+          for(const c of state.selectedCategories){ if(!cats.has(c)) return false; }
+        }
+        return true;
+      });
+    }
+
+    function iconLink(href, label, svg){
+      if(!href) return '';
+      return `<a href="${href}" target="_blank" rel="noopener">${svg}<span>${label}</span></a>`;
+    }
+
+    const svgs = {
+      globe: '<svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm0 2a8 8 0 0 1 7.32 4.8H15c-.41-1.9-1.1-3.5-2-4.3V4ZM9 4.5C8.1 5.4 7.4 7 7 8.8H4.68A8 8 0 0 1 9 4.5ZM4.3 10.8H7c0 .8.1 1.6.3 2.4H4.8a8.1 8.1 0 0 1-.5-2.4Zm.38 4.4H7c.4 1.8 1.1 3.4 2 4.3a8 8 0 0 1-4.32-4.3ZM12 20c-.9-.8-1.6-2.5-2-4.3h4c-.4 1.8-1.1 3.5-2 4.3Zm2.7-6.8H9.3a12.6 12.6 0 0 1 0-2.4h5.4c.1.8.1 1.6 0 2.4Zm2.62 6.4c.9-.9 1.6-2.5 2-4.3h2.32A8 8 0 0 1 17.32 19.6ZM19.2 13.2c.2-.8.3-1.6.3-2.4h2.7c-.1.9-.3 1.7-.6 2.4H19.2Zm.3-4.4c-.2-.8-.5-1.6-.9-2.3A8 8 0 0 1 21.5 8.8H19.5ZM13 4.5c.9.8 1.6 2.5 2 4.3h-4c.4-1.8 1.1-3.5 2-4.3Z"/></svg>',
+      ta: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor"/></svg>',
+      gyg: '<svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" fill="none" stroke="currentColor"/></svg>',
+      viator: '<svg viewBox="0 0 24 24"><path d="M4 12h16" stroke="currentColor" fill="none"/></svg>',
+      airbnb: '<svg viewBox="0 0 24 24"><path d="M12 3l7 16H5l7-16z" fill="none" stroke="currentColor"/></svg>',
+      guru: '<svg viewBox="0 0 24 24"><circle cx="8" cy="12" r="2"/><circle cx="16" cy="12" r="2"/></svg>'
+    }
+
+    function renderCards(list){
+      const host = document.getElementById('cards');
+      const tpl = document.getElementById('cardTemplate');
+      host.innerHTML = '';
+      if(!list.length){
+        host.innerHTML = '<p style="color:var(--muted);padding:8px">No results match your filters.</p>';
+        return;
+      }
+      list.forEach(it => {
+        const node = tpl.content.cloneNode(true);
+        const art = node.querySelector('.card');
+        const typeBadge = node.querySelector('.badge-type');
+        const favBtn = node.querySelector('.fav');
+        const img = node.querySelector('.image');
+        const title = node.querySelector('.title');
+        const meta = node.querySelector('.meta');
+        const desc = node.querySelector('.desc');
+        const chips = node.querySelector('.chips');
+        const icons = node.querySelector('.icons');
+
+        const id = it.id || (it.name||'').toLowerCase().replace(/[^a-z0-9]+/g,'-');
+        if(state.favorites.has(id)) favBtn.classList.add('active');
+        favBtn.addEventListener('click', () => {
+          favBtn.classList.toggle('active');
+          if(state.favorites.has(id)) state.favorites.delete(id); else state.favorites.add(id);
+          localStorage.setItem('traipse:favorites', JSON.stringify(Array.from(state.favorites)));
+        });
+
+        typeBadge.textContent = (it.type||'').trim() || 'Site';
+        img.src = it.image || 'https://picsum.photos/600/400?grayscale&random=' + Math.floor(Math.random()*1000);
+        img.alt = it.name ? `${it.name} image` : 'Location image';
+        title.textContent = it.name || 'Untitled';
+
+        const metaBits = [];
+        if(it.categories?.length) metaBits.push(it.categories.join(', '));
+        const stats = [ fmt.distance(it.distance_miles), fmt.price(it.price) ].filter(Boolean).join(' • ');
+        if(stats) metaBits.push(stats);
+        if(it.duration_hours) metaBits.push(fmt.duration(it.duration_hours));
+        meta.textContent = metaBits.join(' \u2022 ');
+
+        desc.textContent = it.description || '';
+
+        // External links row (website + providers)
+        const ex = it.externalLinks || {};
+        const websiteLink = it.website ? iconLink(it.website, 'Website', svgs.globe) : '';
+        icons.innerHTML = [websiteLink,
+          iconLink(ex.tripadvisor, 'Tripadvisor', svgs.ta),
+          iconLink(ex.getyourguide, 'GetYourGuide', svgs.gyg),
+          iconLink(ex.viator, 'Viator', svgs.viator),
+          iconLink(ex.airbnb, 'Airbnb', svgs.airbnb),
+          iconLink(ex.guruwalk, 'GuruWalk', svgs.guru)
+        ].filter(Boolean).join('');
+
+        // Chips row (amenities/tags)
+        (it.tags||[]).forEach(t => {
+          const span = document.createElement('span');
+          span.className = 'chip';
+          span.textContent = t;
+          chips.appendChild(span);
+        });
+
+        host.appendChild(node);
+      });
+    }
+
+    function render(){
+      const list = filterItems();
+      renderCards(list);
+    }
+
+    function setTab(tab){
+      state.tab = tab;
+      document.querySelectorAll('.tab').forEach(btn => {
+        const active = btn.dataset.tab === tab;
+        btn.classList.toggle('active', active);
+        btn.setAttribute('aria-selected', String(active));
+      });
+      render();
+    }
+
+    // Wire up tabs
+    document.querySelectorAll('.tab').forEach(btn => btn.addEventListener('click', () => setTab(btn.dataset.tab)));
+
+    document.getElementById('viewMap').addEventListener('click', () => {
+      alert('Map view coming soon — hook this button to your map page.');
+    });
+
+    // Load data
+    async function load(){
+      try{
+        const res = await fetch('locations.json', {cache:'no-store'});
+        const data = await res.json();
+        state.items = Array.isArray(data) ? data : (data.locations || []);
+        state.categories = new Set(uniqueCategories(state.items));
+        buildCategoryFilters(Array.from(state.categories));
+        render();
+      }catch(err){
+        console.error(err);
+        // Fallback demo items so the page previews without your JSON
+        state.items = [
+          {id:'dino-ridge', name:'Dinosaur Ridge', type:'Site', categories:['Natural History','Prehistoric'], distance_miles:3.5, price:'Free', description:'A famous fossil site showcasing dinosaur tracks and bones along a scenic trail.', image:'https://images.unsplash.com/photo-1526481280695-3c720685208b?q=80&w=1200&auto=format&fit=crop', tags:['ADA-Accessible','Dog-Friendly']},
+          {id:'capitol-hill-tour', name:'Capitol Hill Tour', type:'Tour', categories:['Architecture','Local History'], distance_miles:3.5, price:45, duration_hours:4, description:'A walk through the heart of Colorado\'s capital region.', image:'https://images.unsplash.com/photo-1469474968028-56623f02e42e?q=80&w=1200&auto=format&fit=crop', website:'#', externalLinks:{tripadvisor:'#', getyourguide:'#', viator:'#'}, tags:['ADA-Accessible','Dog-Friendly','Luggage Storage']},
+          {id:'five-points-walk', name:'Five Points Walk', type:'Tour', categories:['Architecture','Local History'], distance_miles:4, price:10, duration_hours:1, description:'A walk through the heart of Colorado\'s capital region.', image:'https://images.unsplash.com/photo-1563720223185-11003d516935?q=80&w=1200&auto=format&fit=crop', tags:['ADA-Accessible']},
+          {id:'molly-brown-house', name:'Molly Brown House', type:'Site', categories:['Local History','1800\'s'], distance_miles:3.5, price:17, description:'A preserved Victorian-era home museum.', image:'https://images.unsplash.com/photo-1523217582562-09d0def993a6?q=80&w=1200&auto=format&fit=crop', website:'#', tags:['ADA-Accessible','Dog-Friendly']}
+        ];
+        state.categories = new Set(uniqueCategories(state.items));
+        buildCategoryFilters(Array.from(state.categories));
+        render();
+      }
+    }
+
+    load();
+  </script>
+</body>
+</html>

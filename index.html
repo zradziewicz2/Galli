@@ -3,10 +3,13 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Traipse — Index (v3.0 tours + sites)</title>
+  <title>Traipse — Index (Sites + Tours)</title>
+
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
   <style>
     :root{
       --bg:#f7f8fa; --panel:#ffffff; --ink:#0f172a; --muted:#6b7280; --ring:#d1d5db; --brand:#00cfd4; --accent:#12a4ff;
@@ -18,7 +21,7 @@
     a{color:inherit}
     .wrap{max-width:1220px;margin:0 auto;padding:18px}
 
-    /* Header / Nav */
+    /* Header */
     header{display:grid;grid-template-columns:auto 1fr auto;gap:18px;align-items:center;margin-bottom:8px}
     .brand{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:.05em}
     .logo{width:34px;height:34px;border-radius:12px;background:var(--brand);transform:rotate(18deg)}
@@ -40,30 +43,20 @@
     .sidebar .panel{background:var(--panel);border:1px solid var(--ring);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px}
     .sidebar h3{margin:2px 0 10px;font-size:14px;text-transform:uppercase;letter-spacing:.1em}
 
-    /* View in map — white & same visual weight as Filters */
+    /* View in map — white, card-like, aligned with filters */
     .view-map{
       display:flex;align-items:center;gap:12px;
-      width:100%;
-      padding:14px;
-      background:#fff;
-      border:1px solid var(--ring);
-      border-radius:var(--radius);
-      box-shadow:var(--shadow);
-      color:inherit;font-weight:700;
-      margin-bottom:14px;
+      width:100%;padding:14px;background:#fff;border:1px solid var(--ring);
+      border-radius:var(--radius);box-shadow:var(--shadow);color:inherit;font-weight:700;margin-bottom:14px
     }
-    .view-map .icon{
-      width:32px;height:32px;border-radius:50%;
-      display:grid;place-items:center;
-      background:#eaf5ff;color:#0b3a68;font-size:18px;
-    }
+    .view-map .icon{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:#eaf5ff;color:#0b3a68;font-size:18px}
 
     .filters .group{margin-bottom:14px}
     .filters label{display:flex;align-items:center;gap:8px;margin:6px 0;font-size:14px}
     .filters input[type="checkbox"]{width:16px;height:16px}
     details summary{cursor:pointer;color:#0b3a68;font-weight:700}
 
-    /* Cards grid */
+    /* Grid */
     .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
     @media (max-width:1200px){.grid{grid-template-columns:repeat(3,1fr)}}
     @media (max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}}
@@ -81,9 +74,8 @@
     .meta{font-size:12px;color:#4b5563;margin-bottom:8px}
     .chipbar{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
     .chip{display:inline-flex;align-items:center;border:1px solid var(--ring);background:#f1f5f9;font-size:11px;border-radius:999px;padding:2px 6px}
-    .chip.dist{background:#eef2ff;border-color:#e5e7eb}
 
-    /* More Info collapsible */
+    /* More Info */
     .more{margin-top:6px}
     .more summary{font-size:12px;color:#0b3a68;cursor:pointer;display:inline-flex;align-items:center;gap:6px;user-select:none}
     .more summary::marker{content:''}
@@ -100,14 +92,14 @@
     #map{height:calc(100vh - 56px);width:100%}
     .btn{border:1px solid var(--ring);background:#fff;border-radius:999px;padding:8px 12px;font-weight:600;cursor:pointer}
 
-    /* Favorites overlay grid */
+    /* Favorites (My Places) grid */
     #favoritesBody{padding:16px}
     #favoritesGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
     @media (max-width:1200px){#favoritesGrid{grid-template-columns:repeat(3,1fr)}}
     @media (max-width:900px){#favoritesGrid{grid-template-columns:repeat(2,1fr)}}
     @media (max-width:600px){#favoritesGrid{grid-template-columns:1fr}}
 
-    /* Legend for map */
+    /* Map legend */
     .legend{position:absolute;bottom:16px;right:16px;background:#fff;border:1px solid var(--ring);border-radius:12px;box-shadow:var(--shadow);padding:8px 10px;font-size:12px}
     .legend-row{display:flex;align-items:center;gap:8px;margin:4px 0}
 
@@ -115,11 +107,11 @@
     .leaflet-popup-content { margin:0; }
     .leaflet-popup-content-wrapper { padding:0; border-radius:20px; overflow:hidden; border:1px solid var(--ring); box-shadow:var(--shadow); }
     .leaflet-popup-tip { display:none; }
-    .leaflet-popup .fav { pointer-events:auto; }
+    .leaflet-popup .fav { pointer-events:auto; } /* clickable heart in popup */
     .popup-card .img{ height:132px; }
   </style>
 
-  <!-- Leaflet CSS/JS for the map -->
+  <!-- Leaflet -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 </head>
@@ -166,7 +158,7 @@
     </div>
   </div>
 
-  <!-- Fullscreen Map Panel -->
+  <!-- Map overlay -->
   <section id="mapPanel" aria-hidden="true" role="dialog" aria-label="Map view of sites">
     <div class="overlayHeader">
       <strong>Traipse Map</strong>
@@ -179,7 +171,7 @@
     <div class="legend" id="mapLegend" aria-hidden="true"></div>
   </section>
 
-  <!-- Fullscreen Favorites Panel -->
+  <!-- Favorites overlay -->
   <section id="favoritesPanel" aria-hidden="true" role="dialog" aria-label="My Places">
     <div class="overlayHeader">
       <strong>My Places</strong>
@@ -193,6 +185,7 @@
     </div>
   </section>
 
+  <!-- Card template -->
   <template id="cardTemplate">
     <article class="card">
       <span class="badge"></span>
@@ -214,7 +207,7 @@
   </template>
 
   <script>
-    // Slug -> Label maps
+    /* --------------------- Label maps --------------------- */
     const CATEGORY_LABELS = {
       generalhistory: 'General History', localhistory: 'Local History', indigenous: 'Indigenous History',
       militaryhistory: 'Military History', civilrights: 'Civil Rights', industrialhistory: 'Industrial History',
@@ -222,18 +215,25 @@
       naturalhistory: 'Natural History', technologyandtransportation: 'Science & Technology', historichomes: 'Historic Homes',
       foodanddrink: 'Food & Drink', other: 'Other'
     };
-
     const PERIOD_LABELS = {
       prehistoric:'Prehistoric', colonial:'18th Century', eighteenthcentury:'18th Century', nineteenthcentury:'19th Century',
       twentiethcentury:'20th Century', industrialrevolution:'Industrial Era', modernhistory:'Modern History', indigenous:'Indigenous', other:'Other'
     };
-
     const SITETYPE_LABELS = {
       museums:'Museum', museum:'Museum', landmark:'Landmark', historichome:'Historical Home', historichomes:'Historical Home',
       archaeological:'Archaeological', archeological:'Archaeological', burial:'Burial', religious:'Religious', political:'Political',
-      industrial:'Industrial', trainstation:'Train Station', hotel:'Hotel', brewery:'Brewery', park:'Park',
-      culturaldistrict:'Cultural District', government:'Government', mansion:'Mansion', historicbuilding:'Historic Building',
-      garden:'Garden', other:'Outdoor' // fallback
+      industrial:'Industrial', other:'Outdoor'
+    };
+
+    /* ------------------------ State ----------------------- */
+    const state = {
+      raw: { sites: [], tours: [] },
+      items: [],
+      tab: 'all',
+      favorites: new Set(JSON.parse(localStorage.getItem('traipse:favorites')||'[]')),
+      city: '',
+      userLoc: null, // {lat,lng}
+      filters: { siteTypes: new Set(), periods: new Set(), tags: new Set() }
     };
 
     const MORE_FILTERS = {
@@ -244,26 +244,13 @@
       publicaccess: 'Public Access'
     };
 
-    const state = {
-      raw: [],
-      items: [], // normalized (Sites + Tours)
-      tab: 'all',
-      favorites: new Set(JSON.parse(localStorage.getItem('traipse:favorites')||'[]')),
-      city: '',
-      userLoc: null, // {lat,lng}
-      filters: {
-        siteTypes: new Set(),
-        periods: new Set(),
-        tags: new Set(), // more filters
-      }
-    };
-
-    // ---------- Normalizers ----------
+    /* -------------------- Normalizers --------------------- */
     function normalizeSite(raw){
       const periods = (raw.timeperiod||[]).map(p => PERIOD_LABELS[p]||p);
       const siteTypeSlug = (raw.sitetype||'').toLowerCase();
       const siteType = SITETYPE_LABELS[siteTypeSlug] || (raw.type==='outdoor' ? 'Outdoor' : (SITETYPE_LABELS.other));
       return {
+        kind:'site',
         id: raw.id || (raw.name||'').toLowerCase().replace(/[^a-z0-9]+/g,'-'),
         name: raw.name,
         type: 'Site',
@@ -276,183 +263,88 @@
         costText: raw.dollaramount && !['0','$0','-'].includes(String(raw.dollaramount).trim()) ? String(raw.dollaramount) : (raw.cost==='free'?'Free': (raw.cost==='paid'?'Paid':'')),
         durationText: raw.estimatedtime || '',
         city: (raw.city||'').toLowerCase(),
-        raw,
-        _distMiles: undefined
+        lat: typeof raw.lat==='number' ? raw.lat : undefined,
+        lng: typeof raw.lng==='number' ? raw.lng : undefined,
+        raw
       };
     }
 
-    function firstTruthy(obj, keys){
-      for(const k of keys){ if(obj?.[k]) return obj[k]; }
-      return '';
+    function firstLink(links){
+      if(!links) return '';
+      const keys = ['getyourguide','viator','airbnb','guruwalk','tripadvisor'];
+      for(const k of keys){ if(links[k]) return links[k]; }
+      const first = Object.values(links)[0];
+      return typeof first === 'string' ? first : '';
+    }
+
+    function centroid(points){
+      if(!points || !points.length) return null;
+      let x=0,y=0; points.forEach(p=>{x+=p.lat; y+=p.lng;});
+      return {lat:x/points.length, lng:y/points.length};
     }
 
     function normalizeTour(raw){
-      // choose a representative point: first route coordinate, else first site
-      const firstPt = (Array.isArray(raw.route) && raw.route[0]) || (Array.isArray(raw.sites) && raw.sites[0]) || null;
-      const repLat = typeof firstPt?.lat==='number' ? firstPt.lat : undefined;
-      const repLng = typeof firstPt?.lng==='number' ? firstPt.lng : undefined;
-
-      // derive city from first site if available
-      const city = (Array.isArray(raw.sites) && raw.sites[0]?.city || '').toLowerCase();
-
-      // pick a primary external link to show on card
-      const website = firstTruthy(raw.external_links || {}, ['getyourguide','viator','tripadvisor','airbnb','guruwalk']) || '';
-
-      // collect site types in tour for scoring
-      const siteTypeSet = new Set();
-      (raw.sites||[]).forEach(s=>{
-        const lbl = SITETYPE_LABELS[(s.sitetype||'').toLowerCase()] || null;
-        if(lbl) siteTypeSet.add(lbl);
-      });
-
-      const descBits = [];
-      if(raw.number_of_sites) descBits.push(`${raw.number_of_sites} stops`);
-      if(raw.duration) descBits.push(raw.duration);
-      if(raw.cost_range && raw.cost_range.length) descBits.push((raw.cost_range||[]).join(' • '));
-      if(!descBits.length && raw.Cost) descBits.push(raw.Cost);
-
+      // city from first site if present
+      const firstSite = Array.isArray(raw.sites) && raw.sites.length ? raw.sites[0] : null;
+      const cat = CATEGORY_LABELS[(raw.thematiccategory||'').toLowerCase()] || 'Other';
+      const center = centroid(raw.sites || raw.route) || (firstSite ? {lat:firstSite.lat,lng:firstSite.lng} : null);
       return {
-        id: 'tour-' + (raw.tour_id || (raw.tour_name||'').toLowerCase().replace(/[^a-z0-9]+/g,'-')),
+        kind:'tour',
+        id: raw.tour_id || (raw.tour_name||'').toLowerCase().replace(/[^a-z0-9]+/g,'-'),
         name: raw.tour_name || 'Tour',
         type: 'Tour',
         image: raw.image,
-        website,
-        categories: ['Tour'].concat(raw.thematiccategory ? [CATEGORY_LABELS[raw.thematiccategory] || raw.thematiccategory] : []),
-        siteType: 'Tour', // for display; scoring uses siteTypeSet below
-        siteTypesInTour: Array.from(siteTypeSet), // for matching selected site-type filters
-        periods: [], // tours.json doesn’t include periods
-        description: descBits.join(' • '),
-        costText: raw.Cost || (raw.cost_range && raw.cost_range.join(' - ')) || '',
+        website: firstLink(raw.external_links),
+        categories: [cat],
+        siteType: 'Tour',
+        periods: [], // tours typically not tied to historical period; filters still apply if user selects "Tour" type
+        description: raw.duration ? `${raw.duration} • ${raw.number_of_sites||''} stops${raw.special_topic? ' • '+(raw.special_topic||[]).join(', '):''}` : (raw.description||''),
+        costText: raw.Cost || (Array.isArray(raw.cost_range)? raw.cost_range.join(' / ') : ''),
         durationText: raw.duration || '',
-        city,
-        raw: {
-          ...raw,
-          lat: repLat,
-          lng: repLng
-        },
-        _distMiles: undefined
+        city: (firstSite?.city||'').toLowerCase(),
+        lat: center?.lat, lng: center?.lng,
+        route: Array.isArray(raw.route)? raw.route : [],
+        color: raw.color || '#8b5cf6',
+        sites: Array.isArray(raw.sites)? raw.sites : [],
+        raw
       };
     }
 
-    // ---------- UI helpers ----------
+    /* -------------------- Utilities ---------------------- */
     const resolveImage = (p)=>{
       if(!p) return '';
       if(/^https?:\/\//i.test(p)) return p;
       return p.startsWith('./') || p.startsWith('images/') ? p : `images/${p}`;
     };
 
+    // Only show chips that match active filters
     function chipsFor(it){
       const chips=[];
-      // filters apply if they apply:
-      // Site Type filter — Sites: direct; Tours: match if any stop has selected type
-      if(state.filters.siteTypes.size){
-        if(it.type==='Site'){
-          if(state.filters.siteTypes.has(it.siteType)) chips.push(it.siteType);
-        }else if(it.type==='Tour'){
-          it.siteTypesInTour?.forEach(t=>{ if(state.filters.siteTypes.has(t)) chips.push(t); });
-        }
-      }
-      // Periods — only Sites (tours lack periods)
-      if(state.filters.periods.size && it.type==='Site'){
-        (it.periods||[]).forEach(p=>{ if(state.filters.periods.has(p)) chips.push(p); });
-      }
-      // Tags — only where present on Sites
-      if(state.filters.tags.size && it.type==='Site'){
+      if(state.filters.siteTypes.size && state.filters.siteTypes.has(it.siteType)) chips.push(it.siteType);
+      if(state.filters.periods.size){ (it.periods||[]).forEach(p=>{ if(state.filters.periods.has(p)) chips.push(p); }); }
+      if(state.filters.tags.size){
         Object.entries(MORE_FILTERS).forEach(([k,label])=>{
-          if(state.filters.tags.has(k) && it.raw[k]) chips.push(label);
+          if(state.filters.tags.has(k) && it.raw?.[k]) chips.push(label);
         });
       }
       return chips;
     }
 
-    // Distance helpers
-    const toRad = deg => deg*Math.PI/180;
-    function haversineMiles(lat1, lon1, lat2, lon2){
-      const R = 3958.7613; // miles
-      const dLat = toRad(lat2-lat1), dLon = toRad(lon2-lon1);
-      const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLon/2)**2;
-      return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)));
-    }
-    function nearestDistanceForTour(tour, origin){
-      let best = Infinity;
-      const pts = [];
-      if(Array.isArray(tour.raw?.route)) pts.push(...tour.raw.route);
-      if(Array.isArray(tour.raw?.sites)) pts.push(...tour.raw.sites);
-      pts.forEach(p=>{
-        if(typeof p.lat==='number' && typeof p.lng==='number'){
-          const d = haversineMiles(origin.lat, origin.lng, p.lat, p.lng);
-          if(d<best) best = d;
-        }
-      });
-      return best;
-    }
-    function updateDistances(list){
-      if(!state.userLoc) return;
-      list.forEach(it=>{
-        if(it.type==='Tour'){
-          const d = nearestDistanceForTour(it, state.userLoc);
-          it._distMiles = Number.isFinite(d)? d : undefined;
-        }else{
-          const {lat,lng} = it.raw||{};
-          if(typeof lat==='number' && typeof lng==='number'){
-            it._distMiles = haversineMiles(state.userLoc.lat, state.userLoc.lng, lat, lng);
-          }else{
-            it._distMiles = undefined;
-          }
-        }
-      });
-    }
-    const distanceValue = it => Number.isFinite(it._distMiles) ? it._distMiles : Infinity;
-    const milesText = d => (d>=10 ? d.toFixed(0) : d>=1 ? d.toFixed(1) : d.toFixed(2));
-
-    // Hard gates (keep city + tab binary)
-    function filterHardGates(it){
-      if(state.tab==='site' && it.type!=='Site') return false;
-      if(state.tab==='tour' && it.type!=='Tour') return false;
-      if(state.city && it.city && !it.city.includes(state.city)) return false;
-      return true;
-    }
-
-    // Soft score from selected filters (applies to Sites; Tours score if any stop matches selected site types)
-    function matchScore(it){
-      let score = 0;
-      // Site Types
-      if(state.filters.siteTypes.size){
-        if(it.type==='Site'){
-          if(state.filters.siteTypes.has(it.siteType)) score += 1;
-        }else if(it.type==='Tour'){
-          // add 1 per selected type that appears anywhere in the tour
-          state.filters.siteTypes.forEach(sel=>{
-            if(it.siteTypesInTour?.includes(sel)) score += 1;
-          });
-        }
-      }
-      // Periods — Sites only
-      if(state.filters.periods.size && it.type==='Site'){
-        score += (it.periods||[]).reduce((n,p)=> n + (state.filters.periods.has(p)?1:0), 0);
-      }
-      // Tags — Sites only
-      if(state.filters.tags.size && it.type==='Site'){
-        state.filters.tags.forEach(k=>{ if(it.raw[k]) score += 1; });
-      }
-      return score;
-    }
-
     function cardHTML(it, asPopup=false){
+      const chips = chipsFor(it);
+      const chipHtml = chips.length
+        ? `<div class="chipbar">${chips.slice(0,5).map(c=>`<span class="chip">${c}</span>`).join('')}</div>`
+        : '';
       const metaBits=[];
-      if(it.categories?.length){ metaBits.push(it.categories.join(', ')); }
-      if(it.periods?.length){ metaBits.push(it.periods[0]); }
+      if(it.categories?.length) metaBits.push(it.categories.join(', '));
+      if(it.periods?.length) metaBits.push(it.periods[0]);
+      if(typeof it.distanceMiles === 'number') metaBits.push(`${it.distanceMiles.toFixed(1)} mi away`);
       const img = resolveImage(it.image) || 'images/default.jpg';
-
-      // Distance + selected-filter chips
-      const chipParts = [];
-      if (Number.isFinite(it._distMiles)) chipParts.push(`<span class="chip dist">${milesText(it._distMiles)} mi away</span>`);
-      const filterChips = chipsFor(it);
-      filterChips.slice(0,5).forEach(c => chipParts.push(`<span class="chip">${c}</span>`));
-      const chipHtml = chipParts.length ? `<div class="chipbar">${chipParts.join('')}</div>` : '';
-
-      // choose a link
       const website = it.website ? `<a href="${it.website}" target="_blank" rel="noopener">🌐 <span>Website</span></a>` : '';
+
+      const extraTour = it.type==='Tour'
+        ? `<div class="icons" style="margin-top:6px">${website} ${it.route?.length? `<a href="#" data-zoom-tour="${it.id}">⤢ Zoom to route</a>`:''}</div>`
+        : `<div class="icons">${website}</div>`;
 
       return `
         <article class="card ${asPopup?'popup-card':''}" id="card-${it.id}">
@@ -468,7 +360,7 @@
             <details class="more">
               <summary><span>More Info</span></summary>
               <div class="more-body">
-                <div class="icons">${website}</div>
+                ${extraTour}
                 <p class="desc">${it.description||''}</p>
               </div>
             </details>
@@ -476,17 +368,82 @@
         </article>`;
     }
 
-    /* Toggle favorite globally and sync all hearts */
+    function addCheckbox(wrap, bucket, value, label){
+      const id = `${bucket}-${value.replace(/[^a-z0-9]+/gi,'-')}`;
+      const el = document.createElement('label');
+      el.innerHTML = `<input type="checkbox" id="${id}"> <span>${label}</span>`;
+      const input = el.querySelector('input');
+      input.addEventListener('change', ()=>{
+        const set = state.filters[bucket];
+        if(input.checked) set.add(value); else set.delete(value);
+        render();
+      });
+      wrap.appendChild(el);
+    }
+
+    function passesFiltersBasic(item){
+      if(state.tab==='site' && item.type!=='Site') return false;
+      if(state.tab==='tour' && item.type!=='Tour') return false;
+      if(state.city && item.city && !item.city.includes(state.city)) return false;
+      if(state.filters.siteTypes.size && !state.filters.siteTypes.has(item.siteType)) return false;
+      if(state.filters.periods.size){
+        const has = item.periods?.some(p => state.filters.periods.has(p));
+        if(!has) return false;
+      }
+      if(state.filters.tags.size){ for(const key of state.filters.tags){ if(!item.raw?.[key]) return false; } }
+      return true;
+    }
+
+    function matchScore(item){
+      let score = 0;
+      if(state.filters.siteTypes.size && state.filters.siteTypes.has(item.siteType)) score++;
+      if(state.filters.periods.size){
+        (item.periods||[]).forEach(p=>{ if(state.filters.periods.has(p)) score++; });
+      }
+      if(state.filters.tags.size){
+        Object.keys(MORE_FILTERS).forEach(k=>{ if(state.filters.tags.has(k) && item.raw?.[k]) score++; });
+      }
+      return score;
+    }
+
+    function computeDistanceMiles(a,b){
+      // Haversine
+      const R=3958.8, toRad=d=>d*Math.PI/180;
+      const dLat=toRad(b.lat-a.lat), dLng=toRad(b.lng-a.lng);
+      const s=Math.sin(dLat/2)**2 + Math.cos(toRad(a.lat))*Math.cos(toRad(b.lat))*Math.sin(dLng/2)**2;
+      return R*2*Math.asin(Math.sqrt(s));
+    }
+
+    function enrichDistances(list){
+      if(!state.userLoc) { list.forEach(it=>{ delete it.distanceMiles; }); return; }
+      list.forEach(it=>{
+        if(typeof it.lat==='number' && typeof it.lng==='number'){
+          it.distanceMiles = computeDistanceMiles(state.userLoc, {lat:it.lat,lng:it.lng});
+        }else{
+          delete it.distanceMiles;
+        }
+      });
+    }
+
+    function sortItems(list){
+      list.sort((a,b)=>{
+        const sa = matchScore(a), sb = matchScore(b);
+        if(sb!==sa) return sb-sa;
+        const da = (typeof a.distanceMiles === 'number') ? a.distanceMiles : Infinity;
+        const db = (typeof b.distanceMiles === 'number') ? b.distanceMiles : Infinity;
+        if(da!==db) return da-db;
+        return a.name.localeCompare(b.name);
+      });
+    }
+
+    /* ------------------- Favorites ------------------- */
     function toggleFavorite(id){
       if(state.favorites.has(id)) state.favorites.delete(id); else state.favorites.add(id);
       localStorage.setItem('traipse:favorites', JSON.stringify(Array.from(state.favorites)));
-      document.querySelectorAll(`.fav[data-id="${id}"]`).forEach(b=>{
-        b.classList.toggle('active', state.favorites.has(id));
-      });
+      document.querySelectorAll(`.fav[data-id="${id}"]`).forEach(b=>b.classList.toggle('active', state.favorites.has(id)));
       if(favoritesOpen) renderFavorites();
     }
 
-    /* Build one card node from template (for any grid) */
     function buildCardNode(it){
       const tpl = document.getElementById('cardTemplate');
       const node = tpl.content.cloneNode(true);
@@ -494,7 +451,6 @@
       root.id = 'card-' + it.id;
 
       node.querySelector('.badge').textContent = it.type || 'Site';
-
       const fav = node.querySelector('.fav');
       fav.dataset.id = it.id;
       if(state.favorites.has(it.id)) fav.classList.add('active');
@@ -507,32 +463,30 @@
       img.onerror = ()=>{ img.src = 'images/default.jpg'; };
 
       node.querySelector('.title').textContent = it.name;
-      const metaBits = [];
-      if(it.categories?.length){ metaBits.push(it.categories.join(', ')); }
-      if(it.periods?.length){ metaBits.push(it.periods[0]); }
+
+      const metaBits=[];
+      if(it.categories?.length) metaBits.push(it.categories.join(', '));
+      if(it.periods?.length) metaBits.push(it.periods[0]);
+      if(typeof it.distanceMiles === 'number') metaBits.push(`${it.distanceMiles.toFixed(1)} mi away`);
       node.querySelector('.meta').textContent = metaBits.join(' • ');
 
       const chipbar = node.querySelector('.chipbar');
-      chipbar.innerHTML = '';
-      // distance chip first if available
-      if (Number.isFinite(it._distMiles)) {
-        const d = document.createElement('span');
-        d.className = 'chip dist';
-        d.textContent = `${milesText(it._distMiles)} mi away`;
-        chipbar.appendChild(d);
-      }
-      // then selected filter chips
       const chips = chipsFor(it);
       if(chips.length){
-        chips.slice(0,5).forEach(c=>{
-          const s=document.createElement('span'); s.className='chip'; s.textContent=c; chipbar.appendChild(s);
-        });
-      }else if(!Number.isFinite(it._distMiles)){
+        chipbar.style.display='flex';
+        chips.slice(0,5).forEach(c=>{ const s=document.createElement('span'); s.className='chip'; s.textContent=c; chipbar.appendChild(s); });
+      }else{
         chipbar.style.display='none';
       }
 
       const icons = node.querySelector('.icons');
-      if(it.website){ icons.innerHTML = `<a href="${it.website}" target="_blank" rel="noopener">🌐 <span>Website</span></a>`; }
+      const website = it.website ? `<a href="${it.website}" target="_blank" rel="noopener">🌐 <span>Website</span></a>` : '';
+      if(it.type==='Tour' && it.route?.length){
+        const zoom = `<a href="#" data-zoom-tour="${it.id}">⤢ Zoom to route</a>`;
+        icons.innerHTML = `${website} ${zoom}`;
+      }else{
+        icons.innerHTML = website;
+      }
       node.querySelector('.desc').textContent = it.description||'';
 
       return node;
@@ -541,38 +495,25 @@
     function renderCards(list){
       const host = document.getElementById('cards');
       host.innerHTML = '';
-      if(!list.length){ host.innerHTML = '<p style="color:#6b7280;padding:8px">No results.</p>'; return; }
+      if(!list.length){ host.innerHTML = '<p style="color:#6b7280;padding:8px">No results match your filters.</p>'; return; }
       list.forEach(it => host.appendChild(buildCardNode(it)));
-    }
 
-    /* Favorites overlay rendering */
-    let favoritesOpen = false;
-    function renderFavorites(){
-      const host = document.getElementById('favoritesGrid');
-      const favItems = state.items.filter(it => state.favorites.has(it.id));
-      host.innerHTML = '';
-      if(!favItems.length){
-        host.innerHTML = '<p style="color:#6b7280">No saved places yet. Tap the heart on any card or map popup to save it here.</p>';
-        return;
-      }
-      updateDistances(favItems);
-      favItems.sort((a,b)=> distanceValue(a)-distanceValue(b) || a.name.localeCompare(b.name));
-      favItems.forEach(it=> host.appendChild(buildCardNode(it)));
-    }
-
-    function render(){
-      const list = state.items.filter(filterHardGates);
-      updateDistances(list);
-
-      const anyFilters = state.filters.siteTypes.size || state.filters.periods.size || state.filters.tags.size;
-      list.sort((a,b)=>{
-        if(anyFilters){
-          const sa = matchScore(a), sb = matchScore(b);
-          if(sb!==sa) return sb-sa;         // more matches first
-        }
-        return (distanceValue(a)-distanceValue(b)) || a.name.localeCompare(b.name);
+      // Wire up "Zoom to route" links (cards)
+      host.querySelectorAll('[data-zoom-tour]').forEach(a=>{
+        a.addEventListener('click', (e)=>{
+          e.preventDefault();
+          const id = a.getAttribute('data-zoom-tour');
+          openMap(); // ensure map exists
+          setTimeout(()=> zoomTourRoute(id), 50);
+        });
       });
+    }
 
+    /* ------------------- Render cycle ------------------- */
+    function render(){
+      let list = state.items.filter(passesFiltersBasic);
+      enrichDistances(list);
+      sortItems(list);
       renderCards(list);
       if(mapOpen) renderMapPoints(list);
     }
@@ -585,13 +526,11 @@
       render();
     }));
 
-    // City input
+    // City filter
     document.getElementById('cityInput').addEventListener('input', e=>{ state.city = (e.target.value||'').trim().toLowerCase(); render(); });
 
-    // View map
-    document.getElementById('viewMap').addEventListener('click', openMap);
-
     // My Places open/close/clear
+    let favoritesOpen = false;
     document.getElementById('myPlacesLink').addEventListener('click', (e)=>{ e.preventDefault(); openFavorites(); });
     document.getElementById('closeFavorites').addEventListener('click', closeFavorites);
     document.getElementById('clearFavorites').addEventListener('click', ()=>{
@@ -600,7 +539,6 @@
       renderFavorites();
       document.querySelectorAll('.fav').forEach(b=>b.classList.remove('active'));
     });
-
     function openFavorites(){
       renderFavorites();
       document.getElementById('favoritesPanel').style.display='block';
@@ -612,85 +550,94 @@
       document.getElementById('favoritesPanel').setAttribute('aria-hidden','true');
       favoritesOpen = false;
     }
-
-    async function load(){
-      try{
-        // load sites
-        const resSites = await fetch('locations.json?v='+Date.now());
-        const dataSites = await resSites.json();
-        const sitesRaw = Array.isArray(dataSites) ? dataSites : (dataSites.locations||[]);
-        const sites = sitesRaw.map(normalizeSite);
-
-        // load tours
-        const resTours = await fetch('tours.json?v='+Date.now());
-        const dataTours = await resTours.json();
-        const toursRaw = Array.isArray(dataTours) ? dataTours : (dataTours.tours||[]);
-        const tours = toursRaw.map(normalizeTour);
-
-        state.raw = {sites: sitesRaw, tours: toursRaw};
-        state.items = sites.concat(tours);
-
-        initFilters();
-        requestUserLocation();
-        render();
-      }catch(e){
-        document.getElementById('cards').innerHTML = '<p style="color:#6b7280">Failed to load data files.</p>';
-        console.error(e);
+    function renderFavorites(){
+      const host = document.getElementById('favoritesGrid');
+      const favItems = state.items.filter(it => state.favorites.has(it.id));
+      host.innerHTML = '';
+      if(!favItems.length){
+        host.innerHTML = '<p style="color:#6b7280">No saved places yet. Tap the heart on any card or map popup to save it here.</p>';
+        return;
       }
+      enrichDistances(favItems);
+      sortItems(favItems);
+      favItems.forEach(it=> host.appendChild(buildCardNode(it)));
+
+      // wire tour zooms inside favorites
+      host.querySelectorAll('[data-zoom-tour]').forEach(a=>{
+        a.addEventListener('click', (e)=>{
+          e.preventDefault();
+          const id = a.getAttribute('data-zoom-tour');
+          openMap(); setTimeout(()=> zoomTourRoute(id), 50);
+        });
+      });
     }
 
+    /* ----------------- Filters init ----------------- */
     function initFilters(){
       initFilters = ()=>{}; // run once
-      // Site types — only from Sites (don’t include "Tour" as a filter option)
-      const siteTypeSet = new Set();
-      state.items.forEach(i=>{ if(i.type==='Site') siteTypeSet.add(i.siteType); });
+      const siteTypes = Array.from(new Set(state.items.map(i=>i.siteType).concat(['Tour']))).sort();
       const siteWrap = document.getElementById('siteTypeFilters');
-      Array.from(siteTypeSet).sort().forEach(label=>addCheckbox(siteWrap,'siteTypes',label,label));
-
-      // Periods — only from Sites
-      const periodSet = new Set();
-      state.items.forEach(i=>{ if(i.type==='Site'){ (i.periods||[]).forEach(p=>periodSet.add(p)); }});
+      siteTypes.forEach(label=>addCheckbox(siteWrap,'siteTypes',label,label));
+      const periodSet = new Set(); state.items.forEach(i=>i.periods?.forEach(p=>periodSet.add(p)));
       const periodWrap = document.getElementById('periodFilters');
       Array.from(periodSet).sort().forEach(p=>addCheckbox(periodWrap,'periods',p,p));
-
-      // More filters (ADA, etc.) — Sites only, but UI stays as-is
       const moreWrap = document.getElementById('moreFilters');
       Object.entries(MORE_FILTERS).forEach(([k,v])=>addCheckbox(moreWrap,'tags',k,v));
     }
 
+    /* ----------------- Data loading ---------------- */
+    async function fetchJsonSafe(path, fallback = []) {
+      try {
+        const res = await fetch(path + '?v=' + Date.now());
+        if (!res.ok) throw new Error(res.status + ' ' + res.statusText);
+        return await res.json();
+      } catch (e) {
+        console.warn('Failed to fetch', path, e);
+        return fallback;
+      }
+    }
+
+    async function load(){
+      const sitesRawJson = await fetchJsonSafe('locations.json', []);
+      const toursRawJson = await fetchJsonSafe('tours.json', []);
+
+      const sitesRaw = Array.isArray(sitesRawJson) ? sitesRawJson : (sitesRawJson.locations || []);
+      const toursRaw = Array.isArray(toursRawJson) ? toursRawJson : (toursRawJson.tours || []);
+
+      const sites = sitesRaw.map(normalizeSite);
+      const tours = toursRaw.map(normalizeTour);
+
+      state.raw = { sites: sitesRaw, tours: toursRaw };
+      state.items = sites.concat(tours);
+
+      if (!state.items.length) {
+        document.getElementById('cards').innerHTML =
+          '<p style="color:#6b7280">No data found. Ensure <code>locations.json</code> and/or <code>tours.json</code> are alongside <code>index.html</code>.</p>';
+        return;
+      }
+      initFilters();
+      requestUserLocation();
+      render();
+    }
+
+    /* -------------- Geolocation (distance) --------------- */
     function requestUserLocation(){
       if(!navigator.geolocation) return;
       navigator.geolocation.getCurrentPosition(
-        pos=>{ state.userLoc={lat:pos.coords.latitude,lng:pos.coords.longitude}; render(); },
-        err=>{ /* denied */ },
-        {enableHighAccuracy:true,timeout:10000,maximumAge:30000}
+        pos => { state.userLoc = {lat:pos.coords.latitude, lng:pos.coords.longitude}; render(); },
+        () => { /* silently ignore */ },
+        { enableHighAccuracy:true, timeout:7000, maximumAge:300000 }
       );
     }
 
-    // === Map logic — colored circle markers with card popups and tour polylines ===
+    /* -------------------- Map logic ---------------------- */
     let mapOpen = false;
-    let map, markerLayer, routeLayer;
+    let map, markerLayer, polyLayer;
 
     const TYPE_COLORS = {
-      'Museum':'#2563eb',
-      'Landmark':'#f97316',
-      'Historical Home':'#059669',
-      'Archaeological':'#7c3aed',
-      'Religious':'#dc2626',
-      'Industrial':'#6b7280',
-      'Outdoor':'#16a34a',
-      'Burial':'#9ca3af',
-      'Political':'#2563eb',
-      'Train Station':'#1d4ed8',
-      'Hotel':'#ef4444',
-      'Brewery':'#22c55e',
-      'Park':'#10b981',
-      'Cultural District':'#a855f7',
-      'Government':'#0ea5e9',
-      'Mansion':'#f59e0b',
-      'Historic Building':'#d946ef',
-      'Garden':'#84cc16',
-      'Tour':'#14b8a6'
+      'Museum':'#2563eb','Landmark':'#f97316','Historical Home':'#059669','Archaeological':'#7c3aed',
+      'Religious':'#dc2626','Industrial':'#6b7280','Outdoor':'#16a34a','Burial':'#9ca3af','Political':'#2563eb',
+      'Tour':'#8b5cf6'
     };
 
     function ensureMap(){
@@ -700,17 +647,24 @@
         attribution:'&copy; OpenStreetMap contributors'
       }).addTo(map);
       markerLayer = L.layerGroup().addTo(map);
-      routeLayer = L.layerGroup().addTo(map);
+      polyLayer = L.layerGroup().addTo(map);
       buildLegend();
 
-      // When a popup opens, wire up its heart to toggle favorites
       map.on('popupopen', (e)=>{
-        const btn = e.popup?.getElement()?.querySelector('.fav[data-id]');
-        if(btn){
-          btn.addEventListener('click', (ev)=>{
+        const root = e.popup?.getElement();
+        if(!root) return;
+        const favBtn = root.querySelector('.fav[data-id]');
+        if(favBtn){
+          favBtn.addEventListener('click', (ev)=>{
             ev.stopPropagation();
-            const id = btn.getAttribute('data-id');
-            toggleFavorite(id);
+            toggleFavorite(favBtn.getAttribute('data-id'));
+          });
+        }
+        const zoom = root.querySelector('[data-zoom-tour]');
+        if(zoom){
+          zoom.addEventListener('click', (ev)=>{
+            ev.preventDefault();
+            zoomTourRoute(zoom.getAttribute('data-zoom-tour'));
           });
         }
       });
@@ -720,18 +674,11 @@
       const legend = document.getElementById('mapLegend');
       legend.innerHTML = '';
       Object.entries(TYPE_COLORS).forEach(([label,color])=>{
-        if(label==='Tour') return; // draw tour as line below
         const row = document.createElement('div');
         row.className='legend-row';
         row.innerHTML = `<span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:${color};border:2px solid #fff;box-shadow:0 0 0 2px rgba(0,0,0,.12)"></span> <span>${label}</span>`;
         legend.appendChild(row);
       });
-      // Tour route swatch
-      const row = document.createElement('div');
-      row.className='legend-row';
-      row.innerHTML = `<span style="display:inline-block;width:20px;height:0;border-top:3px solid ${TYPE_COLORS['Tour']};"></span> <span>Tour Route</span>`;
-      legend.appendChild(row);
-
       legend.setAttribute('aria-hidden','false');
     }
 
@@ -739,61 +686,48 @@
       return L.divIcon({
         className:'circle-icon',
         html:`<div style="width:18px;height:18px;border-radius:50%;background:${color};border:2px solid #fff;box-shadow:0 0 0 2px rgba(0,0,0,.12)"></div>`,
-        iconSize:[22,22],
-        iconAnchor:[11,11]
+        iconSize:[22,22], iconAnchor:[11,11]
       });
-    }
-    function iconFor(type){
-      const color = TYPE_COLORS[type] || '#3b82f6';
-      return circleIcon(color);
     }
 
     function renderMapPoints(list){
       if(!map) return;
-      markerLayer.clearLayers();
-      routeLayer.clearLayers();
-
+      markerLayer.clearLayers(); polyLayer.clearLayers();
       const bounds = [];
-
-      list.forEach(it => {
+      list.forEach(it=>{
         if(it.type==='Tour'){
-          // draw route line if any
-          const route = Array.isArray(it.raw?.route) ? it.raw.route : [];
-          if(route.length>=2){
-            const color = it.raw.color || TYPE_COLORS['Tour'];
-            const latlngs = route.map(p=>[p.lat,p.lng]);
-            L.polyline(latlngs, {color, weight:3, opacity:0.9}).addTo(routeLayer);
-            latlngs.forEach(ll=>bounds.push(ll));
+          if(it.route?.length){
+            const color = it.color || TYPE_COLORS['Tour'];
+            const latlngs = it.route.map(p=>[p.lat,p.lng]);
+            L.polyline(latlngs,{color,weight:4,opacity:.9}).addTo(polyLayer);
+            latlngs.forEach(p=>bounds.push(p));
           }
-          // draw site markers for the tour
-          (it.raw?.sites||[]).forEach(s=>{
-            if(typeof s.lat==='number' && typeof s.lng==='number'){
-              const tlabel = SITETYPE_LABELS[(s.sitetype||'').toLowerCase()] || 'Tour';
-              const m = L.marker([s.lat,s.lng], {icon: iconFor(tlabel)}).addTo(markerLayer);
-              m.bindPopup(cardHTML(it, true)); // tour card popup
-              bounds.push([s.lat,s.lng]);
-            }
-          });
-          // fallback: representative marker if nothing else
-          if(!route.length && (!it.raw?.sites?.length) && typeof it.raw.lat==='number' && typeof it.raw.lng==='number'){
-            const m = L.marker([it.raw.lat,it.raw.lng], {icon: iconFor('Tour')}).addTo(markerLayer);
-            m.bindPopup(cardHTML(it, true));
-            bounds.push([it.raw.lat,it.raw.lng]);
+          if(typeof it.lat==='number' && typeof it.lng==='number'){
+            const m = L.marker([it.lat,it.lng], {icon: circleIcon(TYPE_COLORS['Tour'])}).addTo(markerLayer);
+            m.bindPopup(cardHTML(it,true));
+            bounds.push([it.lat,it.lng]);
           }
         }else{
-          // Site
-          const {lat,lng} = it.raw || {};
-          if(typeof lat==='number' && typeof lng==='number'){
-            const m = L.marker([lat,lng], {icon: iconFor(it.siteType)}).addTo(markerLayer);
-            m.bindPopup(cardHTML(it, true));
-            bounds.push([lat,lng]);
+          if(typeof it.lat==='number' && typeof it.lng==='number'){
+            const m = L.marker([it.lat,it.lng], {icon: circleIcon(TYPE_COLORS[it.siteType]||'#3b82f6')}).addTo(markerLayer);
+            m.bindPopup(cardHTML(it,true));
+            bounds.push([it.lat,it.lng]);
           }
         }
       });
-
       if(bounds.length){ map.fitBounds(bounds, {padding:[30,30]}); }
-      else { map.setView([39.7392,-104.9903], 10); } // default Denver-ish
+      else { map.setView([39.7392,-104.9903], 10); } // Denver-ish
       setTimeout(()=>map.invalidateSize(), 50);
+    }
+
+    function zoomTourRoute(tourId){
+      const tour = state.items.find(i=>i.type==='Tour' && i.id===tourId);
+      if(!tour || !tour.route?.length) return;
+      polyLayer.clearLayers();
+      const color = tour.color || TYPE_COLORS['Tour'];
+      const latlngs = tour.route.map(p=>[p.lat,p.lng]);
+      L.polyline(latlngs,{color,weight:5,opacity:1}).addTo(polyLayer);
+      map.fitBounds(latlngs, {padding:[40,40]});
     }
 
     function openMap(){
@@ -801,8 +735,9 @@
       document.getElementById('mapPanel').style.display='block';
       document.getElementById('mapPanel').setAttribute('aria-hidden','false');
       mapOpen = true;
-      renderMapPoints(state.items.filter(filterHardGates));
+      renderMapPoints(state.items.filter(passesFiltersBasic));
     }
+    document.getElementById('viewMap').addEventListener('click', openMap);
     document.getElementById('closeMap').addEventListener('click', ()=>{
       document.getElementById('mapPanel').style.display='none';
       document.getElementById('mapPanel').setAttribute('aria-hidden','true');
@@ -810,9 +745,10 @@
     });
     document.getElementById('mapShowAll').addEventListener('click', ()=>{
       if(!map) return;
-      renderMapPoints(state.items); // ignore filters
+      renderMapPoints(state.items);
     });
 
+    /* --------------------- Boot --------------------- */
     load();
   </script>
 </body>

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Traipse — Index (v2.3)</title>
+  <title>Traipse — Index (v2.4, My Places)</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -93,19 +93,28 @@
     .icons{display:flex;gap:10px;margin-top:6px;color:#607085}
     .icons a{display:inline-flex;align-items:center;gap:6px;text-decoration:none;font-size:12px}
 
-    /* Map overlay */
-    #mapPanel{position:fixed;inset:0;background:#fff;display:none;z-index:1000}
-    #mapHeader{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--ring)}
+    /* Overlays */
+    #mapPanel,#favoritesPanel{position:fixed;inset:0;background:#fff;display:none;z-index:1000}
+    .overlayHeader{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--ring)}
     #map{height:calc(100vh - 56px);width:100%}
     .btn{border:1px solid var(--ring);background:#fff;border-radius:999px;padding:8px 12px;font-weight:600;cursor:pointer}
+
+    /* Favorites overlay grid */
+    #favoritesBody{padding:16px}
+    #favoritesGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+    @media (max-width:1200px){#favoritesGrid{grid-template-columns:repeat(3,1fr)}}
+    @media (max-width:900px){#favoritesGrid{grid-template-columns:repeat(2,1fr)}}
+    @media (max-width:600px){#favoritesGrid{grid-template-columns:1fr}}
+
+    /* Legend for map */
     .legend{position:absolute;bottom:16px;right:16px;background:#fff;border:1px solid var(--ring);border-radius:12px;box-shadow:var(--shadow);padding:8px 10px;font-size:12px}
     .legend-row{display:flex;align-items:center;gap:8px;margin:4px 0}
 
-    /* Make Leaflet popups use our card styling */
+    /* Leaflet popup styled like card */
     .leaflet-popup-content { margin:0; }
     .leaflet-popup-content-wrapper { padding:0; border-radius:20px; overflow:hidden; border:1px solid var(--ring); box-shadow:var(--shadow); }
     .leaflet-popup-tip { display:none; }
-    .leaflet-popup .fav { pointer-events:none; } /* show heart but don't toggle in popup */
+    .leaflet-popup .fav { pointer-events:auto; } /* clickable heart in popup */
     .popup-card .img{ height:132px; }
   </style>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
@@ -117,7 +126,7 @@
       <div class="brand"><div class="logo"></div> TRAIPSE</div>
       <div class="top"><input id="cityInput" class="search" placeholder="CITY" aria-label="City" /></div>
       <nav class="links">
-        <a class="pill" href="#">MY PLACES</a>
+        <a class="pill" href="#" id="myPlacesLink">MY PLACES</a>
         <a class="pill" href="#">NEW SITE SUBMISSION</a>
         <a class="pill" href="#">CONNECT</a>
       </nav>
@@ -156,7 +165,7 @@
 
   <!-- Fullscreen Map Panel -->
   <section id="mapPanel" aria-hidden="true" role="dialog" aria-label="Map view of sites">
-    <div id="mapHeader">
+    <div class="overlayHeader">
       <strong>Traipse Map</strong>
       <div>
         <button id="mapShowAll" class="btn">Show all</button>
@@ -165,6 +174,20 @@
     </div>
     <div id="map"></div>
     <div class="legend" id="mapLegend" aria-hidden="true"></div>
+  </section>
+
+  <!-- Fullscreen Favorites Panel -->
+  <section id="favoritesPanel" aria-hidden="true" role="dialog" aria-label="My Places">
+    <div class="overlayHeader">
+      <strong>My Places</strong>
+      <div>
+        <button id="clearFavorites" class="btn">Clear all</button>
+        <button id="closeFavorites" class="btn">Back to list</button>
+      </div>
+    </div>
+    <div id="favoritesBody">
+      <section id="favoritesGrid"></section>
+    </div>
   </section>
 
   <template id="cardTemplate">
@@ -307,7 +330,7 @@
       return `
         <article class="card ${asPopup?'popup-card':''}" id="card-${it.id}">
           <span class="badge">${it.type||'Site'}</span>
-          <button class="fav${state.favorites.has(it.id)?' active':''}" aria-label="Save">
+          <button class="fav${state.favorites.has(it.id)?' active':''}" aria-label="Save" data-id="${it.id}">
             <svg viewBox="0 0 24 24"><path d="M12 21s-7-4.35-7-10a4 4 0 0 1 7-2 4 4 0 0 1 7 2c0 5.65-7 10-7 10z"/></svg>
           </button>
           <img class="img" src="${img}" alt="${it.name} image" onerror="this.src='images/default.jpg'"/>
@@ -327,54 +350,77 @@
     }
     /* ------------------------------------------------------ */
 
+    /* Toggle favorite globally and sync all hearts */
+    function toggleFavorite(id){
+      if(state.favorites.has(id)) state.favorites.delete(id); else state.favorites.add(id);
+      localStorage.setItem('traipse:favorites', JSON.stringify(Array.from(state.favorites)));
+      document.querySelectorAll(`.fav[data-id="${id}"]`).forEach(b=>{
+        b.classList.toggle('active', state.favorites.has(id));
+      });
+      // If favorites panel is open, refresh it
+      if(favoritesOpen) renderFavorites();
+    }
+
+    /* Build one card node from template (for any grid) */
+    function buildCardNode(it){
+      const tpl = document.getElementById('cardTemplate');
+      const node = tpl.content.cloneNode(true);
+      const root = node.querySelector('.card');
+      root.id = 'card-' + it.id;
+
+      node.querySelector('.badge').textContent = it.type || 'Site';
+
+      const fav = node.querySelector('.fav');
+      fav.dataset.id = it.id;
+      if(state.favorites.has(it.id)) fav.classList.add('active');
+      fav.addEventListener('click', (e)=>{ e.stopPropagation(); toggleFavorite(it.id); });
+
+      const img = node.querySelector('.img');
+      const requested = resolveImage(it.image);
+      img.src = requested || 'images/default.jpg';
+      img.alt = `${it.name} image`;
+      img.onerror = ()=>{ img.src = 'images/default.jpg'; };
+
+      node.querySelector('.title').textContent = it.name;
+      const metaBits = [];
+      if(it.categories?.length){ metaBits.push(it.categories.join(', ')); }
+      if(it.periods?.length){ metaBits.push(it.periods[0]); }
+      node.querySelector('.meta').textContent = metaBits.join(' • ');
+
+      const chipbar = node.querySelector('.chipbar');
+      const chips = chipsFor(it);
+      if(chips.length){
+        chipbar.style.display='flex';
+        chips.slice(0,5).forEach(c=>{ const s=document.createElement('span'); s.className='chip'; s.textContent=c; chipbar.appendChild(s); });
+      }else{
+        chipbar.style.display='none';
+      }
+
+      const icons = node.querySelector('.icons');
+      if(it.website){ icons.innerHTML = `<a href="${it.website}" target="_blank" rel="noopener">🌐 <span>Website</span></a>`; }
+      node.querySelector('.desc').textContent = it.description||'';
+
+      return node;
+    }
+
     function renderCards(list){
       const host = document.getElementById('cards');
-      const tpl = document.getElementById('cardTemplate');
       host.innerHTML = '';
       if(!list.length){ host.innerHTML = '<p style="color:#6b7280;padding:8px">No results match your filters.</p>'; return; }
+      list.forEach(it => host.appendChild(buildCardNode(it)));
+    }
 
-      list.forEach(it => {
-        const node = tpl.content.cloneNode(true);
-        const root = node.querySelector('.card');
-        root.id = 'card-' + it.id;
-        node.querySelector('.badge').textContent = it.type || 'Site';
-
-        const fav = node.querySelector('.fav');
-        if(state.favorites.has(it.id)) fav.classList.add('active');
-        fav.addEventListener('click', ()=>{
-          fav.classList.toggle('active');
-          if(state.favorites.has(it.id)) state.favorites.delete(it.id); else state.favorites.add(it.id);
-          localStorage.setItem('traipse:favorites', JSON.stringify(Array.from(state.favorites)));
-        });
-
-        const img = node.querySelector('.img');
-        const requested = resolveImage(it.image);
-        img.src = requested || 'images/default.jpg';
-        img.alt = `${it.name} image`;
-        img.onerror = ()=>{ img.src = 'images/default.jpg'; };
-
-        node.querySelector('.title').textContent = it.name;
-        const metaBits = [];
-        if(it.categories?.length){ metaBits.push(it.categories.join(', ')); }
-        if(it.periods?.length){ metaBits.push(it.periods[0]); }
-        node.querySelector('.meta').textContent = metaBits.join(' • ');
-
-        // chips only when filters active
-        const chipbar = node.querySelector('.chipbar');
-        const chips = chipsFor(it);
-        if(chips.length){
-          chipbar.style.display='flex';
-          chips.slice(0,5).forEach(c=>{ const s=document.createElement('span'); s.className='chip'; s.textContent=c; chipbar.appendChild(s); });
-        }else{
-          chipbar.style.display='none';
-        }
-
-        const icons = node.querySelector('.icons');
-        if(it.website){ icons.innerHTML = `<a href="${it.website}" target="_blank" rel="noopener">🌐 <span>Website</span></a>`; }
-        node.querySelector('.desc').textContent = it.description||'';
-
-        host.appendChild(node);
-      });
+    /* Favorites overlay rendering */
+    let favoritesOpen = false;
+    function renderFavorites(){
+      const host = document.getElementById('favoritesGrid');
+      const favItems = state.items.filter(it => state.favorites.has(it.id));
+      host.innerHTML = '';
+      if(!favItems.length){
+        host.innerHTML = '<p style="color:#6b7280">No saved places yet. Tap the heart on any card or map popup to save it here.</p>';
+        return;
+      }
+      favItems.forEach(it=> host.appendChild(buildCardNode(it)));
     }
 
     function render(){
@@ -394,7 +440,31 @@
     // City input
     document.getElementById('cityInput').addEventListener('input', e=>{ state.city = (e.target.value||'').trim().toLowerCase(); render(); });
 
+    // View map
     document.getElementById('viewMap').addEventListener('click', openMap);
+
+    // My Places open/close/clear
+    document.getElementById('myPlacesLink').addEventListener('click', (e)=>{ e.preventDefault(); openFavorites(); });
+    document.getElementById('closeFavorites').addEventListener('click', closeFavorites);
+    document.getElementById('clearFavorites').addEventListener('click', ()=>{
+      state.favorites.clear();
+      localStorage.setItem('traipse:favorites', '[]');
+      renderFavorites();
+      // also update visible hearts elsewhere
+      document.querySelectorAll('.fav').forEach(b=>b.classList.remove('active'));
+    });
+
+    function openFavorites(){
+      renderFavorites();
+      document.getElementById('favoritesPanel').style.display='block';
+      document.getElementById('favoritesPanel').setAttribute('aria-hidden','false');
+      favoritesOpen = true;
+    }
+    function closeFavorites(){
+      document.getElementById('favoritesPanel').style.display='none';
+      document.getElementById('favoritesPanel').setAttribute('aria-hidden','true');
+      favoritesOpen = false;
+    }
 
     async function load(){
       try{
@@ -446,6 +516,18 @@
       }).addTo(map);
       markerLayer = L.layerGroup().addTo(map);
       buildLegend();
+
+      // When a popup opens, wire up its heart to toggle favorites
+      map.on('popupopen', (e)=>{
+        const btn = e.popup?.getElement()?.querySelector('.fav[data-id]');
+        if(btn){
+          btn.addEventListener('click', (ev)=>{
+            ev.stopPropagation();
+            const id = btn.getAttribute('data-id');
+            toggleFavorite(id);
+          });
+        }
+      });
     }
 
     function buildLegend(){

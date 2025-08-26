@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Traipse — Index (Sites + Tours)</title>
+  <title>Traipse — Index (Sites + Tours, ranked filters, 3-col)</title>
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -56,11 +56,18 @@
     .filters input[type="checkbox"]{width:16px;height:16px}
     details summary{cursor:pointer;color:#0b3a68;font-weight:700}
 
-    /* Grid */
-    .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
-    @media (max-width:1200px){.grid{grid-template-columns:repeat(3,1fr)}}
-    @media (max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}}
-    @media (max-width:600px){.grid{grid-template-columns:1fr}}
+    /* Grid: 3 → 2 → 1 columns (wider cards) */
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(3, minmax(0,1fr));
+      gap:18px;
+    }
+    @media (max-width:1000px){
+      .grid{grid-template-columns:repeat(2, minmax(0,1fr))}
+    }
+    @media (max-width:640px){
+      .grid{grid-template-columns:1fr}
+    }
 
     /* Card */
     .card{position:relative;background:var(--panel);border:1px solid var(--ring);border-radius:20px;overflow:hidden;box-shadow:var(--shadow)}
@@ -94,10 +101,9 @@
 
     /* Favorites (My Places) grid */
     #favoritesBody{padding:16px}
-    #favoritesGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
-    @media (max-width:1200px){#favoritesGrid{grid-template-columns:repeat(3,1fr)}}
-    @media (max-width:900px){#favoritesGrid{grid-template-columns:repeat(2,1fr)}}
-    @media (max-width:600px){#favoritesGrid{grid-template-columns:1fr}}
+    #favoritesGrid{display:grid;grid-template-columns:repeat(3, minmax(0,1fr));gap:18px}
+    @media (max-width:1000px){#favoritesGrid{grid-template-columns:repeat(2, minmax(0,1fr))}}
+    @media (max-width:640px){#favoritesGrid{grid-template-columns:1fr}}
 
     /* Map legend */
     .legend{position:absolute;bottom:16px;right:16px;background:#fff;border:1px solid var(--ring);border-radius:12px;box-shadow:var(--shadow);padding:8px 10px;font-size:12px}
@@ -284,7 +290,6 @@
     }
 
     function normalizeTour(raw){
-      // city from first site if present
       const firstSite = Array.isArray(raw.sites) && raw.sites.length ? raw.sites[0] : null;
       const cat = CATEGORY_LABELS[(raw.thematiccategory||'').toLowerCase()] || 'Other';
       const center = centroid(raw.sites || raw.route) || (firstSite ? {lat:firstSite.lat,lng:firstSite.lng} : null);
@@ -297,7 +302,7 @@
         website: firstLink(raw.external_links),
         categories: [cat],
         siteType: 'Tour',
-        periods: [], // tours typically not tied to historical period; filters still apply if user selects "Tour" type
+        periods: [],
         description: raw.duration ? `${raw.duration} • ${raw.number_of_sites||''} stops${raw.special_topic? ' • '+(raw.special_topic||[]).join(', '):''}` : (raw.description||''),
         costText: raw.Cost || (Array.isArray(raw.cost_range)? raw.cost_range.join(' / ') : ''),
         durationText: raw.duration || '',
@@ -381,16 +386,11 @@
       wrap.appendChild(el);
     }
 
+    // Non-binary filters: only tab & city gate; ranking handles the rest
     function passesFiltersBasic(item){
       if(state.tab==='site' && item.type!=='Site') return false;
       if(state.tab==='tour' && item.type!=='Tour') return false;
       if(state.city && item.city && !item.city.includes(state.city)) return false;
-      if(state.filters.siteTypes.size && !state.filters.siteTypes.has(item.siteType)) return false;
-      if(state.filters.periods.size){
-        const has = item.periods?.some(p => state.filters.periods.has(p));
-        if(!has) return false;
-      }
-      if(state.filters.tags.size){ for(const key of state.filters.tags){ if(!item.raw?.[key]) return false; } }
       return true;
     }
 
@@ -407,7 +407,6 @@
     }
 
     function computeDistanceMiles(a,b){
-      // Haversine
       const R=3958.8, toRad=d=>d*Math.PI/180;
       const dLat=toRad(b.lat-a.lat), dLng=toRad(b.lng-a.lng);
       const s=Math.sin(dLat/2)**2 + Math.cos(toRad(a.lat))*Math.cos(toRad(b.lat))*Math.sin(dLng/2)**2;
@@ -428,10 +427,10 @@
     function sortItems(list){
       list.sort((a,b)=>{
         const sa = matchScore(a), sb = matchScore(b);
-        if(sb!==sa) return sb-sa;
+        if(sb!==sa) return sb-sa; // more matches first
         const da = (typeof a.distanceMiles === 'number') ? a.distanceMiles : Infinity;
         const db = (typeof b.distanceMiles === 'number') ? b.distanceMiles : Infinity;
-        if(da!==db) return da-db;
+        if(da!==db) return da-db; // nearer first
         return a.name.localeCompare(b.name);
       });
     }

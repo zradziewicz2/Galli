@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Traipse — Index (Sites + Tours, ranked filters, 3-col)</title>
+  <title>Traipse — Sites + Tours (ranked filters, 3-col, halos)</title>
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -142,6 +142,7 @@
     <div class="layout">
       <aside class="sidebar">
         <button class="view-map" id="viewMap"><span class="icon">🌐</span><strong>View in map</strong></button>
+
         <div class="panel filters" id="filtersPanel">
           <div class="group">
             <h3>Site Type</h3>
@@ -151,7 +152,7 @@
             <h3>Time Period</h3>
             <div id="periodFilters"></div>
           </div>
-          <details class="group">
+          <details class="group" open>
             <summary>More Filters</summary>
             <div style="margin-top:8px" id="moreFilters"></div>
           </details>
@@ -231,6 +232,19 @@
       industrial:'Industrial', other:'Outdoor'
     };
 
+    /* --------- Extra tag filters (predicates + labels) --------- */
+    const TAG_FILTERS = {
+      adaaccessibility: { label:'ADA-Accessible', predicate: it => it.kind==='site' && !!it.raw.adaaccessibility },
+      dogfriendly: { label:'Dog-Friendly', predicate: it => it.kind==='site' && !!it.raw.dogfriendly },
+      luggagestorage: { label:'Luggage Storage', predicate: it => it.kind==='site' && !!it.raw.luggagestorage },
+      family_friendly: { label:'Family-Friendly', predicate: it => it.kind==='site' && !!it.raw.family_friendly },
+      publicaccess: { label:'Public Access', predicate: it => it.kind==='site' && !!it.raw.publicaccess },
+      spanishtranslations: { label:'Spanish translations', predicate: it => it.kind==='site' && !!it.raw.spanishtranslations },
+      payment_both: { label:'Cash & Credit', predicate: it => it.kind==='site' && String(it.raw.paymentmethod||'').toLowerCase()==='both' },
+      featured: { label:'Featured site', predicate: it => it.kind==='site' && it.raw.featured===true },
+      hiddengem: { label:'Hidden gem', predicate: it => it.kind==='site' && (it.raw.hiddengem===true || it.raw.featured===false) }
+    };
+
     /* ------------------------ State ----------------------- */
     const state = {
       raw: { sites: [], tours: [] },
@@ -240,14 +254,6 @@
       city: '',
       userLoc: null, // {lat,lng}
       filters: { siteTypes: new Set(), periods: new Set(), tags: new Set() }
-    };
-
-    const MORE_FILTERS = {
-      adaaccessibility: 'ADA-Accessible',
-      dogfriendly: 'Dog-Friendly',
-      luggagestorage: 'Luggage Storage',
-      family_friendly: 'Family-Friendly',
-      publicaccess: 'Public Access'
     };
 
     /* -------------------- Normalizers --------------------- */
@@ -328,9 +334,10 @@
       if(state.filters.siteTypes.size && state.filters.siteTypes.has(it.siteType)) chips.push(it.siteType);
       if(state.filters.periods.size){ (it.periods||[]).forEach(p=>{ if(state.filters.periods.has(p)) chips.push(p); }); }
       if(state.filters.tags.size){
-        Object.entries(MORE_FILTERS).forEach(([k,label])=>{
-          if(state.filters.tags.has(k) && it.raw?.[k]) chips.push(label);
-        });
+        for(const key of state.filters.tags){
+          const def = TAG_FILTERS[key];
+          if(def && def.predicate(it)) chips.push(def.label);
+        }
       }
       return chips;
     }
@@ -348,7 +355,7 @@
       const website = it.website ? `<a href="${it.website}" target="_blank" rel="noopener">🌐 <span>Website</span></a>` : '';
 
       const extraTour = it.type==='Tour'
-        ? `<div class="icons" style="margin-top:6px">${website} ${it.route?.length? `<a href="#" data-zoom-tour="${it.id}">⤢ Zoom to route</a>`:''}</div>`
+        ? `<div class="icons" style="margin-top:6px">${website} ${it.sites?.length? `<a href="#" data-zoom-tour="${it.id}">⤢ Zoom to tour</a>`:''}</div>`
         : `<div class="icons">${website}</div>`;
 
       return `
@@ -401,7 +408,10 @@
         (item.periods||[]).forEach(p=>{ if(state.filters.periods.has(p)) score++; });
       }
       if(state.filters.tags.size){
-        Object.keys(MORE_FILTERS).forEach(k=>{ if(state.filters.tags.has(k) && item.raw?.[k]) score++; });
+        for(const key of state.filters.tags){
+          const def = TAG_FILTERS[key];
+          if(def && def.predicate(item)) score++;
+        }
       }
       return score;
     }
@@ -480,8 +490,8 @@
 
       const icons = node.querySelector('.icons');
       const website = it.website ? `<a href="${it.website}" target="_blank" rel="noopener">🌐 <span>Website</span></a>` : '';
-      if(it.type==='Tour' && it.route?.length){
-        const zoom = `<a href="#" data-zoom-tour="${it.id}">⤢ Zoom to route</a>`;
+      if(it.type==='Tour' && it.sites?.length){
+        const zoom = `<a href="#" data-zoom-tour="${it.id}">⤢ Zoom to tour</a>`;
         icons.innerHTML = `${website} ${zoom}`;
       }else{
         icons.innerHTML = website;
@@ -497,7 +507,7 @@
       if(!list.length){ host.innerHTML = '<p style="color:#6b7280;padding:8px">No results match your filters.</p>'; return; }
       list.forEach(it => host.appendChild(buildCardNode(it)));
 
-      // Wire up "Zoom to route" links (cards)
+      // Wire up "Zoom to tour" links (cards)
       host.querySelectorAll('[data-zoom-tour]').forEach(a=>{
         a.addEventListener('click', (e)=>{
           e.preventDefault();
@@ -580,8 +590,9 @@
       const periodSet = new Set(); state.items.forEach(i=>i.periods?.forEach(p=>periodSet.add(p)));
       const periodWrap = document.getElementById('periodFilters');
       Array.from(periodSet).sort().forEach(p=>addCheckbox(periodWrap,'periods',p,p));
+
       const moreWrap = document.getElementById('moreFilters');
-      Object.entries(MORE_FILTERS).forEach(([k,v])=>addCheckbox(moreWrap,'tags',k,v));
+      Object.entries(TAG_FILTERS).forEach(([k,def])=> addCheckbox(moreWrap,'tags',k,def.label));
     }
 
     /* ----------------- Data loading ---------------- */
@@ -646,7 +657,7 @@
         attribution:'&copy; OpenStreetMap contributors'
       }).addTo(map);
       markerLayer = L.layerGroup().addTo(map);
-      polyLayer = L.layerGroup().addTo(map);
+      polyLayer = L.layerGroup().addTo(map); // used for halos
       buildLegend();
 
       map.on('popupopen', (e)=>{
@@ -689,24 +700,71 @@
       });
     }
 
+    function numberIcon(n, color){
+      return L.divIcon({
+        className: 'num-icon',
+        html: `
+          <div style="
+            width:26px;height:26px;border-radius:50%;
+            background:${color};
+            color:#fff;font-size:12px;font-weight:800;
+            display:flex;align-items:center;justify-content:center;
+            border:2px solid #fff;box-shadow:0 0 0 2px rgba(0,0,0,.12);
+          ">${n}</div>`,
+        iconSize: [26,26],
+        iconAnchor: [13,13]
+      });
+    }
+
+    // Render with numbered tour stops + soft halo (no lines)
     function renderMapPoints(list){
       if(!map) return;
       markerLayer.clearLayers(); polyLayer.clearLayers();
+
       const bounds = [];
+      const SHOW_TOUR_HALO = true;
+
       list.forEach(it=>{
-        if(it.type==='Tour'){
-          if(it.route?.length){
-            const color = it.color || TYPE_COLORS['Tour'];
-            const latlngs = it.route.map(p=>[p.lat,p.lng]);
-            L.polyline(latlngs,{color,weight:4,opacity:.9}).addTo(polyLayer);
-            latlngs.forEach(p=>bounds.push(p));
+        if(it.type === 'Tour'){
+          const color = it.color || TYPE_COLORS['Tour'];
+          const pts = Array.isArray(it.sites) && it.sites.length
+            ? it.sites.filter(s=>typeof s.lat==='number' && typeof s.lng==='number').map((s,i)=>({lat:s.lat,lng:s.lng, idx:i}))
+            : (typeof it.lat==='number' && typeof it.lng==='number' ? [{lat:it.lat,lng:it.lng, idx:0}] : []);
+
+          // Numbered stop markers
+          pts.forEach(p=>{
+            const m = L.marker([p.lat,p.lng], {icon: numberIcon(p.idx+1, color)}).addTo(markerLayer);
+            m.bindPopup(cardHTML(it,true));
+            bounds.push([p.lat,p.lng]);
+          });
+
+          // Soft area halo around centroid
+          if (SHOW_TOUR_HALO && pts.length){
+            const c = { lat: pts.reduce((a,p)=>a+p.lat,0)/pts.length, lng: pts.reduce((a,p)=>a+p.lng,0)/pts.length };
+            const rMiles = pts.reduce((mx,p)=>{
+              const d = computeDistanceMiles(c, {lat:p.lat,lng:p.lng});
+              return Math.max(mx, d);
+            }, 0);
+            const rMeters = Math.max(150, rMiles * 1609.34 * 0.9); // min radius 150m
+            L.circle([c.lat, c.lng], {
+              radius: rMeters,
+              color: color,
+              weight: 1,
+              fillColor: color,
+              fillOpacity: 0.08,
+              opacity: 0.6
+            }).addTo(polyLayer);
+            bounds.push([c.lat, c.lng]);
           }
-          if(typeof it.lat==='number' && typeof it.lng==='number'){
-            const m = L.marker([it.lat,it.lng], {icon: circleIcon(TYPE_COLORS['Tour'])}).addTo(markerLayer);
+
+          // Fallback single marker at center if no points at all
+          if(!pts.length && typeof it.lat==='number' && typeof it.lng==='number'){
+            const m = L.marker([it.lat,it.lng], {icon: circleIcon(color)}).addTo(markerLayer);
             m.bindPopup(cardHTML(it,true));
             bounds.push([it.lat,it.lng]);
           }
         }else{
+          // Sites
           if(typeof it.lat==='number' && typeof it.lng==='number'){
             const m = L.marker([it.lat,it.lng], {icon: circleIcon(TYPE_COLORS[it.siteType]||'#3b82f6')}).addTo(markerLayer);
             m.bindPopup(cardHTML(it,true));
@@ -714,6 +772,7 @@
           }
         }
       });
+
       if(bounds.length){ map.fitBounds(bounds, {padding:[30,30]}); }
       else { map.setView([39.7392,-104.9903], 10); } // Denver-ish
       setTimeout(()=>map.invalidateSize(), 50);
@@ -721,12 +780,14 @@
 
     function zoomTourRoute(tourId){
       const tour = state.items.find(i=>i.type==='Tour' && i.id===tourId);
-      if(!tour || !tour.route?.length) return;
-      polyLayer.clearLayers();
-      const color = tour.color || TYPE_COLORS['Tour'];
-      const latlngs = tour.route.map(p=>[p.lat,p.lng]);
-      L.polyline(latlngs,{color,weight:5,opacity:1}).addTo(polyLayer);
-      map.fitBounds(latlngs, {padding:[40,40]});
+      if(!tour) return;
+      const pts = Array.isArray(tour.sites) ? tour.sites.filter(s=>typeof s.lat==='number' && typeof s.lng==='number') : [];
+      if(pts.length){
+        const latlngs = pts.map(s=>[s.lat,s.lng]);
+        map.fitBounds(latlngs, {padding:[40,40]});
+      }else if(typeof tour.lat==='number' && typeof tour.lng==='number'){
+        map.setView([tour.lat, tour.lng], 14);
+      }
     }
 
     function openMap(){

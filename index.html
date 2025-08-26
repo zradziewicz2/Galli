@@ -75,7 +75,18 @@
     .desc{font-size:13px;color:#334155;line-height:1.35;margin:0}
     .icons{display:flex;gap:10px;margin-top:6px;color:#607085}
     .icons a{display:inline-flex;align-items:center;gap:6px;text-decoration:none;font-size:12px}
+    /* Map overlay */
+    #mapPanel{position:fixed;inset:0;background:#fff;display:none;z-index:1000}
+    #mapHeader{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--ring)}
+    #map{height:calc(100vh - 56px);width:100%}
+    .btn{border:1px solid var(--ring);background:#fff;border-radius:999px;padding:8px 12px;font-weight:600;cursor:pointer}
+    .legend{position:absolute;bottom:16px;right:16px;background:#fff;border:1px solid var(--ring);border-radius:12px;box-shadow:var(--shadow);padding:8px 10px;font-size:12px}
+    .legend-row{display:flex;align-items:center;gap:8px;margin:4px 0}
+    .legend .ico{font-size:18px;line-height:1}
   </style>
+  <!-- Leaflet CSS/JS for the map -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 </head>
 <body>
   <div class="wrap">
@@ -120,8 +131,21 @@
     </div>
   </div>
 
+  <!-- Fullscreen Map Panel -->
+  <section id="mapPanel" aria-hidden="true" role="dialog" aria-label="Map view of sites">
+    <div id="mapHeader">
+      <strong>Traipse Map</strong>
+      <div>
+        <button id="mapShowAll" class="btn">Show all</button>
+        <button id="closeMap" class="btn">Back to list</button>
+      </div>
+    </div>
+    <div id="map"></div>
+    <div class="legend" id="mapLegend" aria-hidden="true"></div>
+  </section>
+
   <template id="cardTemplate">
-    <article class="card">
+    <article class="card" id="card-${it?.id||''}">
       <span class="badge"></span>
       <button class="fav" title="Save to My Places" aria-label="Save"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.35-7-10a4 4 0 0 1 7-2 4 4 0 0 1 7 2c0 5.65-7 10-7 10z"/></svg></button>
       <img class="img" alt="" />
@@ -291,6 +315,7 @@
     function render(){
       const list = state.items.filter(passesFilters);
       renderCards(list);
+      if(mapOpen) renderMapPoints(list);
     }
 
     // Tabs
@@ -304,7 +329,7 @@
     // City input
     document.getElementById('cityInput').addEventListener('input', e=>{ state.city = (e.target.value||'').trim().toLowerCase(); render(); });
 
-    document.getElementById('viewMap').addEventListener('click', ()=> alert('Map view coming soon.'));
+    document.getElementById('viewMap').addEventListener('click', openMap);
 
     async function load(){
       try{
@@ -334,6 +359,97 @@
       const moreWrap = document.getElementById('moreFilters');
       Object.entries(MORE_FILTERS).forEach(([k,v])=>addCheckbox(moreWrap,'tags',k,v));
     }
+
+    // === Map logic ===
+    let mapOpen = false;
+    let map, markerLayer;
+
+    const TYPE_EMOJI = {
+      'Museum':'🏛',
+      'Landmark':'📍',
+      'Historical Home':'🏠',
+      'Archaeological':'🗿',
+      'Religious':'⛪',
+      'Industrial':'🏭',
+      'Outdoor':'🌲',
+      'Burial':'⚰️',
+      'Political':'🏛'
+    };
+
+    function ensureMap(){
+      if(map) return;
+      map = L.map('map',{scrollWheelZoom:true});
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+        attribution:'&copy; OpenStreetMap contributors'
+      }).addTo(map);
+      markerLayer = L.layerGroup().addTo(map);
+      buildLegend();
+    }
+
+    function buildLegend(){
+      const legend = document.getElementById('mapLegend');
+      legend.innerHTML = '';
+      Object.entries(TYPE_EMOJI).forEach(([label,emoji])=>{
+        const row = document.createElement('div');
+        row.className='legend-row';
+        row.innerHTML = `<span class="ico">${emoji}</span> <span>${label}</span>`;
+        legend.appendChild(row);
+      });
+      legend.setAttribute('aria-hidden','false');
+    }
+
+    function iconFor(type){
+      const emoji = TYPE_EMOJI[type] || '📌';
+      return L.divIcon({
+        className:'emoji-icon',
+        html:`<div style="font-size:22px;line-height:1">${emoji}</div>`,
+        iconSize:[24,24],
+        iconAnchor:[12,12]
+      });
+    }
+
+    function renderMapPoints(list){
+      if(!map) return;
+      markerLayer.clearLayers();
+      const bounds = [];
+      list.forEach(it => {
+        const {lat,lng} = it.raw || {};
+        if(typeof lat==='number' && typeof lng==='number'){
+          const m = L.marker([lat,lng], {icon: iconFor(it.siteType)}).addTo(markerLayer);
+          const popup = `
+            <div style="min-width:180px">
+              <strong>${it.name}</strong><br/>
+              <small>${it.siteType}${it.periods?.length? ' • '+it.periods[0]:''}</small>
+              <div style="margin-top:6px">
+                ${it.website? `<a href="${it.website}" target="_blank" rel="noopener">Website</a>`:''}
+                ${it.id? ` &nbsp; <a href="#card-${it.id}" onclick="document.getElementById('closeMap').click(); setTimeout(()=>{document.getElementById('card-${it.id}')?.scrollIntoView({behavior:'smooth',block:'start'});},150); return false;">Open card</a>`:''}
+              </div>
+            </div>`;
+          m.bindPopup(popup);
+          bounds.push([lat,lng]);
+        }
+      });
+      if(bounds.length){ map.fitBounds(bounds, {padding:[30,30]}); }
+      else { map.setView([39.7392,-104.9903], 10); } // default Denver-ish
+      setTimeout(()=>map.invalidateSize(), 50);
+    }
+
+    function openMap(){
+      ensureMap();
+      document.getElementById('mapPanel').style.display='block';
+      document.getElementById('mapPanel').setAttribute('aria-hidden','false');
+      mapOpen = true;
+      renderMapPoints(state.items.filter(passesFilters));
+    }
+    document.getElementById('closeMap').addEventListener('click', ()=>{
+      document.getElementById('mapPanel').style.display='none';
+      document.getElementById('mapPanel').setAttribute('aria-hidden','true');
+      mapOpen = false;
+    });
+    document.getElementById('mapShowAll').addEventListener('click', ()=>{
+      if(!map) return;
+      renderMapPoints(state.items); // ignore filters
+    });
 
     load();
   </script>

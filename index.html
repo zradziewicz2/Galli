@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Traipse — Index (v2.2)</title>
+  <title>Traipse — Index (v2.3)</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -39,11 +39,25 @@
     /* Sidebar */
     .sidebar .panel{background:var(--panel);border:1px solid var(--ring);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px}
     .sidebar h3{margin:2px 0 10px;font-size:14px;text-transform:uppercase;letter-spacing:.1em}
-    /* >>> Prominent map button */
-    .view-map{display:flex;align-items:center;gap:12px;padding:12px 14px;border:2px solid var(--brand);border-radius:16px;background:var(--brand);color:#fff;margin-bottom:14px;box-shadow:var(--shadow);font-weight:700}
-    .view-map:hover{filter:brightness(1.05)}
-    .view-map .icon{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.18);color:#fff;font-size:18px}
-    /* <<< */
+
+    /* View in map — white & same visual weight as Filters */
+    .view-map{
+      display:flex;align-items:center;gap:12px;
+      width:100%;
+      padding:14px;
+      background:#fff;
+      border:1px solid var(--ring);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+      color:inherit;font-weight:700;
+      margin-bottom:14px;
+    }
+    .view-map .icon{
+      width:32px;height:32px;border-radius:50%;
+      display:grid;place-items:center;
+      background:#eaf5ff;color:#0b3a68;font-size:18px;
+    }
+
     .filters .group{margin-bottom:14px}
     .filters label{display:flex;align-items:center;gap:8px;margin:6px 0;font-size:14px}
     .filters input[type="checkbox"]{width:16px;height:16px}
@@ -86,6 +100,13 @@
     .btn{border:1px solid var(--ring);background:#fff;border-radius:999px;padding:8px 12px;font-weight:600;cursor:pointer}
     .legend{position:absolute;bottom:16px;right:16px;background:#fff;border:1px solid var(--ring);border-radius:12px;box-shadow:var(--shadow);padding:8px 10px;font-size:12px}
     .legend-row{display:flex;align-items:center;gap:8px;margin:4px 0}
+
+    /* Make Leaflet popups use our card styling */
+    .leaflet-popup-content { margin:0; }
+    .leaflet-popup-content-wrapper { padding:0; border-radius:20px; overflow:hidden; border:1px solid var(--ring); box-shadow:var(--shadow); }
+    .leaflet-popup-tip { display:none; }
+    .leaflet-popup .fav { pointer-events:none; } /* show heart but don't toggle in popup */
+    .popup-card .img{ height:132px; }
   </style>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
@@ -255,6 +276,57 @@
       return true;
     }
 
+    /* ---------- Shared helpers for cards & popups ---------- */
+    const resolveImage = (p)=>{
+      if(!p) return '';
+      if(/^https?:\/\//i.test(p)) return p;
+      return p.startsWith('./') || p.startsWith('images/') ? p : `images/${p}`;
+    };
+
+    function chipsFor(it){
+      const chips=[];
+      if(state.filters.siteTypes.size && state.filters.siteTypes.has(it.siteType)) chips.push(it.siteType);
+      if(state.filters.periods.size){ (it.periods||[]).forEach(p=>{ if(state.filters.periods.has(p)) chips.push(p); }); }
+      if(state.filters.tags.size){
+        Object.entries(MORE_FILTERS).forEach(([k,label])=>{
+          if(state.filters.tags.has(k) && it.raw[k]) chips.push(label);
+        });
+      }
+      return chips;
+    }
+
+    function cardHTML(it, asPopup=false){
+      const chips = chipsFor(it);
+      const chipHtml = chips.length
+        ? `<div class="chipbar">${chips.slice(0,5).map(c=>`<span class="chip">${c}</span>`).join('')}</div>`
+        : '';
+      const metaBits=[]; if(it.categories?.length){ metaBits.push(it.categories.join(', ')); } if(it.periods?.length){ metaBits.push(it.periods[0]); }
+      const img = resolveImage(it.image) || 'images/default.jpg';
+      const website = it.website ? `<a href="${it.website}" target="_blank" rel="noopener">🌐 <span>Website</span></a>` : '';
+
+      return `
+        <article class="card ${asPopup?'popup-card':''}" id="card-${it.id}">
+          <span class="badge">${it.type||'Site'}</span>
+          <button class="fav${state.favorites.has(it.id)?' active':''}" aria-label="Save">
+            <svg viewBox="0 0 24 24"><path d="M12 21s-7-4.35-7-10a4 4 0 0 1 7-2 4 4 0 0 1 7 2c0 5.65-7 10-7 10z"/></svg>
+          </button>
+          <img class="img" src="${img}" alt="${it.name} image" onerror="this.src='images/default.jpg'"/>
+          <div class="inner">
+            <h3 class="title">${it.name}</h3>
+            <div class="meta">${metaBits.join(' • ')}</div>
+            ${chipHtml}
+            <details class="more">
+              <summary><span>More Info</span></summary>
+              <div class="more-body">
+                <div class="icons">${website}</div>
+                <p class="desc">${it.description||''}</p>
+              </div>
+            </details>
+          </div>
+        </article>`;
+    }
+    /* ------------------------------------------------------ */
+
     function renderCards(list){
       const host = document.getElementById('cards');
       const tpl = document.getElementById('cardTemplate');
@@ -262,12 +334,12 @@
       if(!list.length){ host.innerHTML = '<p style="color:#6b7280;padding:8px">No results match your filters.</p>'; return; }
 
       list.forEach(it => {
-        const frag = tpl.content.cloneNode(true);
-        const root = frag.querySelector('.card');
-        root.id = 'card-' + it.id;                        // <-- real card id for map jumps
-        frag.querySelector('.badge').textContent = it.type || 'Site';
+        const node = tpl.content.cloneNode(true);
+        const root = node.querySelector('.card');
+        root.id = 'card-' + it.id;
+        node.querySelector('.badge').textContent = it.type || 'Site';
 
-        const fav = frag.querySelector('.fav');
+        const fav = node.querySelector('.fav');
         if(state.favorites.has(it.id)) fav.classList.add('active');
         fav.addEventListener('click', ()=>{
           fav.classList.toggle('active');
@@ -275,47 +347,33 @@
           localStorage.setItem('traipse:favorites', JSON.stringify(Array.from(state.favorites)));
         });
 
-        const img = frag.querySelector('.img');
-        const resolveImage = (p)=>{
-          if(!p) return '';
-          if(/^https?:\/\//i.test(p)) return p;
-          return p.startsWith('./') || p.startsWith('images/') ? p : `images/${p}`;
-        }
+        const img = node.querySelector('.img');
         const requested = resolveImage(it.image);
         img.src = requested || 'images/default.jpg';
         img.alt = `${it.name} image`;
         img.onerror = ()=>{ img.src = 'images/default.jpg'; };
 
-        frag.querySelector('.title').textContent = it.name;
+        node.querySelector('.title').textContent = it.name;
         const metaBits = [];
         if(it.categories?.length){ metaBits.push(it.categories.join(', ')); }
         if(it.periods?.length){ metaBits.push(it.periods[0]); }
-        frag.querySelector('.meta').textContent = metaBits.join(' • ');
+        node.querySelector('.meta').textContent = metaBits.join(' • ');
 
-        // >>> Chips only when relevant filters are active
-        const chipbar = frag.querySelector('.chipbar');
-        chipbar.innerHTML = '';
-        let chips = [];
-        if(state.filters.siteTypes.size && state.filters.siteTypes.has(it.siteType)) chips.push(it.siteType);
-        if(state.filters.periods.size){ (it.periods||[]).forEach(p=>{ if(state.filters.periods.has(p)) chips.push(p); }); }
-        if(state.filters.tags.size){
-          Object.entries(MORE_FILTERS).forEach(([k,label])=>{
-            if(state.filters.tags.has(k) && it.raw[k]) chips.push(label);
-          });
-        }
+        // chips only when filters active
+        const chipbar = node.querySelector('.chipbar');
+        const chips = chipsFor(it);
         if(chips.length){
           chipbar.style.display='flex';
           chips.slice(0,5).forEach(c=>{ const s=document.createElement('span'); s.className='chip'; s.textContent=c; chipbar.appendChild(s); });
-        } else {
+        }else{
           chipbar.style.display='none';
         }
-        // <<<
 
-        const icons = frag.querySelector('.icons');
+        const icons = node.querySelector('.icons');
         if(it.website){ icons.innerHTML = `<a href="${it.website}" target="_blank" rel="noopener">🌐 <span>Website</span></a>`; }
-        frag.querySelector('.desc').textContent = it.description||'';
+        node.querySelector('.desc').textContent = it.description||'';
 
-        host.appendChild(frag);
+        host.appendChild(node);
       });
     }
 
@@ -420,15 +478,7 @@
         const {lat,lng} = it.raw || {};
         if(typeof lat==='number' && typeof lng==='number'){
           const m = L.marker([lat,lng], {icon: iconFor(it.siteType)}).addTo(markerLayer);
-          const popup = `
-            <div style="min-width:180px">
-              <strong>${it.name}</strong><br/>
-              <small>${it.siteType}${it.periods?.length? ' • '+it.periods[0]:''}</small>
-              <div style="margin-top:6px">
-                ${it.website? `<a href="${it.website}" target="_blank" rel="noopener">Website</a>`:''}
-                 &nbsp; <a href="#card-${it.id}" onclick="document.getElementById('closeMap').click(); setTimeout(()=>{document.getElementById('card-${it.id}')?.scrollIntoView({behavior:'smooth',block:'start'});},150); return false;">Open card</a>
-              </div>
-            </div>`;
+          const popup = cardHTML(it, true);   // exact same card inside popup
           m.bindPopup(popup);
           bounds.push([lat,lng]);
         }

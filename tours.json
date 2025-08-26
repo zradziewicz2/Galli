@@ -1,0 +1,433 @@
+
+[
+    {
+        "tour_name": "Capitol Hill Historic Homes Tour",
+        "image": "colfax-avenue-capitol-hill-denver-colorado.jpg",
+        "tour_id": "capitol_hill_tour",
+        "color": "#FF5733",
+        "number_of_sites": "3",
+        "Distance": "1.2 mies",
+        "thematiccategory": "historichomes",
+        "Cost": "Free and Paid Options",
+        "timeofday": ["Mornings", "Afternoons"],
+        "duration": "1 - 2 hours",
+        "special_topic": ["Architecture", "History"],
+        "seasonal": false,
+        "cost_range": ["Free","$"],
+        "indoor_outdoor": ["Indoor"],
+        "group_type": "private",
+        "dates": ["2025-05-20", "2025-05-22", "2025-05-25"],
+        "reservation_required": false,
+        "external_links": {
+            "getyourguide": "https://www.getyourguide.com/",
+            "viator": "https://www.viator.com/tours/Denver/Private-Tour-Denvers-HIstory-and-Ghost-Adventure/d4837-76007P9?mcid=56757",
+            "airbnb": "https://www.airbnb.com/experiences",
+            "guruwalk": "https://www.guruwalk.com/"
+        },
+        "route": [
+            {"lat": 39.7392, "lng": -104.9847},
+            {"lat": 39.7373, "lng": -104.9807},
+            {"lat": 39.7346, "lng": -104.9812}
+        ],
+        "sites": [
+            {
+                "name": "Colorado State Capitol",
+                "id": "denver001",
+                "lat": 39.7392,
+                "lng": -104.9847,
+                "city": "denver",
+                "description": "Iconic building with a gold dome, offering historic tours and views from the Mile High step.",
+                "thematiccategory": "generalhistory",
+                "sitetype": "government",
+                "website": "https://leg.colorado.gov/visit-learn"
+            },
+            {
+                "name": "Molly Brown House Museum",
+                "id": "denver002",
+                "lat": 39.7373,
+                "lng": -104.9807,
+                "city": "denver",
+                "description": "The preserved home of Titanic survivor Margaret 'Molly' Brown, showcasing Victorian-era history.",
+                "thematiccategory": "historichomes",
+                "sitetype": "historichome",
+                "website": "https://mollybrown.org/"
+            },
+            {
+                "name": "Byers-Evans House Museum",
+                "id": "denver003",
+                "lat": 39.7346,
+                "lng": -104.9812,
+                "city": "denver",
+                "description": "A fully restored 19th-century home highlighting Denver's early influential families.",
+                "thematiccategory": "historichomes",
+                "sitetype": "historichome",
+                "website": "https://www.historycolorado.org/byers-evans-house-museum"
+            }
+        ]
+    },
+    
+    {
+        "tour_name": "Golden Triangle Museum Walk",
+        "tour_id": "golden_triangle_tour",
+        "image": "thumb.jpg",
+        "color": "#03FDFC",
+        "number_of_sites": "3",
+        "Distance": "0.9 mies",
+        "thematiccategory": "historichomes",
+        "Cost": "Free and Paid Options",
+        "timeofday": ["Mornings", "Afternoons"],
+        "duration": "1 - 2 hours",
+        "special_topic": ["Museums"],
+        "seasonal": false,
+        "cost_range": ["$$$"],
+        "indoor_outdoor": ["Indoor"],
+        "group_type": "group",
+        "dates": ["2025-05-24", "2025-05-29", "2025-05-30"],
+        "reservation_required": false,
+        "external_links": {
+            "tripadvisor": "https://www.tripadvisor.com/",
+            "getyourguide": "https://www.getyourguide.com/",
+            "viator": "https://www.viator.com/tours/Denver/Private-Tour-Denvers-HIstory-and-Ghost-Adventure/d4837-76007P9?mcid=56757"
+        },
+        "route": [
+            {"lat": 39.7371, "lng": -104.9876},
+            {"lat": 39.7363, "lng": -104.9903},
+            {"lat": 39.7336, "lng": -104.9905}
+        ],
+        "sites": [
+            {
+                "name": "Denver Art Museum",
+                "id": "denver004",
+                "lat": 39.7371,
+                "lng": -104.9876,
+                "city": "denver",
+                "description": "A world-class art museum with collections spanning centuries and continents.",
+                "thematiccategory": "artsandculture",
+                "sitetype": "museum",
+                "website": "https://www.denverartmuseum.org/"
+            },
+            {
+                "name": "Clyfford Still Museum",
+                "id": "denver005",
+                "lat": 39.7363,
+                "lng": -104.9903,
+                "city": "denver",
+                "description": "A museum dedicated to the abstract expressionist works of Clyfford Still.",
+                "thematiccategory": "artsandculture",
+                "sitetype": "museum",
+                "website": "https://clyffordstillmuseum.org/"
+            },
+            {
+                "name": "History Colorado Center",
+                "id": "denver006",
+                "lat": 39.7336,
+                "lng": -104.9905,
+                "city": "denver",
+                "description": "An interactive museum showcasing Colorado's rich history and heritage.",
+                "thematiccategory": "generalhistory",
+                "sitetype": "museum",
+                "website": "https://www.historycolorado.org/"
+            }
+        ]
+    }, 
+    {
+        "tour_name": "Five Points Jazz & Cultural Tour",
+        "tour_id": "five_points_tour",
+        "image": "five-points-denver.jpg",
+        "number_of_sites": "3",
+        "Distance": "1.2 mies",
+        "thematiccategory": "historichomes",
+        "Cost": "Free and Paid Options",
+        "timeofday": ["Afternoons", "Evenings"],
+        "duration": "1 - 2 hours",
+        "special_topic": ["Culture", "History"],
+        "seasonal": false,
+        "cost_range": ["Free","$"],
+        "indoor_outdoor": ["indoor"],
+        "group_type": "group",
+        "dates": ["2025-06-02", "2025-05-22", "2025-06-04"],
+        "reservation_required": false,
+        "color": "#FFB833",
+        "external_links": {
+            "tripadvisor": "https://www.tripadvisor.com/",
+            "getyourguide": "https://www.getyourguide.com/",
+            "viator": "https://www.viator.com/tours/Denver/Private-Tour-Denvers-HIstory-and-Ghost-Adventure/d4837-76007P9?mcid=56757",
+            "airbnb": "https://www.airbnb.com/experiences",
+            "guruwalk": "https://www.guruwalk.com/"
+        },
+        "route": [
+            {"lat": 39.7553, "lng": -104.9784},
+            {"lat": 39.7521, "lng": -104.9771},
+            {"lat": 39.7505, "lng": -104.9765}
+        ],
+        "sites": [
+            {
+                "name": "Rossonian Hotel",
+                "id": "denver007",
+                "lat": 39.7553,
+                "lng": -104.9784,
+                "city": "denver",
+                "description": "Once a jazz hotspot hosting legends like Duke Ellington and Billie Holiday, now an iconic landmark.",
+                "thematiccategory": "artsandculture",
+                "sitetype": "historicbuilding",
+                "website": "https://www.denver.org/listing/rossonian-hotel/12345/"
+            },
+            {
+                "name": "Black American West Museum",
+                "id": "denver008",
+                "lat": 39.7521,
+                "lng": -104.9771,
+                "city": "denver",
+                "description": "A museum dedicated to African American contributions to the Old West and Colorado’s history.",
+                "thematiccategory": "generalhistory",
+                "sitetype": "museum",
+                "website": "https://bawmhc.org/"
+            },
+            {
+                "name": "Five Points Plaza",
+                "id": "denver009",
+                "lat": 39.7505,
+                "lng": -104.9765,
+                "city": "denver",
+                "description": "A cultural hub celebrating the rich history and impact of Denver's Five Points neighborhood.",
+                "thematiccategory": "artsandculture",
+                "sitetype": "culturaldistrict",
+                "website": "https://www.denver.org/neighborhoods/five-points/"
+            }
+        ]
+    },
+    {
+        "tour_name": "LoDo Historic Walking Tour",
+        "tour_id": "lodo_tour",
+        "image": "lodo-denver.jpg",
+        "color": "#5A5AFF",
+        "number_of_sites": "3",
+        "Distance": "4.2 mies",
+        "thematiccategory": "historichomes",
+        "Cost": "Free and Paid Options",
+        "timeofday": ["Afternoons", "Evenings"],
+        "duration": "1 - 2 hours",
+        "special_topic": ["History"],
+        "seasonal": false,
+        "cost_range": ["Free","$"],
+        "indoor_outdoor": ["Indoor"],
+        "group_type": "group",
+        "reservation_required": false,
+        "dates": ["2025-05-23", "2025-05-25", "2025-05-26"],
+        "external_links": {
+            "tripadvisor": "https://www.tripadvisor.com/",
+            "getyourguide": "https://www.getyourguide.com/",
+            "viator": "https://www.viator.com/tours/Denver/Private-Tour-Denvers-HIstory-and-Ghost-Adventure/d4837-76007P9?mcid=56757"
+        },
+        "route": [
+            {"lat": 39.7524, "lng": -104.9981},
+            {"lat": 39.7506, "lng": -104.9999},
+            {"lat": 39.7479, "lng": -105.0009}
+        ],
+        "sites": [
+            {
+                "name": "Union Station",
+                "id": "denver010",
+                "lat": 39.7524,
+                "lng": -104.9981,
+                "city": "denver",
+                "description": "A historic transportation hub with dining, shops, and a vibrant atmosphere.",
+                "thematiccategory": "technologyandtransportation",
+                "sitetype": "trainstation",
+                "website": "https://unionstationindenver.com/"
+            },
+            {
+                "name": "Oxford Hotel",
+                "id": "denver011",
+                "lat": 39.7506,
+                "lng": -104.9999,
+                "city": "denver",
+                "description": "One of Denver’s oldest hotels, featuring vintage decor and classic Western hospitality.",
+                "thematiccategory": "historichomes",
+                "sitetype": "hotel",
+                "website": "https://www.theoxfordhotel.com/"
+            },
+            {
+                "name": "Wynkoop Brewing Company",
+                "id": "denver012",
+                "lat": 39.7479,
+                "lng": -105.0009,
+                "city": "denver",
+                "description": "Denver’s first craft brewery, founded by former Mayor John Hickenlooper in a historic warehouse.",
+                "thematiccategory": "foodanddrink",
+                "sitetype": "brewery",
+                "website": "https://www.wynkoop.com/"
+            }
+        ]
+    },
+    {
+        "tour_name": "Cheesman Park Ghost Tour",
+        "tour_id": "cheesman_park_tour",
+        "image": "cheesman-park-denver.jpg",
+        "color": "#800080",
+        "number_of_sites": "3",
+        "Distance": "0.5 mies",
+        "thematiccategory": "historichomes",
+        "Cost": "Free and Paid Options",
+        "timeofday": ["Evenings"],
+        "duration": "1 - 2 hours",
+        "special_topic": ["Paranormal"],
+        "seasonal": false,
+        "cost_range": ["Free","$"],
+        "indoor_outdoor": ["indoor"],
+        "group_type": "group",
+        "dates": ["2025-06-01", "2025-06-11", "2025-06-13"],
+        "reservation_required": false,
+        "external_links": {
+            "tripadvisor": "https://www.tripadvisor.com/"
+        },
+        "route": [
+            {"lat": 39.7345, "lng": -104.9691},
+            {"lat": 39.7321, "lng": -104.9680},
+            {"lat": 39.7308, "lng": -104.9675}
+        ],
+        "sites": [
+            {
+                "name": "Cheesman Park",
+                "id": "denver013",
+                "lat": 39.7345,
+                "lng": -104.9691,
+                "city": "denver",
+                "description": "A beautiful park with a chilling past—once a cemetery, now known for ghostly siteings.",
+                "thematiccategory": "generalhistory",
+                "sitetype": "park",
+                "website": "https://www.denver.org/things-to-do/denver-attractions/cheesman-park/"
+            },
+            {
+                "name": "Peabody-Whitehead Mansion",
+                "id": "denver014",
+                "lat": 39.7321,
+                "lng": -104.9680,
+                "city": "denver",
+                "description": "A haunted mansion with a history of eerie events and unexplained happenings.",
+                "thematiccategory": "historichomes",
+                "sitetype": "mansion",
+                "website": "https://www.onlyinyourstate.com/colorado/haunted-mansion-denver-co/"
+            },
+            {
+                "name": "Botanic Gardens (Old Cemetery Grounds)",
+                "id": "denver015",
+                "lat": 39.7308,
+                "lng": -104.9675,
+                "city": "denver",
+                "description": "Home to beautiful gardens, but built on a historic burial site with a ghostly reputation.",
+                "thematiccategory": "naturalhistory",
+                "sitetype": "garden",
+                "website": "https://www.botanicgardens.org/"
+            }
+        ]
+    },
+    {
+    "tour_name": "Denver's Wild History Tour & Ballpark Museum",
+    "image": "images/denver-wild-history-tour.jpg",
+    "tour_id": "wild_history_tour",
+    "color": "#DA4167",
+    "number_of_sites": "12",
+    "Distance": "1.5 miles",
+    "thematiccategory": "generalhistory",
+    "Cost": "$$",
+    "timeofday": ["late"],
+    "duration": "1 - 2 hours",
+    "special_topic": ["History", "Sports"],
+    "seasonal": false,
+    "cost_range": ["Mornings", "Afternoons"],
+    "indoor_outdoor": ["indoor"],
+    "group_type": "group",
+    "reservation_required": false,
+    "external_links": {
+        "tripadvisor": "https://www.tripadvisor.com/"
+    },
+    "route": [
+        { "lat": 39.7452, "lng": -104.9958 },
+        { "lat": 39.7551, "lng": -104.9959 }
+    ],
+    "sites": [
+        {
+            "name": "Clocktower Cabaret",
+            "id": "denver016",
+            "lat": 39.7452,
+            "lng": -104.9958,
+            "city": "denver",
+            "description": "Iconic Denver building modeled after Venice’s St. Mark's Campanile.",
+            "thematiccategory": "artsandculture",
+            "sitetype": "landmark",
+            "website": ""
+        },
+        {
+            "name": "National Ballpark Museum",
+            "id": "denver017",
+            "lat": 39.7551,
+            "lng": -104.9959,
+            "city": "denver",
+            "description": "One of the largest collections of baseball memorabilia in the U.S.",
+            "thematiccategory": "generalhistory",
+            "sitetype": "museum",
+            "website": ""
+        }
+    ]
+},
+    {
+        "tour_name": "Golden Mining & Railroad Tour",
+        "tour_id": "golden_mining_tour",
+        "image": "golden-colorado.jpg",
+        "color": "#D4AF37",
+        "number_of_sites": "3",
+        "Distance": "1.2 mies",
+        "thematiccategory": "historichomes",
+        "Cost": "Free and Paid Options",
+        "timeofday": ["late"],
+        "duration": "1 - 2 hours",
+        "special_topic": ["Mornings", "Afternoons"],
+        "seasonal": false,
+        "cost_range": ["Free","$"],
+        "indoor_outdoor": ["indoor"],
+        "group_type": "group",
+        "dates": ["2025-06-04", "2025-06-09", "2025-06-18"],
+        "reservation_required": false,
+        "route": [
+            {"lat": 39.7550, "lng": -105.2220},
+            {"lat": 39.7517, "lng": -105.2242},
+            {"lat": 39.7485, "lng": -105.2248}
+        ],
+        "sites": [
+            {
+                "name": "Colorado Railroad Museum",
+                "id": "golden001",
+                "lat": 39.7550,
+                "lng": -105.2220,
+                "city": "golden",
+                "description": "A museum dedicated to Colorado’s rich railroad history, with historic trains and exhibits.",
+                "thematiccategory": "technologyandtransportation",
+                "sitetype": "museum",
+                "website": "https://coloradorailroadmuseum.org/"
+            },
+            {
+                "name": "Golden History Museum",
+                "id": "golden002",
+                "lat": 39.7517,
+                "lng": -105.2242,
+                "city": "golden",
+                "description": "A museum showcasing Golden’s early mining and pioneer history.",
+                "thematiccategory": "generalhistory",
+                "sitetype": "museum",
+                "website": "https://www.goldenhistory.org/"
+            },
+            {
+                "name": "Coors Brewery Tour",
+                "id": "golden003",
+                "lat": 39.7485,
+                "lng": -105.2248,
+                "city": "golden",
+                "description": "Visit one of the world’s largest breweries and learn about Coors' history and brewing process.",
+                "thematiccategory": "foodanddrink",
+                "sitetype": "brewery",
+                "website": "https://www.millercoors.com/breweries/coors-brewing-company"
+            }
+        ]
+    }
+]

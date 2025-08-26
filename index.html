@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Traipse — Sites + Tours (ranked filters, 3-col, halos)</title>
+  <title>Traipse — Sites + Tours (ranked filters, 3-col, tour halos)</title>
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -113,7 +113,7 @@
     .leaflet-popup-content { margin:0; }
     .leaflet-popup-content-wrapper { padding:0; border-radius:20px; overflow:hidden; border:1px solid var(--ring); box-shadow:var(--shadow); }
     .leaflet-popup-tip { display:none; }
-    .leaflet-popup .fav { pointer-events:auto; } /* clickable heart in popup */
+    .leaflet-popup .fav { pointer-events:auto; }
     .popup-card .img{ height:132px; }
   </style>
 
@@ -234,15 +234,15 @@
 
     /* --------- Extra tag filters (predicates + labels) --------- */
     const TAG_FILTERS = {
-      adaaccessibility: { label:'ADA-Accessible', predicate: it => it.kind==='site' && !!it.raw.adaaccessibility },
-      dogfriendly: { label:'Dog-Friendly', predicate: it => it.kind==='site' && !!it.raw.dogfriendly },
-      luggagestorage: { label:'Luggage Storage', predicate: it => it.kind==='site' && !!it.raw.luggagestorage },
-      family_friendly: { label:'Family-Friendly', predicate: it => it.kind==='site' && !!it.raw.family_friendly },
-      publicaccess: { label:'Public Access', predicate: it => it.kind==='site' && !!it.raw.publicaccess },
-      spanishtranslations: { label:'Spanish translations', predicate: it => it.kind==='site' && !!it.raw.spanishtranslations },
-      payment_both: { label:'Cash & Credit', predicate: it => it.kind==='site' && String(it.raw.paymentmethod||'').toLowerCase()==='both' },
-      featured: { label:'Featured site', predicate: it => it.kind==='site' && it.raw.featured===true },
-      hiddengem: { label:'Hidden gem', predicate: it => it.kind==='site' && (it.raw.hiddengem===true || it.raw.featured===false) }
+      adaaccessibility:   { label:'ADA-Accessible',     predicate: it => it.kind==='site' && !!it.raw.adaaccessibility },
+      dogfriendly:        { label:'Dog-Friendly',       predicate: it => it.kind==='site' && !!it.raw.dogfriendly },
+      luggagestorage:     { label:'Luggage Storage',    predicate: it => it.kind==='site' && !!it.raw.luggagestorage },
+      family_friendly:    { label:'Family-Friendly',    predicate: it => it.kind==='site' && !!it.raw.family_friendly },
+      publicaccess:       { label:'Public Access',      predicate: it => it.kind==='site' && !!it.raw.publicaccess },
+      spanishtranslations:{ label:'Spanish translations',predicate: it => it.kind==='site' && !!it.raw.spanishtranslations },
+      payment_both:       { label:'Cash & Credit',      predicate: it => it.kind==='site' && String(it.raw.paymentmethod||'').toLowerCase()==='both' },
+      featured:           { label:'Featured site',       predicate: it => it.kind==='site' && it.raw.featured===true },
+      hiddengem:          { label:'Hidden gem',          predicate: it => it.kind==='site' && (it.raw.hiddengem===true || it.raw.featured===false) }
     };
 
     /* ------------------------ State ----------------------- */
@@ -315,7 +315,6 @@
         city: (firstSite?.city||'').toLowerCase(),
         lat: center?.lat, lng: center?.lng,
         route: Array.isArray(raw.route)? raw.route : [],
-        color: raw.color || '#8b5cf6',
         sites: Array.isArray(raw.sites)? raw.sites : [],
         raw
       };
@@ -355,7 +354,7 @@
       const website = it.website ? `<a href="${it.website}" target="_blank" rel="noopener">🌐 <span>Website</span></a>` : '';
 
       const extraTour = it.type==='Tour'
-        ? `<div class="icons" style="margin-top:6px">${website} ${it.sites?.length? `<a href="#" data-zoom-tour="${it.id}">⤢ Zoom to tour</a>`:''}</div>`
+        ? `<div class="icons" style="margin-top:6px">${website} ${it.sites?.length||it.route?.length? `<a href="#" data-zoom-tour="${it.id}">⤢ Zoom to tour</a>`:''}</div>`
         : `<div class="icons">${website}</div>`;
 
       return `
@@ -490,7 +489,7 @@
 
       const icons = node.querySelector('.icons');
       const website = it.website ? `<a href="${it.website}" target="_blank" rel="noopener">🌐 <span>Website</span></a>` : '';
-      if(it.type==='Tour' && it.sites?.length){
+      if(it.type==='Tour' && (it.sites?.length || it.route?.length)){
         const zoom = `<a href="#" data-zoom-tour="${it.id}">⤢ Zoom to tour</a>`;
         icons.innerHTML = `${website} ${zoom}`;
       }else{
@@ -644,10 +643,13 @@
     let mapOpen = false;
     let map, markerLayer, polyLayer;
 
+    // All tours = same red
+    const TOUR_COLOR = '#dc2626';
+
     const TYPE_COLORS = {
       'Museum':'#2563eb','Landmark':'#f97316','Historical Home':'#059669','Archaeological':'#7c3aed',
       'Religious':'#dc2626','Industrial':'#6b7280','Outdoor':'#16a34a','Burial':'#9ca3af','Political':'#2563eb',
-      'Tour':'#8b5cf6'
+      'Tour': TOUR_COLOR
     };
 
     function ensureMap(){
@@ -700,71 +702,50 @@
       });
     }
 
-    function numberIcon(n, color){
-      return L.divIcon({
-        className: 'num-icon',
-        html: `
-          <div style="
-            width:26px;height:26px;border-radius:50%;
-            background:${color};
-            color:#fff;font-size:12px;font-weight:800;
-            display:flex;align-items:center;justify-content:center;
-            border:2px solid #fff;box-shadow:0 0 0 2px rgba(0,0,0,.12);
-          ">${n}</div>`,
-        iconSize: [26,26],
-        iconAnchor: [13,13]
-      });
-    }
-
-    // Render with numbered tour stops + soft halo (no lines)
+    // Render: Sites as colored circles; Tours as a single clickable halo (no individual points)
     function renderMapPoints(list){
       if(!map) return;
       markerLayer.clearLayers(); polyLayer.clearLayers();
 
       const bounds = [];
-      const SHOW_TOUR_HALO = true;
 
       list.forEach(it=>{
         if(it.type === 'Tour'){
-          const color = it.color || TYPE_COLORS['Tour'];
+          // Compute center from sites/route or use stored lat/lng
           const pts = Array.isArray(it.sites) && it.sites.length
-            ? it.sites.filter(s=>typeof s.lat==='number' && typeof s.lng==='number').map((s,i)=>({lat:s.lat,lng:s.lng, idx:i}))
-            : (typeof it.lat==='number' && typeof it.lng==='number' ? [{lat:it.lat,lng:it.lng, idx:0}] : []);
+            ? it.sites.filter(s=>typeof s.lat==='number' && typeof s.lng==='number').map(s=>({lat:s.lat,lng:s.lng}))
+            : (Array.isArray(it.route) && it.route.length
+                ? it.route.filter(p=>typeof p.lat==='number' && typeof p.lng==='number')
+                : []
+              );
+          let center = null;
+          if(pts.length) center = centroid(pts);
+          else if(typeof it.lat==='number' && typeof it.lng==='number') center = {lat:it.lat,lng:it.lng};
 
-          // Numbered stop markers
-          pts.forEach(p=>{
-            const m = L.marker([p.lat,p.lng], {icon: numberIcon(p.idx+1, color)}).addTo(markerLayer);
-            m.bindPopup(cardHTML(it,true));
-            bounds.push([p.lat,p.lng]);
-          });
-
-          // Soft area halo around centroid
-          if (SHOW_TOUR_HALO && pts.length){
-            const c = { lat: pts.reduce((a,p)=>a+p.lat,0)/pts.length, lng: pts.reduce((a,p)=>a+p.lng,0)/pts.length };
-            const rMiles = pts.reduce((mx,p)=>{
-              const d = computeDistanceMiles(c, {lat:p.lat,lng:p.lng});
+          if(center){
+            // Radius: slightly larger than max distance of any stop from center; min radius for visibility
+            const rMiles = pts.length ? pts.reduce((mx,p)=>{
+              const d = computeDistanceMiles(center, {lat:p.lat,lng:p.lng});
               return Math.max(mx, d);
-            }, 0);
-            const rMeters = Math.max(150, rMiles * 1609.34 * 0.9); // min radius 150m
-            L.circle([c.lat, c.lng], {
-              radius: rMeters,
-              color: color,
-              weight: 1,
-              fillColor: color,
-              fillOpacity: 0.08,
-              opacity: 0.6
-            }).addTo(polyLayer);
-            bounds.push([c.lat, c.lng]);
-          }
+            }, 0) : 0.1; // default 0.1 mi if no points
+            const rMeters = Math.max(180, rMiles * 1609.34 * 1.0);
 
-          // Fallback single marker at center if no points at all
-          if(!pts.length && typeof it.lat==='number' && typeof it.lng==='number'){
-            const m = L.marker([it.lat,it.lng], {icon: circleIcon(color)}).addTo(markerLayer);
-            m.bindPopup(cardHTML(it,true));
-            bounds.push([it.lat,it.lng]);
+            // Clickable halo circle with slightly higher opacity
+            const halo = L.circle([center.lat, center.lng], {
+              radius: rMeters,
+              color: TOUR_COLOR,
+              weight: 1.25,
+              fillColor: TOUR_COLOR,
+              fillOpacity: 0.22,   // a bit more opaque for visibility
+              opacity: 0.8
+            }).addTo(polyLayer);
+
+            // Bind tour card popup to the circle itself
+            halo.bindPopup(cardHTML(it,true));
+            bounds.push([center.lat, center.lng]);
           }
         }else{
-          // Sites
+          // Sites as simple colored dots
           if(typeof it.lat==='number' && typeof it.lng==='number'){
             const m = L.marker([it.lat,it.lng], {icon: circleIcon(TYPE_COLORS[it.siteType]||'#3b82f6')}).addTo(markerLayer);
             m.bindPopup(cardHTML(it,true));
@@ -781,9 +762,10 @@
     function zoomTourRoute(tourId){
       const tour = state.items.find(i=>i.type==='Tour' && i.id===tourId);
       if(!tour) return;
-      const pts = Array.isArray(tour.sites) ? tour.sites.filter(s=>typeof s.lat==='number' && typeof s.lng==='number') : [];
-      if(pts.length){
-        const latlngs = pts.map(s=>[s.lat,s.lng]);
+      const pts = (tour.sites||[]).filter(s=>typeof s.lat==='number' && typeof s.lng==='number');
+      const rt  = (tour.route||[]).filter(p=>typeof p.lat==='number' && typeof p.lng==='number');
+      const latlngs = (pts.length ? pts : rt).map(s=>[s.lat,s.lng]);
+      if(latlngs.length){
         map.fitBounds(latlngs, {padding:[40,40]});
       }else if(typeof tour.lat==='number' && typeof tour.lng==='number'){
         map.setView([tour.lat, tour.lng], 14);

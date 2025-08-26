@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Traipse — Index (v2.4, My Places)</title>
+  <title>Traipse — Index (v2.6 distance + ranking + favorites)</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -81,6 +81,7 @@
     .meta{font-size:12px;color:#4b5563;margin-bottom:8px}
     .chipbar{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
     .chip{display:inline-flex;align-items:center;border:1px solid var(--ring);background:#f1f5f9;font-size:11px;border-radius:999px;padding:2px 6px}
+    .chip.dist{background:#eef2ff;border-color:#e5e7eb}
 
     /* More Info collapsible */
     .more{margin-top:6px}
@@ -117,6 +118,8 @@
     .leaflet-popup .fav { pointer-events:auto; } /* clickable heart in popup */
     .popup-card .img{ height:132px; }
   </style>
+
+  <!-- Leaflet CSS/JS for the map -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 </head>
@@ -231,25 +234,26 @@
       industrial:'Industrial', other:'Outdoor' // fallback
     };
 
-    const state = {
-      raw: [],
-      items: [], // normalized
-      tab: 'all',
-      favorites: new Set(JSON.parse(localStorage.getItem('traipse:favorites')||'[]')),
-      city: '',
-      filters: {
-        siteTypes: new Set(),
-        periods: new Set(),
-        tags: new Set(), // more filters
-      }
-    };
-
     const MORE_FILTERS = {
       adaaccessibility: 'ADA-Accessible',
       dogfriendly: 'Dog-Friendly',
       luggagestorage: 'Luggage Storage',
       family_friendly: 'Family-Friendly',
       publicaccess: 'Public Access'
+    };
+
+    const state = {
+      raw: [],
+      items: [], // normalized
+      tab: 'all',
+      favorites: new Set(JSON.parse(localStorage.getItem('traipse:favorites')||'[]')),
+      city: '',
+      userLoc: null, // {lat,lng}
+      filters: {
+        siteTypes: new Set(),
+        periods: new Set(),
+        tags: new Set(), // more filters
+      }
     };
 
     function normalize(raw){
@@ -269,7 +273,8 @@
         costText: raw.dollaramount && !['0','$0','-'].includes(String(raw.dollaramount).trim()) ? String(raw.dollaramount) : (raw.cost==='free'?'Free': (raw.cost==='paid'?'Paid':'')),
         durationText: raw.estimatedtime || '',
         city: (raw.city||'').toLowerCase(),
-        raw
+        raw,
+        _distMiles: undefined
       };
     }
 
@@ -286,26 +291,12 @@
       wrap.appendChild(el);
     }
 
-    function passesFilters(item){
-      if(state.tab==='site' && (item.type||'').toLowerCase()!=='site') return false;
-      if(state.tab==='tour' && (item.type||'').toLowerCase()!=='tour') return false;
-      if(state.city && item.city && !item.city.includes(state.city)) return false;
-      if(state.filters.siteTypes.size && !state.filters.siteTypes.has(item.siteType)) return false;
-      if(state.filters.periods.size){
-        const has = item.periods?.some(p => state.filters.periods.has(p));
-        if(!has) return false;
-      }
-      if(state.filters.tags.size){ for(const key of state.filters.tags){ if(!item.raw[key]) return false; } }
-      return true;
-    }
-
-    /* ---------- Shared helpers for cards & popups ---------- */
+    // Build chips ONLY for selected filters (your earlier requirement)
     const resolveImage = (p)=>{
       if(!p) return '';
       if(/^https?:\/\//i.test(p)) return p;
       return p.startsWith('./') || p.startsWith('images/') ? p : `images/${p}`;
     };
-
     function chipsFor(it){
       const chips=[];
       if(state.filters.siteTypes.size && state.filters.siteTypes.has(it.siteType)) chips.push(it.siteType);
@@ -318,14 +309,60 @@
       return chips;
     }
 
+    // Distance helpers
+    const toRad = deg => deg*Math.PI/180;
+    function haversineMiles(lat1, lon1, lat2, lon2){
+      const R = 3958.7613; // miles
+      const dLat = toRad(lat2-lat1), dLon = toRad(lon2-lon1);
+      const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLon/2)**2;
+      return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)));
+    }
+    function updateDistances(list){
+      if(!state.userLoc) return;
+      list.forEach(it=>{
+        const {lat,lng} = it.raw||{};
+        if(typeof lat==='number' && typeof lng==='number'){
+          it._distMiles = haversineMiles(state.userLoc.lat, state.userLoc.lng, lat, lng);
+        }else{
+          it._distMiles = undefined;
+        }
+      });
+    }
+    const distanceValue = it => Number.isFinite(it._distMiles) ? it._distMiles : Infinity;
+    const milesText = d => (d>=10 ? d.toFixed(0) : d>=1 ? d.toFixed(1) : d.toFixed(2));
+
+    // Hard gates (keep city + tab binary)
+    function filterHardGates(it){
+      if(state.tab==='site' && (it.type||'').toLowerCase()!=='site') return false;
+      if(state.tab==='tour' && (it.type||'').toLowerCase()!=='tour') return false;
+      if(state.city && it.city && !it.city.includes(state.city)) return false;
+      return true;
+    }
+
+    // Soft score from selected filters
+    function matchScore(it){
+      let score = 0;
+      if(state.filters.siteTypes.size && state.filters.siteTypes.has(it.siteType)) score += 1;
+      if(state.filters.periods.size){
+        score += (it.periods||[]).reduce((n,p)=> n + (state.filters.periods.has(p)?1:0), 0);
+      }
+      if(state.filters.tags.size){
+        state.filters.tags.forEach(k=>{ if(it.raw[k]) score += 1; });
+      }
+      return score;
+    }
+
     function cardHTML(it, asPopup=false){
-      const chips = chipsFor(it);
-      const chipHtml = chips.length
-        ? `<div class="chipbar">${chips.slice(0,5).map(c=>`<span class="chip">${c}</span>`).join('')}</div>`
-        : '';
       const metaBits=[]; if(it.categories?.length){ metaBits.push(it.categories.join(', ')); } if(it.periods?.length){ metaBits.push(it.periods[0]); }
       const img = resolveImage(it.image) || 'images/default.jpg';
       const website = it.website ? `<a href="${it.website}" target="_blank" rel="noopener">🌐 <span>Website</span></a>` : '';
+
+      // Distance + selected-filter chips
+      const chipParts = [];
+      if (Number.isFinite(it._distMiles)) chipParts.push(`<span class="chip dist">${milesText(it._distMiles)} mi away</span>`);
+      const filterChips = chipsFor(it);
+      filterChips.slice(0,5).forEach(c => chipParts.push(`<span class="chip">${c}</span>`));
+      const chipHtml = chipParts.length ? `<div class="chipbar">${chipParts.join('')}</div>` : '';
 
       return `
         <article class="card ${asPopup?'popup-card':''}" id="card-${it.id}">
@@ -348,7 +385,6 @@
           </div>
         </article>`;
     }
-    /* ------------------------------------------------------ */
 
     /* Toggle favorite globally and sync all hearts */
     function toggleFavorite(id){
@@ -357,7 +393,6 @@
       document.querySelectorAll(`.fav[data-id="${id}"]`).forEach(b=>{
         b.classList.toggle('active', state.favorites.has(id));
       });
-      // If favorites panel is open, refresh it
       if(favoritesOpen) renderFavorites();
     }
 
@@ -388,11 +423,21 @@
       node.querySelector('.meta').textContent = metaBits.join(' • ');
 
       const chipbar = node.querySelector('.chipbar');
+      chipbar.innerHTML = '';
+      // distance chip first if available
+      if (Number.isFinite(it._distMiles)) {
+        const d = document.createElement('span');
+        d.className = 'chip dist';
+        d.textContent = `${milesText(it._distMiles)} mi away`;
+        chipbar.appendChild(d);
+      }
+      // then selected filter chips
       const chips = chipsFor(it);
       if(chips.length){
-        chipbar.style.display='flex';
-        chips.slice(0,5).forEach(c=>{ const s=document.createElement('span'); s.className='chip'; s.textContent=c; chipbar.appendChild(s); });
-      }else{
+        chips.slice(0,5).forEach(c=>{
+          const s=document.createElement('span'); s.className='chip'; s.textContent=c; chipbar.appendChild(s);
+        });
+      }else if(!Number.isFinite(it._distMiles)){
         chipbar.style.display='none';
       }
 
@@ -406,7 +451,7 @@
     function renderCards(list){
       const host = document.getElementById('cards');
       host.innerHTML = '';
-      if(!list.length){ host.innerHTML = '<p style="color:#6b7280;padding:8px">No results match your filters.</p>'; return; }
+      if(!list.length){ host.innerHTML = '<p style="color:#6b7280;padding:8px">No results.</p>'; return; }
       list.forEach(it => host.appendChild(buildCardNode(it)));
     }
 
@@ -420,11 +465,24 @@
         host.innerHTML = '<p style="color:#6b7280">No saved places yet. Tap the heart on any card or map popup to save it here.</p>';
         return;
       }
+      updateDistances(favItems);
+      favItems.sort((a,b)=> distanceValue(a)-distanceValue(b) || a.name.localeCompare(b.name));
       favItems.forEach(it=> host.appendChild(buildCardNode(it)));
     }
 
     function render(){
-      const list = state.items.filter(passesFilters);
+      const list = state.items.filter(filterHardGates);
+      updateDistances(list);
+
+      const anyFilters = state.filters.siteTypes.size || state.filters.periods.size || state.filters.tags.size;
+      list.sort((a,b)=>{
+        if(anyFilters){
+          const sa = matchScore(a), sb = matchScore(b);
+          if(sb!==sa) return sb-sa;         // more matches first
+        }
+        return (distanceValue(a)-distanceValue(b)) || a.name.localeCompare(b.name);
+      });
+
       renderCards(list);
       if(mapOpen) renderMapPoints(list);
     }
@@ -450,7 +508,6 @@
       state.favorites.clear();
       localStorage.setItem('traipse:favorites', '[]');
       renderFavorites();
-      // also update visible hearts elsewhere
       document.querySelectorAll('.fav').forEach(b=>b.classList.remove('active'));
     });
 
@@ -473,6 +530,7 @@
         state.raw = Array.isArray(data) ? data : (data.locations||[]);
         state.items = state.raw.map(normalize);
         initFilters();
+        requestUserLocation();
         render();
       }catch(e){
         document.getElementById('cards').innerHTML = '<p style="color:#6b7280">Failed to load locations.json</p>';
@@ -492,7 +550,16 @@
       Object.entries(MORE_FILTERS).forEach(([k,v])=>addCheckbox(moreWrap,'tags',k,v));
     }
 
-    // === Map logic — colored circle markers ===
+    function requestUserLocation(){
+      if(!navigator.geolocation) return;
+      navigator.geolocation.getCurrentPosition(
+        pos=>{ state.userLoc={lat:pos.coords.latitude,lng:pos.coords.longitude}; render(); },
+        err=>{ /* user denied or error — silently continue */ },
+        {enableHighAccuracy:true,timeout:10000,maximumAge:30000}
+      );
+    }
+
+    // === Map logic — colored circle markers with card popups ===
     let mapOpen = false;
     let map, markerLayer;
 
@@ -560,8 +627,7 @@
         const {lat,lng} = it.raw || {};
         if(typeof lat==='number' && typeof lng==='number'){
           const m = L.marker([lat,lng], {icon: iconFor(it.siteType)}).addTo(markerLayer);
-          const popup = cardHTML(it, true);   // exact same card inside popup
-          m.bindPopup(popup);
+          m.bindPopup(cardHTML(it, true));   // exact same card inside popup
           bounds.push([lat,lng]);
         }
       });
@@ -575,7 +641,7 @@
       document.getElementById('mapPanel').style.display='block';
       document.getElementById('mapPanel').setAttribute('aria-hidden','false');
       mapOpen = true;
-      renderMapPoints(state.items.filter(passesFilters));
+      renderMapPoints(state.items.filter(filterHardGates));
     }
     document.getElementById('closeMap').addEventListener('click', ()=>{
       document.getElementById('mapPanel').style.display='none';

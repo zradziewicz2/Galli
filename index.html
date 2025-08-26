@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Traipse — Index (v2)</title>
+  <title>Traipse — Index (v2.1 compact)</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -19,7 +19,7 @@
     .wrap{max-width:1220px;margin:0 auto;padding:18px}
 
     /* Header / Nav */
-    header{display:grid;grid-template-columns:auto 1fr auto;gap:18px;align-items:center;margin-bottom:10px}
+    header{display:grid;grid-template-columns:auto 1fr auto;gap:18px;align-items:center;margin-bottom:8px}
     .brand{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:.05em}
     .logo{width:34px;height:34px;border-radius:12px;background:var(--brand);transform:rotate(18deg)}
     .top{display:flex;justify-content:center}
@@ -28,7 +28,7 @@
     .pill{border:1px solid var(--ring);background:#fff;padding:8px 12px;border-radius:999px;font-weight:600}
 
     /* Tabs */
-    .tabs{display:flex;gap:26px;justify-content:center;margin:6px 0 14px}
+    .tabs{display:flex;gap:26px;justify-content:center;margin:6px 0 12px}
     .tab{font-weight:800;letter-spacing:.08em;color:#111;opacity:.6;cursor:pointer;border:none;background:none;font-size:16px}
     .tab.active{opacity:1;text-decoration:underline;text-underline-offset:6px}
 
@@ -42,31 +42,39 @@
     .view-map{display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--ring);border-radius:14px;background:#fff;margin-bottom:12px}
     .view-map .icon{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:#eaf5ff}
     .filters .group{margin-bottom:14px}
-    .filters label{display:flex;align-items:center;gap:8px;margin:7px 0;font-size:14px}
+    .filters label{display:flex;align-items:center;gap:8px;margin:6px 0;font-size:14px}
     .filters input[type="checkbox"]{width:16px;height:16px}
     details summary{cursor:pointer;color:#0b3a68;font-weight:700}
 
     /* Cards grid */
-    .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:18px}
+    .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
     @media (max-width:1200px){.grid{grid-template-columns:repeat(3,1fr)}}
     @media (max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}}
     @media (max-width:600px){.grid{grid-template-columns:1fr}}
 
-    /* Card */
-    .card{position:relative;background:var(--panel);border:1px solid var(--ring);border-radius:22px;overflow:hidden;box-shadow:var(--shadow)}
-    .badge{position:absolute;top:10px;left:10px;background:#111;color:#fff;font-size:11px;padding:4px 8px;border-radius:999px}
-    .fav{position:absolute;top:10px;right:10px;width:34px;height:34px;border-radius:999px;display:grid;place-items:center;border:1px solid var(--ring);background:rgba(255,255,255,.9);cursor:pointer}
-    .fav svg{width:18px;height:18px;fill:none;stroke:var(--accent);stroke-width:2}
+    /* Card (more compact) */
+    .card{position:relative;background:var(--panel);border:1px solid var(--ring);border-radius:20px;overflow:hidden;box-shadow:var(--shadow)}
+    .badge{position:absolute;top:8px;left:8px;background:#111;color:#fff;font-size:10px;padding:3px 7px;border-radius:999px}
+    .fav{position:absolute;top:8px;right:8px;width:30px;height:30px;border-radius:999px;display:grid;place-items:center;border:1px solid var(--ring);background:rgba(255,255,255,.9);cursor:pointer}
+    .fav svg{width:16px;height:16px;fill:none;stroke:var(--accent);stroke-width:2}
     .fav.active svg{fill:var(--accent)}
-    .img{width:100%;height:162px;object-fit:cover;border-bottom:1px solid var(--ring)}
-    .inner{padding:12px 14px 14px}
-    .title{font-size:20px;font-weight:800;margin:6px 0 6px}
-    .meta{font-size:13px;color:#4b5563;margin-bottom:8px}
-    .desc{font-size:14px;color:#0f172a;line-height:1.4;min-height:48px}
-    .icons{display:flex;gap:10px;margin-top:8px;color:#607085}
-    .icons a{display:inline-flex;align-items:center;gap:6px;text-decoration:none;font-size:13px}
-    .chipbar{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
-    .chip{display:inline-flex;align-items:center;border:1px solid var(--ring);background:#f1f5f9;font-size:12px;border-radius:10px;padding:4px 8px}
+    .img{width:100%;height:132px;object-fit:cover;border-bottom:1px solid var(--ring)}
+    .inner{padding:10px 12px 12px}
+    .title{font-size:18px;font-weight:800;margin:2px 0 4px}
+    .meta{font-size:12px;color:#4b5563;margin-bottom:8px}
+    .chipbar{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+    .chip{display:inline-flex;align-items:center;border:1px solid var(--ring);background:#f1f5f9;font-size:11px;border-radius:999px;padding:2px 6px}
+
+    /* More Info collapsible */
+    .more{margin-top:6px}
+    .more summary{font-size:12px;color:#0b3a68;cursor:pointer;display:inline-flex;align-items:center;gap:6px;user-select:none}
+    .more summary::marker{content:''}
+    .more summary span{border-bottom:1px dotted #0b3a68}
+    .more[open] summary span{border-bottom-style:solid}
+    .more-body{margin-top:6px}
+    .desc{font-size:13px;color:#334155;line-height:1.35;margin:0}
+    .icons{display:flex;gap:10px;margin-top:6px;color:#607085}
+    .icons a{display:inline-flex;align-items:center;gap:6px;text-decoration:none;font-size:12px}
   </style>
 </head>
 <body>
@@ -120,9 +128,14 @@
       <div class="inner">
         <h3 class="title"></h3>
         <div class="meta"></div>
-        <p class="desc"></p>
-        <div class="icons"></div>
         <div class="chipbar"></div>
+        <details class="more">
+          <summary><span>More Info</span></summary>
+          <div class="more-body">
+            <div class="icons"></div>
+            <p class="desc"></p>
+          </div>
+        </details>
       </div>
     </article>
   </template>
@@ -196,24 +209,6 @@
       };
     }
 
-    function unique(list){ return Array.from(new Set(list)).sort(); }
-
-    function buildFilters(){
-      // Site Types present
-      const siteTypes = unique(state.items.map(i=>i.siteType).filter(Boolean));
-      const siteWrap = document.getElementById('siteTypeFilters'); siteWrap.innerHTML='';
-      siteTypes.forEach(label => addCheckbox(siteWrap, 'siteTypes', label, label));
-
-      // Periods present
-      const periodSet = new Set(); state.items.forEach(i => (i.periods||[]).forEach(p=>periodSet.add(p)));
-      const periodWrap = document.getElementById('periodFilters'); periodWrap.innerHTML='';
-      Array.from(periodSet).sort().forEach(label => addCheckbox(periodWrap, 'periods', label, label));
-
-      // More filters
-      const moreWrap = document.getElementById('moreFilters'); moreWrap.innerHTML='';
-      Object.entries(MORE_FILTERS).forEach(([key,label]) => addCheckbox(moreWrap, 'tags', key, label));
-    }
-
     function addCheckbox(wrap, bucket, value, label){
       const id = `${bucket}-${value.replace(/[^a-z0-9]+/gi,'-')}`;
       const el = document.createElement('label');
@@ -228,26 +223,15 @@
     }
 
     function passesFilters(item){
-      // Tab
       if(state.tab==='site' && (item.type||'').toLowerCase()!=='site') return false;
       if(state.tab==='tour' && (item.type||'').toLowerCase()!=='tour') return false;
-
-      // City
       if(state.city && item.city && !item.city.includes(state.city)) return false;
-
-      // Site type
       if(state.filters.siteTypes.size && !state.filters.siteTypes.has(item.siteType)) return false;
-
-      // Periods
       if(state.filters.periods.size){
         const has = item.periods?.some(p => state.filters.periods.has(p));
         if(!has) return false;
       }
-
-      // More filters (tags are booleans coming from raw object keys)
-      if(state.filters.tags.size){
-        for(const key of state.filters.tags){ if(!item.raw[key]) return false; }
-      }
+      if(state.filters.tags.size){ for(const key of state.filters.tags){ if(!item.raw[key]) return false; } }
       return true;
     }
 
@@ -267,20 +251,24 @@
           if(state.favorites.has(id)) state.favorites.delete(id); else state.favorites.add(id);
           localStorage.setItem('traipse:favorites', JSON.stringify(Array.from(state.favorites)));
         });
-        const img = node.querySelector('.img'); img.src = it.image || 'https://picsum.photos/600/400?random='+Math.floor(Math.random()*5000); img.alt = `${it.name} image`;
+        const img = node.querySelector('.img');
+        const resolveImage = (p)=>{
+          if(!p) return '';
+          if(/^https?:\/\//i.test(p)) return p;       // absolute URL
+          return p.startsWith('./') || p.startsWith('images/') ? p : `images/${p}`;
+        }
+        const requested = resolveImage(it.image);
+        img.src = requested || 'images/default.jpg';
+        img.alt = `${it.name} image`;
+        img.onerror = ()=>{ img.src = 'images/default.jpg'; };
 
         node.querySelector('.title').textContent = it.name;
         const metaBits = [];
         if(it.categories?.length){ metaBits.push(it.categories.join(', ')); }
         if(it.periods?.length){ metaBits.push(it.periods[0]); }
         node.querySelector('.meta').textContent = metaBits.join(' • ');
-        node.querySelector('.desc').textContent = it.description||'';
 
-        // Links row (Website only for now)
-        const icons = node.querySelector('.icons');
-        if(it.website){ icons.innerHTML = `<a href="${it.website}" target="_blank" rel="noopener">🌐 <span>Website</span></a>`; }
-
-        // Chips row
+        // Chips row (smaller)
         const chipbar = node.querySelector('.chipbar');
         const chips = [];
         if(it.costText) chips.push(it.costText);
@@ -289,9 +277,12 @@
         (it.raw.adaaccessibility?['ADA-Accessible']:[]).forEach(c=>chips.push(c));
         (it.raw.dogfriendly?['Dog-Friendly']:[]).forEach(c=>chips.push(c));
         (it.raw.luggagestorage?['Luggage Storage']:[]).forEach(c=>chips.push(c));
-        chips.forEach(c=>{
-          const s = document.createElement('span'); s.className='chip'; s.textContent=c; chipbar.appendChild(s);
-        });
+        chips.forEach(c=>{ const s = document.createElement('span'); s.className='chip'; s.textContent=c; chipbar.appendChild(s); });
+
+        // More Info section
+        const icons = node.querySelector('.icons');
+        if(it.website){ icons.innerHTML = `<a href="${it.website}" target="_blank" rel="noopener">🌐 <span>Website</span></a>`; }
+        node.querySelector('.desc').textContent = it.description||'';
 
         host.appendChild(node);
       });
@@ -317,11 +308,11 @@
 
     async function load(){
       try{
-        const res = await fetch('locations.json', {cache:'no-store'});
+        const res = await fetch('locations.json?v='+Date.now());
         const data = await res.json();
         state.raw = Array.isArray(data) ? data : (data.locations||[]);
         state.items = state.raw.map(normalize);
-        buildFilters();
+        initFilters();
         render();
       }catch(e){
         document.getElementById('cards').innerHTML = '<p style="color:#6b7280">Failed to load locations.json</p>';
@@ -329,17 +320,17 @@
       }
     }
 
-    function buildFilters(){
-      buildFilters = ()=>{}; // ensure single-run
-      // after state.items set
+    function initFilters(){
+      initFilters = ()=>{}; // run once
+      // Site types
       const siteTypes = Array.from(new Set(state.items.map(i=>i.siteType))).sort();
       const siteWrap = document.getElementById('siteTypeFilters');
       siteTypes.forEach(label=>addCheckbox(siteWrap,'siteTypes',label,label));
-
+      // Periods
       const periodSet = new Set(); state.items.forEach(i=>i.periods.forEach(p=>periodSet.add(p)));
       const periodWrap = document.getElementById('periodFilters');
       Array.from(periodSet).sort().forEach(p=>addCheckbox(periodWrap,'periods',p,p));
-
+      // More filters
       const moreWrap = document.getElementById('moreFilters');
       Object.entries(MORE_FILTERS).forEach(([k,v])=>addCheckbox(moreWrap,'tags',k,v));
     }

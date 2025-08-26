@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Traipse — Index (v2.1 compact)</title>
+  <title>Traipse — Index (v2.2)</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -39,8 +39,11 @@
     /* Sidebar */
     .sidebar .panel{background:var(--panel);border:1px solid var(--ring);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px}
     .sidebar h3{margin:2px 0 10px;font-size:14px;text-transform:uppercase;letter-spacing:.1em}
-    .view-map{display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--ring);border-radius:14px;background:#fff;margin-bottom:12px}
-    .view-map .icon{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;background:#eaf5ff}
+    /* >>> Prominent map button */
+    .view-map{display:flex;align-items:center;gap:12px;padding:12px 14px;border:2px solid var(--brand);border-radius:16px;background:var(--brand);color:#fff;margin-bottom:14px;box-shadow:var(--shadow);font-weight:700}
+    .view-map:hover{filter:brightness(1.05)}
+    .view-map .icon{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.18);color:#fff;font-size:18px}
+    /* <<< */
     .filters .group{margin-bottom:14px}
     .filters label{display:flex;align-items:center;gap:8px;margin:6px 0;font-size:14px}
     .filters input[type="checkbox"]{width:16px;height:16px}
@@ -52,7 +55,7 @@
     @media (max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}}
     @media (max-width:600px){.grid{grid-template-columns:1fr}}
 
-    /* Card (more compact) */
+    /* Card */
     .card{position:relative;background:var(--panel);border:1px solid var(--ring);border-radius:20px;overflow:hidden;box-shadow:var(--shadow)}
     .badge{position:absolute;top:8px;left:8px;background:#111;color:#fff;font-size:10px;padding:3px 7px;border-radius:999px}
     .fav{position:absolute;top:8px;right:8px;width:30px;height:30px;border-radius:999px;display:grid;place-items:center;border:1px solid var(--ring);background:rgba(255,255,255,.9);cursor:pointer}
@@ -75,6 +78,7 @@
     .desc{font-size:13px;color:#334155;line-height:1.35;margin:0}
     .icons{display:flex;gap:10px;margin-top:6px;color:#607085}
     .icons a{display:inline-flex;align-items:center;gap:6px;text-decoration:none;font-size:12px}
+
     /* Map overlay */
     #mapPanel{position:fixed;inset:0;background:#fff;display:none;z-index:1000}
     #mapHeader{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--ring)}
@@ -82,9 +86,7 @@
     .btn{border:1px solid var(--ring);background:#fff;border-radius:999px;padding:8px 12px;font-weight:600;cursor:pointer}
     .legend{position:absolute;bottom:16px;right:16px;background:#fff;border:1px solid var(--ring);border-radius:12px;box-shadow:var(--shadow);padding:8px 10px;font-size:12px}
     .legend-row{display:flex;align-items:center;gap:8px;margin:4px 0}
-    .legend .ico{font-size:18px;line-height:1}
   </style>
-  <!-- Leaflet CSS/JS for the map -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 </head>
@@ -145,7 +147,7 @@
   </section>
 
   <template id="cardTemplate">
-    <article class="card" id="card-${it?.id||''}">
+    <article class="card">
       <span class="badge"></span>
       <button class="fav" title="Save to My Places" aria-label="Save"><svg viewBox="0 0 24 24"><path d="M12 21s-7-4.35-7-10a4 4 0 0 1 7-2 4 4 0 0 1 7 2c0 5.65-7 10-7 10z"/></svg></button>
       <img class="img" alt="" />
@@ -210,12 +212,6 @@
       const periods = (raw.timeperiod||[]).map(p => PERIOD_LABELS[p]||p);
       const siteTypeSlug = (raw.sitetype||'').toLowerCase();
       const siteType = SITETYPE_LABELS[siteTypeSlug] || (raw.type==='outdoor' ? 'Outdoor' : (SITETYPE_LABELS.other));
-      const tags = [];
-      if(raw.adaaccessibility) tags.push('ADA-Accessible');
-      if(raw.dogfriendly) tags.push('Dog-Friendly');
-      if(raw.luggagestorage) tags.push('Luggage Storage');
-      if(raw.family_friendly) tags.push('Family-Friendly');
-      if(raw.publicaccess) tags.push('Public Access');
       return {
         id: raw.id || (raw.name||'').toLowerCase().replace(/[^a-z0-9]+/g,'-'),
         name: raw.name,
@@ -266,19 +262,23 @@
       if(!list.length){ host.innerHTML = '<p style="color:#6b7280;padding:8px">No results match your filters.</p>'; return; }
 
       list.forEach(it => {
-        const node = tpl.content.cloneNode(true);
-        node.querySelector('.badge').textContent = it.type || 'Site';
-        const fav = node.querySelector('.fav');
-        const id = it.id; if(state.favorites.has(id)) fav.classList.add('active');
+        const frag = tpl.content.cloneNode(true);
+        const root = frag.querySelector('.card');
+        root.id = 'card-' + it.id;                        // <-- real card id for map jumps
+        frag.querySelector('.badge').textContent = it.type || 'Site';
+
+        const fav = frag.querySelector('.fav');
+        if(state.favorites.has(it.id)) fav.classList.add('active');
         fav.addEventListener('click', ()=>{
           fav.classList.toggle('active');
-          if(state.favorites.has(id)) state.favorites.delete(id); else state.favorites.add(id);
+          if(state.favorites.has(it.id)) state.favorites.delete(it.id); else state.favorites.add(it.id);
           localStorage.setItem('traipse:favorites', JSON.stringify(Array.from(state.favorites)));
         });
-        const img = node.querySelector('.img');
+
+        const img = frag.querySelector('.img');
         const resolveImage = (p)=>{
           if(!p) return '';
-          if(/^https?:\/\//i.test(p)) return p;       // absolute URL
+          if(/^https?:\/\//i.test(p)) return p;
           return p.startsWith('./') || p.startsWith('images/') ? p : `images/${p}`;
         }
         const requested = resolveImage(it.image);
@@ -286,29 +286,36 @@
         img.alt = `${it.name} image`;
         img.onerror = ()=>{ img.src = 'images/default.jpg'; };
 
-        node.querySelector('.title').textContent = it.name;
+        frag.querySelector('.title').textContent = it.name;
         const metaBits = [];
         if(it.categories?.length){ metaBits.push(it.categories.join(', ')); }
         if(it.periods?.length){ metaBits.push(it.periods[0]); }
-        node.querySelector('.meta').textContent = metaBits.join(' • ');
+        frag.querySelector('.meta').textContent = metaBits.join(' • ');
 
-        // Chips row (smaller)
-        const chipbar = node.querySelector('.chipbar');
-        const chips = [];
-        if(it.costText) chips.push(it.costText);
-        if(it.durationText) chips.push(it.durationText);
-        chips.push(it.siteType);
-        (it.raw.adaaccessibility?['ADA-Accessible']:[]).forEach(c=>chips.push(c));
-        (it.raw.dogfriendly?['Dog-Friendly']:[]).forEach(c=>chips.push(c));
-        (it.raw.luggagestorage?['Luggage Storage']:[]).forEach(c=>chips.push(c));
-        chips.forEach(c=>{ const s = document.createElement('span'); s.className='chip'; s.textContent=c; chipbar.appendChild(s); });
+        // >>> Chips only when relevant filters are active
+        const chipbar = frag.querySelector('.chipbar');
+        chipbar.innerHTML = '';
+        let chips = [];
+        if(state.filters.siteTypes.size && state.filters.siteTypes.has(it.siteType)) chips.push(it.siteType);
+        if(state.filters.periods.size){ (it.periods||[]).forEach(p=>{ if(state.filters.periods.has(p)) chips.push(p); }); }
+        if(state.filters.tags.size){
+          Object.entries(MORE_FILTERS).forEach(([k,label])=>{
+            if(state.filters.tags.has(k) && it.raw[k]) chips.push(label);
+          });
+        }
+        if(chips.length){
+          chipbar.style.display='flex';
+          chips.slice(0,5).forEach(c=>{ const s=document.createElement('span'); s.className='chip'; s.textContent=c; chipbar.appendChild(s); });
+        } else {
+          chipbar.style.display='none';
+        }
+        // <<<
 
-        // More Info section
-        const icons = node.querySelector('.icons');
+        const icons = frag.querySelector('.icons');
         if(it.website){ icons.innerHTML = `<a href="${it.website}" target="_blank" rel="noopener">🌐 <span>Website</span></a>`; }
-        node.querySelector('.desc').textContent = it.description||'';
+        frag.querySelector('.desc').textContent = it.description||'';
 
-        host.appendChild(node);
+        host.appendChild(frag);
       });
     }
 
@@ -347,33 +354,30 @@
 
     function initFilters(){
       initFilters = ()=>{}; // run once
-      // Site types
       const siteTypes = Array.from(new Set(state.items.map(i=>i.siteType))).sort();
       const siteWrap = document.getElementById('siteTypeFilters');
       siteTypes.forEach(label=>addCheckbox(siteWrap,'siteTypes',label,label));
-      // Periods
       const periodSet = new Set(); state.items.forEach(i=>i.periods.forEach(p=>periodSet.add(p)));
       const periodWrap = document.getElementById('periodFilters');
       Array.from(periodSet).sort().forEach(p=>addCheckbox(periodWrap,'periods',p,p));
-      // More filters
       const moreWrap = document.getElementById('moreFilters');
       Object.entries(MORE_FILTERS).forEach(([k,v])=>addCheckbox(moreWrap,'tags',k,v));
     }
 
-    // === Map logic ===
+    // === Map logic — colored circle markers ===
     let mapOpen = false;
     let map, markerLayer;
 
-    const TYPE_EMOJI = {
-      'Museum':'🏛',
-      'Landmark':'📍',
-      'Historical Home':'🏠',
-      'Archaeological':'🗿',
-      'Religious':'⛪',
-      'Industrial':'🏭',
-      'Outdoor':'🌲',
-      'Burial':'⚰️',
-      'Political':'🏛'
+    const TYPE_COLORS = {
+      'Museum':'#2563eb',
+      'Landmark':'#f97316',
+      'Historical Home':'#059669',
+      'Archaeological':'#7c3aed',
+      'Religious':'#dc2626',
+      'Industrial':'#6b7280',
+      'Outdoor':'#16a34a',
+      'Burial':'#9ca3af',
+      'Political':'#2563eb'
     };
 
     function ensureMap(){
@@ -389,22 +393,22 @@
     function buildLegend(){
       const legend = document.getElementById('mapLegend');
       legend.innerHTML = '';
-      Object.entries(TYPE_EMOJI).forEach(([label,emoji])=>{
+      Object.entries(TYPE_COLORS).forEach(([label,color])=>{
         const row = document.createElement('div');
         row.className='legend-row';
-        row.innerHTML = `<span class="ico">${emoji}</span> <span>${label}</span>`;
+        row.innerHTML = `<span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:${color};border:2px solid #fff;box-shadow:0 0 0 2px rgba(0,0,0,.12)"></span> <span>${label}</span>`;
         legend.appendChild(row);
       });
       legend.setAttribute('aria-hidden','false');
     }
 
     function iconFor(type){
-      const emoji = TYPE_EMOJI[type] || '📌';
+      const color = TYPE_COLORS[type] || '#3b82f6';
       return L.divIcon({
-        className:'emoji-icon',
-        html:`<div style="font-size:22px;line-height:1">${emoji}</div>`,
-        iconSize:[24,24],
-        iconAnchor:[12,12]
+        className:'circle-icon',
+        html:`<div style="width:18px;height:18px;border-radius:50%;background:${color};border:2px solid #fff;box-shadow:0 0 0 2px rgba(0,0,0,.12)"></div>`,
+        iconSize:[22,22],
+        iconAnchor:[11,11]
       });
     }
 
@@ -422,7 +426,7 @@
               <small>${it.siteType}${it.periods?.length? ' • '+it.periods[0]:''}</small>
               <div style="margin-top:6px">
                 ${it.website? `<a href="${it.website}" target="_blank" rel="noopener">Website</a>`:''}
-                ${it.id? ` &nbsp; <a href="#card-${it.id}" onclick="document.getElementById('closeMap').click(); setTimeout(()=>{document.getElementById('card-${it.id}')?.scrollIntoView({behavior:'smooth',block:'start'});},150); return false;">Open card</a>`:''}
+                 &nbsp; <a href="#card-${it.id}" onclick="document.getElementById('closeMap').click(); setTimeout(()=>{document.getElementById('card-${it.id}')?.scrollIntoView({behavior:'smooth',block:'start'});},150); return false;">Open card</a>
               </div>
             </div>`;
           m.bindPopup(popup);

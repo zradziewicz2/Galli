@@ -47,22 +47,21 @@
     .sidebar .panel{background:var(--panel);border:1px solid var(--ring);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px}
     .sidebar h3{margin:2px 0 10px;font-size:14px;text-transform:uppercase;letter-spacing:.1em}
     .view-map{
-      display:flex;align-items:center;gap:12px;
-      width:100%; padding:14px; background:#fff; border:1px solid var(--ring);
-      border-radius:var(--radius); box-shadow:var(--shadow); color:inherit;font-weight:700; margin-bottom:14px
+      display:flex;align-items:center;gap:12px;width:100%;padding:14px;background:#fff;border:1px solid var(--ring);
+      border-radius:var(--radius);box-shadow:var(--shadow);color:inherit;font-weight:700;margin-bottom:14px
     }
-    .view-map .icon{ width:32px;height:32px;border-radius:50%; display:grid;place-items:center; background:#eaf5ff;color:#0b3a68;font-size:18px }
+    .view-map .icon{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:#eaf5ff;color:#0b3a68;font-size:18px}
     .filters .group{margin-bottom:14px}
     .filters label{display:flex;align-items:center;gap:8px;margin:6px 0;font-size:14px}
     .filters input[type="checkbox"]{width:16px;height:16px}
     details summary{cursor:pointer;color:#0b3a68;font-weight:700}
 
-    /* Cards grid: 3 columns (wider) */
+    /* Cards grid — 3 columns (wider) */
     .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
     @media (max-width:1100px){.grid{grid-template-columns:repeat(2,1fr)}}
     @media (max-width:680px){.grid{grid-template-columns:1fr}}
 
-    /* Card (compact) */
+    /* Card */
     .card{position:relative;background:var(--panel);border:1px solid var(--ring);border-radius:20px;overflow:hidden;box-shadow:var(--shadow)}
     .badge{position:absolute;top:8px;left:8px;background:#111;color:#fff;font-size:10px;padding:3px 7px;border-radius:999px}
     .fav{position:absolute;top:8px;right:8px;width:30px;height:30px;border-radius:999px;display:grid;place-items:center;border:1px solid var(--ring);background:rgba(255,255,255,.9);cursor:pointer}
@@ -75,7 +74,7 @@
     .chipbar{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
     .chip{display:inline-flex;align-items:center;border:1px solid var(--ring);background:#f1f5f9;font-size:11px;border-radius:999px;padding:2px 6px}
 
-    /* More Info collapsible */
+    /* More Info */
     .more{margin-top:6px}
     .more summary{font-size:12px;color:#0b3a68;cursor:pointer;display:inline-flex;align-items:center;gap:6px;user-select:none}
     .more summary::marker{content:''}
@@ -91,7 +90,7 @@
     .overlayHeader{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--ring)}
     .btn{border:1px solid var(--ring);background:#fff;border-radius:999px;padding:8px 12px;font-weight:600;cursor:pointer}
 
-    /* Map overlay layout: filters + map with same styles */
+    /* Map overlay layout: same filter styles on the left */
     .mapLayout{display:grid;grid-template-columns:320px 1fr;gap:16px;height:calc(100vh - 56px)}
     .mapSidebar{padding:14px;border-right:1px solid var(--ring);overflow:auto}
     .mapCanvas{position:relative}
@@ -99,11 +98,11 @@
     .legend{position:absolute;bottom:16px;right:16px;background:#fff;border:1px solid var(--ring);border-radius:12px;box-shadow:var(--shadow);padding:8px 10px;font-size:12px}
     .legend-row{display:flex;align-items:center;gap:8px;margin:4px 0}
 
-    /* Leaflet popup styled like card */
+    /* Leaflet popup like a card */
     .leaflet-popup-content { margin:0; }
     .leaflet-popup-content-wrapper { padding:0; border-radius:20px; overflow:hidden; border:1px solid var(--ring); box-shadow:var(--shadow); }
     .leaflet-popup-tip { display:none; }
-    .leaflet-popup .fav { pointer-events:auto; } /* clickable heart in popup */
+    .leaflet-popup .fav { pointer-events:auto; }
     .popup-card .img{ height:148px; }
   </style>
 </head>
@@ -128,6 +127,7 @@
     <div class="layout">
       <aside class="sidebar">
         <button class="view-map" id="viewMap"><span class="icon">🌐</span><strong>View in map</strong></button>
+
         <div class="panel filters" id="filtersPanelMain">
           <div class="group">
             <h3>Site Type</h3>
@@ -150,7 +150,7 @@
     </div>
   </div>
 
-  <!-- Fullscreen Map Panel -->
+  <!-- Map -->
   <section id="mapPanel" aria-hidden="true" role="dialog" aria-label="Map view of sites + tours">
     <div class="overlayHeader">
       <strong>GALLIVANT Map</strong>
@@ -161,7 +161,7 @@
     </div>
 
     <div class="mapLayout">
-      <!-- LEFT: The SAME filters (identical HTML classes/styles) -->
+      <!-- Same filters in map -->
       <aside class="mapSidebar">
         <div class="panel filters" id="filtersPanelMap">
           <div class="group">
@@ -179,7 +179,6 @@
         </div>
       </aside>
 
-      <!-- RIGHT: Map canvas -->
       <div class="mapCanvas">
         <div id="map"></div>
         <div class="legend" id="mapLegend"></div>
@@ -187,7 +186,7 @@
     </div>
   </section>
 
-  <!-- Fullscreen Favorites Panel -->
+  <!-- My Places -->
   <section id="favoritesPanel" aria-hidden="true" role="dialog" aria-label="My Places">
     <div class="overlayHeader">
       <strong>My Places</strong>
@@ -201,6 +200,7 @@
     </div>
   </section>
 
+  <!-- Card template -->
   <template id="cardTemplate">
     <article class="card">
       <span class="badge"></span>
@@ -255,6 +255,7 @@
       filters: { siteTypes:new Set(), periods:new Set(), tags:new Set() }
     };
 
+    // More Filters (normalized keys used in JSON for sites/tours)
     const MORE_FILTERS = {
       spanishtranslations: 'Spanish translations',
       paymentmethod: 'Cash/Credit',
@@ -276,19 +277,16 @@
       const R=6371; // km
       const dLat = toRad(b.lat-a.lat), dLng = toRad(b.lng-a.lng);
       const s = Math.sin(dLat/2)**2 + Math.cos(toRad(a.lat))*Math.cos(toRad(b.lat))*Math.sin(dLng/2)**2;
-      return 2*R*Math.asin(Math.sqrt(s)); // km
+      return 2*R*Math.asin(Math.sqrt(s));
     }
     const kmToMiles = km => km*0.621371;
 
     function scoreMatches(it){
       let score = 0;
-      // site types
       if(state.filters.siteTypes.size && state.filters.siteTypes.has(it.siteType)) score++;
-      // periods
       if(state.filters.periods.size){
         (it.periods||[]).forEach(p=>{ if(state.filters.periods.has(p)) score++; });
       }
-      // more filters (new set)
       if(state.filters.tags.size){
         for(const key of state.filters.tags){
           if(key === 'paymentmethod'){
@@ -302,11 +300,10 @@
     }
 
     function distanceFromUser(it){
-      if(!state.geoloc){ return Infinity; }
+      if(!state.geoloc) return Infinity;
       const pos = state.geoloc;
       let target = null;
       if(it.type==='Tour'){
-        // Use centroid of route or first site
         if(it.center){ target = it.center; }
       }else{
         const {lat,lng}=it.raw||{}; if(typeof lat==='number'&&typeof lng==='number'){ target={lat,lng}; }
@@ -345,7 +342,6 @@
     }
 
     function normalizeTour(raw){
-      // compute a simple center from route (or from first site)
       let center=null;
       if(Array.isArray(raw.route) && raw.route.length){
         const lat = raw.route.reduce((a,b)=>a+b.lat,0)/raw.route.length;
@@ -360,13 +356,13 @@
         name: raw.tour_name,
         type: 'Tour',
         image: raw.image,
-        website: '', // use external links in More Info
+        website: '',
         categories: [CATEGORY_LABELS[raw.thematiccategory]||raw.thematiccategory||'General'],
         siteType: 'Tour',
-        periods: [], // tours may span periods; can be refined later
+        periods: [],
         description: `${raw.duration||''} • ${raw.Cost||''}`.trim(),
         durationText: raw.duration || '',
-        color: raw.color || '#e11d48',
+        color: '#e11d48',
         center,
         raw
       };
@@ -381,6 +377,7 @@
       input.addEventListener('change', ()=>{
         const set = state.filters[bucket];
         if(input.checked) set.add(value); else set.delete(value);
+        syncFilterUIs(); // keep both panels in sync
         render();
       });
       wrap.appendChild(el);
@@ -403,14 +400,49 @@
       Object.entries(MORE_FILTERS).forEach(([k,v])=>addCheckbox(moreWrap,'tags',k,v));
     }
 
-    /* ---------------- Cards / Popups ---------------- */
+    function syncFilterUIs(){
+      // sync checked states between main & map panels
+      const getChecked = (panel) => Array.from(panel.querySelectorAll('input[type="checkbox"]')).filter(x=>x.checked).map(x=>x.nextElementSibling?.textContent?.trim());
+      const main = document.getElementById('filtersPanelMain');
+      const mapP = document.getElementById('filtersPanelMap');
+
+      const mapChecked = new Set(getChecked(main));
+      mapP.querySelectorAll('input[type="checkbox"]').forEach(cb=>{
+        const label = cb.nextElementSibling?.textContent?.trim();
+        cb.checked = mapChecked.has(label);
+      });
+
+      const mainChecked = new Set(getChecked(mapP));
+      main.querySelectorAll('input[type="checkbox"]').forEach(cb=>{
+        const label = cb.nextElementSibling?.textContent?.trim();
+        cb.checked = mainChecked.has(label);
+      });
+    }
+
+    /* ---------------- Chips / Cards ---------------- */
+    // Only show "filter chips" (labels) when those filters are actually selected
+    function filterChips(it){
+      const chips=[];
+      if(state.filters.siteTypes.size && state.filters.siteTypes.has(it.siteType)) chips.push(it.siteType);
+      if(state.filters.periods.size){ (it.periods||[]).forEach(p=>{ if(state.filters.periods.has(p)) chips.push(p); }); }
+      if(state.filters.tags.size){
+        Object.entries(MORE_FILTERS).forEach(([k,label])=>{
+          if(state.filters.tags.has(k)){
+            if(k==='paymentmethod'){ if((it.raw?.paymentmethod||'').toLowerCase()==='both') chips.push(label); }
+            else if(k==='hiddengem'){ if(it.raw?.hiddenGem) chips.push(label); }
+            else if(it.raw?.[k]) chips.push(label);
+          }
+        });
+      }
+      return chips;
+    }
+
     function chipsFor(it, score, distMiles){
       const chips = [];
-      if(score>0){ chips.push(`${score} match${score>1?'es':''}`); }
-      if(isFinite(distMiles)){ chips.push(formatMiles(distMiles)); }
-      // Show some attributes too
-      if(it.durationText) chips.push(it.durationText);
-      if(it.siteType && it.siteType!=='Tour') chips.push(it.siteType);
+      // informational chips (always OK)
+      if(isFinite(distMiles)) chips.push(formatMiles(distMiles));
+      // show filter chips only when filters chosen
+      filterChips(it).forEach(c=>chips.push(c));
       return chips;
     }
 
@@ -424,6 +456,8 @@
       if(it.type==='Tour' && it.raw?.external_links){
         for(const [name,url] of Object.entries(it.raw.external_links)){ links.push(`<a href="${url}" target="_blank" rel="noopener">🔗 <span>${name}</span></a>`); }
       }
+      // open card link for popup
+      const openCard = `<a href="#card-${it.id}" onclick="document.getElementById('closeMap').click(); setTimeout(()=>{document.getElementById('card-${it.id}')?.scrollIntoView({behavior:'smooth',block:'start'});},150); return false;">Open card</a>`;
 
       return `
         <article class="card ${asPopup?'popup-card':''}" id="card-${it.id}">
@@ -439,7 +473,7 @@
             <details class="more">
               <summary><span>More Info</span></summary>
               <div class="more-body">
-                <div class="icons">${links.join(' ')}</div>
+                <div class="icons">${[...links, openCard].join(' ')}</div>
                 <p class="desc">${it.description||''}</p>
               </div>
             </details>
@@ -525,16 +559,22 @@
       return true;
     }
 
+    function cityPass(it){
+      if(!state.city) return true;
+      const c = (it.city||'').toLowerCase();
+      return c.includes(state.city);
+    }
+
     function renderCards(){
       const host = document.getElementById('cards');
-      const list = state.items.filter(passesTab).map(it=>({
+      const list = state.items.filter(passesTab).filter(cityPass).map(it=>({
         it,
         score: scoreMatches(it),
         dist: distanceFromUser(it)
       })).sort((a,b)=> b.score-a.score || a.dist-b.dist);
 
       host.innerHTML='';
-      if(!list.length){ host.innerHTML='<p style="color:#6b7280;padding:8px">No results match your filters.</p>'; return; }
+      if(!list.length){ host.innerHTML='<p style="color:#6b7280;padding:8px">No results.</p>'; return; }
       list.forEach(({it,score,dist})=> host.appendChild(buildCardNode(it,score,dist)));
     }
 
@@ -548,7 +588,7 @@
       render();
     }));
 
-    // City input (simple substring match for item.city)
+    // City input
     document.getElementById('cityInput').addEventListener('input', e=>{
       state.city = (e.target.value||'').trim().toLowerCase();
       render();
@@ -571,12 +611,12 @@
         const tourItems = state.rawTours.map(normalizeTour);
         state.items = [...siteItems, ...tourItems];
 
-        // Build filters in both main + map panels (identical look)
         buildFilters('Main');
         buildFilters('Map');
+        syncFilterUIs();
 
         render();
-        locateUser(); // kick geolocation
+        locateUser();
       }catch(e){
         document.getElementById('cards').innerHTML = '<p style="color:#6b7280">Failed to load data files.</p>';
         console.error(e);
@@ -595,7 +635,6 @@
     /* ---------------- Map ---------------- */
     let mapOpen=false, map, siteLayer, tourLayer;
 
-    // Site colors by type
     const TYPE_COLORS = {
       'Museum':'#2563eb','Landmark':'#f97316','Historical Home':'#059669','Archaeological':'#7c3aed',
       'Religious':'#dc2626','Industrial':'#6b7280','Outdoor':'#16a34a','Burial':'#9ca3af','Political':'#2563eb'
@@ -628,7 +667,7 @@
       });
       const row = document.createElement('div');
       row.className='legend-row';
-      row.innerHTML = `<span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:#e11d48;opacity:.55;border:1px solid #e11d48;"></span> <span>Tour area</span>`;
+      row.innerHTML = `<span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:#e11d48;opacity:.55;border:1px solid #e11d48;"></span> <span>Tour area (size = matches)</span>`;
       legend.appendChild(row);
     }
 
@@ -646,18 +685,13 @@
       siteLayer.clearLayers();
       tourLayer.clearLayers();
 
-      const inTab = state.items.filter(passesTab); // but we still render both in ALL
-
-      const sites = state.items.filter(it=>it.type==='Site');
+      const sites = state.items.filter(it=>it.type==='Site').filter(cityPass);
       const tours = state.items.filter(it=>it.type==='Tour');
-
-      const filteredSites = sites.map(it=>({it,score:scoreMatches(it)})).filter(({it})=>passesTab(it) || state.tab==='all');
-      const filteredTours = tours.map(it=>({it,score:scoreMatches(it)})).filter(({it})=>passesTab(it) || state.tab==='all');
 
       const bounds=[];
 
       // Sites: colored circle markers
-      filteredSites.forEach(({it})=>{
+      sites.forEach(it=>{
         const {lat,lng} = it.raw||{};
         if(typeof lat==='number' && typeof lng==='number'){
           const m = L.marker([lat,lng],{icon:siteIconFor(it.siteType)}).addTo(siteLayer);
@@ -667,19 +701,19 @@
         }
       });
 
-      // Tours: soft red halo circles ONLY; size scales with match score
-      filteredTours.forEach(({it,score})=>{
+      // Tours: soft red halos ONLY; size scales with match score
+      tours.forEach(it=>{
         if(it.center){
-          // scale radius (meters) : base 250m + 200m * score
-          const radius = 250 + 200 * score;
+          const s = scoreMatches(it);
+          const radius = 250 + 200 * s; // meters (dynamic size)
           const circle = L.circle(it.center, {
             color:'#e11d48',
             fillColor:'#e11d48',
-            fillOpacity:0.45,     /* slightly more opaque per request */
+            fillOpacity:0.45,
             weight:1,
             radius
           }).addTo(tourLayer);
-          const html = cardHTML(it, score, distanceFromUser(it), true);
+          const html = cardHTML(it, s, distanceFromUser(it), true);
           circle.bindPopup(html);
           bounds.push([it.center.lat, it.center.lng]);
         }
@@ -695,6 +729,7 @@
       ensureMap();
       document.getElementById('mapPanel').style.display='block';
       mapOpen=true;
+      syncFilterUIs();
       renderMapPoints();
     });
     document.getElementById('closeMap').addEventListener('click', ()=>{
@@ -703,21 +738,31 @@
     });
     document.getElementById('mapShowAll').addEventListener('click', ()=>{
       if(!map) return;
-      // temporarily ignore filters: render both layers from full items
-      const backup = JSON.parse(JSON.stringify({
-        siteTypes:Array.from(state.filters.siteTypes),
-        periods:Array.from(state.filters.periods),
-        tags:Array.from(state.filters.tags)
-      }));
+      // temporarily ignore filters, then restore
+      const backup = {
+        siteTypes:new Set(state.filters.siteTypes),
+        periods:new Set(state.filters.periods),
+        tags:new Set(state.filters.tags)
+      };
       state.filters.siteTypes.clear(); state.filters.periods.clear(); state.filters.tags.clear();
-      renderMapPoints();
-      // restore
-      state.filters.siteTypes = new Set(backup.siteTypes);
-      state.filters.periods   = new Set(backup.periods);
-      state.filters.tags      = new Set(backup.tags);
+      syncFilterUIs(); renderMapPoints();
+      state.filters.siteTypes=backup.siteTypes; state.filters.periods=backup.periods; state.filters.tags=backup.tags;
+      syncFilterUIs();
     });
 
     /* ---------------- Init ---------------- */
+    document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>{
+      document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      state.tab = btn.dataset.tab;
+      render();
+    }));
+
+    document.getElementById('cityInput').addEventListener('input', e=>{
+      state.city = (e.target.value||'').trim().toLowerCase();
+      render();
+    });
+
     loadData();
   </script>
 </body>

@@ -85,6 +85,12 @@
     .icons{display:flex;gap:10px;margin-top:6px;color:#607085}
     .icons a{display:inline-flex;align-items:center;gap:6px;text-decoration:none;font-size:12px}
 
+    /* NEW: Stats table under More Info */
+    .stats{width:100%;border-collapse:collapse;margin-top:10px;font-size:12px;color:#334155}
+    .stats th{font-weight:600;text-align:left;padding:6px 0;width:52%}
+    .stats td{padding:6px 0}
+    .stats tr+tr th, .stats tr+tr td{border-top:1px dashed #e5e7eb}
+
     /* Overlays */
     #mapPanel,#favoritesPanel{position:fixed;inset:0;background:#fff;display:none;z-index:1000}
     .overlayHeader{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--ring)}
@@ -215,6 +221,7 @@
           <div class="more-body">
             <div class="icons"></div>
             <p class="desc"></p>
+            <!-- stats table injected here -->
           </div>
         </details>
       </div>
@@ -256,13 +263,22 @@
     };
 
     // More Filters for both sites & tours (normalized keys)
+    // (ADDED new filters while preserving existing)
     const MORE_FILTERS = {
       spanishtranslations: 'Spanish translations',
       paymentmethod: 'Cash/Credit',
       luggagestorage: 'Luggage storage',
       hiddengem: 'Hidden gem',
       featured: 'Featured site',
-      publicaccess: 'Public access'
+      publicaccess: 'Public access',
+
+      // New ones you requested:
+      dogfriendly: 'Pet-friendly',
+      family_friendly: 'Family-friendly',
+      giftshop: 'Gift shop',
+      foodbeverage: 'Food & beverage on-site',
+      transit_accessible: 'Accessible by public transit',
+      adaaccessibility: 'ADA accessibility'
     };
 
     /* ---------------- Helpers ---------------- */
@@ -280,6 +296,28 @@
       return 2*R*Math.asin(Math.sqrt(s));
     }
     const kmToMiles = km => km*0.621371;
+    const formatMiles = m => !isFinite(m) ? '' : (m<0.2? `${(m*5280).toFixed(0)} ft away` : (m<10? `${m.toFixed(1)} mi away` : `${Math.round(m)} mi away`));
+
+    // Determine if an item matches a "more filter" key
+    function hasTag(it, key){
+      const r = it.raw||{};
+      switch(key){
+        case 'paymentmethod': return (r.paymentmethod||'').toLowerCase()==='both';
+        case 'hiddengem': return !!r.hiddenGem;
+        case 'foodbeverage': return !!(r.diningonsite || r.diningonsite2);
+        case 'transit_accessible': return (r.transit||'').toLowerCase()==='underhalfamilefromtransit';
+        // direct boolean flags:
+        case 'spanishtranslations': return !!r.spanishtranslations;
+        case 'luggagestorage': return !!r.luggagestorage;
+        case 'featured': return !!r.featured;
+        case 'publicaccess': return !!r.publicaccess;
+        case 'dogfriendly': return !!r.dogfriendly;
+        case 'family_friendly': return !!r.family_friendly;
+        case 'giftshop': return !!r.giftshop;
+        case 'adaaccessibility': return !!r.adaaccessibility;
+        default: return !!r[key];
+      }
+    }
 
     function scoreMatches(it){
       let score = 0;
@@ -288,13 +326,7 @@
         (it.periods||[]).forEach(p=>{ if(state.filters.periods.has(p)) score++; });
       }
       if(state.filters.tags.size){
-        for(const key of state.filters.tags){
-          if(key === 'paymentmethod'){
-            if((it.raw?.paymentmethod||'').toLowerCase()==='both') score++;
-          }else if(key==='hiddengem'){
-            if(it.raw?.hiddenGem) score++;
-          }else if(it.raw?.[key]) score++;
-        }
+        for(const key of state.filters.tags){ if(hasTag(it,key)) score++; }
       }
       return score;
     }
@@ -310,13 +342,6 @@
       }
       if(!target) return Infinity;
       return kmToMiles(haversine({lat:pos.lat,lng:pos.lng}, target));
-    }
-
-    function formatMiles(m){
-      if(!isFinite(m)) return '';
-      if(m<0.2) return `${(m*5280).toFixed(0)} ft away`;
-      if(m<10) return `${m.toFixed(1)} mi away`;
-      return `${Math.round(m)} mi away`;
     }
 
     /* ---------------- Normalization ---------------- */
@@ -378,10 +403,8 @@
         const set = state.filters[bucket];
         if(input.checked) set.add(value); else set.delete(value);
 
-        // Directional sync: figure out which panel fired
         const source = wrap.id.endsWith('Map') ? 'map' : 'main';
         syncFilterUIs(source);
-
         render();
       });
       wrap.appendChild(el);
@@ -404,22 +427,19 @@
       Object.entries(MORE_FILTERS).forEach(([k,v])=>addCheckbox(moreWrap,'tags',k,v));
     }
 
-    // Directional sync (prevents overwriting map clicks with main panel)
     function syncFilterUIs(source){
       const main = document.getElementById('filtersPanelMain');
       const mapP = document.getElementById('filtersPanelMap');
 
-      const getChecked = (panel) => {
-        const all = panel.querySelectorAll('input[type="checkbox"]');
-        const selected = new Set();
-        all.forEach(cb=>{
+      const getCheckedWithLabels = (panel) => {
+        const res = new Set();
+        panel.querySelectorAll('input[type="checkbox"]').forEach(cb=>{
           const label = cb.nextElementSibling?.textContent?.trim();
-          if(cb.checked && label) selected.add(label);
+          if(cb.checked && label) res.add(label);
         });
-        return selected;
+        return res;
       };
-
-      const setTo = (panel, selected) => {
+      const setToByLabels = (panel, selected) => {
         panel.querySelectorAll('input[type="checkbox"]').forEach(cb=>{
           const label = cb.nextElementSibling?.textContent?.trim();
           cb.checked = selected.has(label);
@@ -427,30 +447,64 @@
       };
 
       if(source==='map'){
-        const chosen = getChecked(mapP);
-        setTo(main, chosen);
+        setToByLabels(main, getCheckedWithLabels(mapP));
       }else{
-        const chosen = getChecked(main);
-        setTo(mapP, chosen);
+        setToByLabels(mapP, getCheckedWithLabels(main));
       }
     }
 
     /* ---------------- Chips / Cards ---------------- */
-    // Only real filter chips (no distance chip anymore)
     function filterChips(it){
       const chips=[];
       if(state.filters.siteTypes.size && state.filters.siteTypes.has(it.siteType)) chips.push(it.siteType);
       if(state.filters.periods.size){ (it.periods||[]).forEach(p=>{ if(state.filters.periods.has(p)) chips.push(p); }); }
       if(state.filters.tags.size){
         Object.entries(MORE_FILTERS).forEach(([k,label])=>{
-          if(state.filters.tags.has(k)){
-            if(k==='paymentmethod'){ if((it.raw?.paymentmethod||'').toLowerCase()==='both') chips.push(label); }
-            else if(k==='hiddengem'){ if(it.raw?.hiddenGem) chips.push(label); }
-            else if(it.raw?.[k]) chips.push(label);
-          }
+          if(state.filters.tags.has(k) && hasTag(it,k)) chips.push(label);
         });
       }
       return chips;
+    }
+
+    // Build the Stats table HTML for an item
+    function buildStatsTableHTML(it){
+      const r = it.raw||{};
+      const yesNo = v => v===undefined || v===null ? '—' : (v ? 'Yes' : 'No');
+
+      // derived
+      const foodOnsite = !!(r.diningonsite || r.diningonsite2);
+      const transitOk = (r.transit||'').toLowerCase()==='underhalfamilefromtransit';
+      const payMethod = (r.paymentmethod||'').toLowerCase()==='both' ? 'Cash & credit' :
+                        (r.paymentmethod||'') ? String(r.paymentmethod) : '—';
+
+      const rowsSite = [
+        ['Hours', r.hours||'—'],
+        ['Cost', it.costText || '—'],
+        ['Duration', it.durationText || '—'],
+        ['Pet-friendly', yesNo(r.dogfriendly)],
+        ['Family-friendly', yesNo(r.family_friendly)],
+        ['Gift shop', yesNo(r.giftshop)],
+        ['Food & beverage on-site', yesNo(foodOnsite)],
+        ['Accessible by public transit', yesNo(transitOk)],
+        ['ADA accessibility', yesNo(r.adaaccessibility)],
+        ['Luggage storage', yesNo(r.luggagestorage)],
+        ['Spanish translations', yesNo(r.spanishtranslations)],
+        ['Public access', yesNo(r.publicaccess)],
+        ['Payment method', payMethod]
+      ];
+
+      const rowsTour = [
+        ['Duration', it.durationText || '—'],
+        ['# of sites', r.number_of_sites || '—'],
+        ['Cost', r.Cost || r.cost_range?.join(' - ') || '—'],
+        ['Reservation required', yesNo(r.reservation_required)],
+        ['Seasonal', yesNo(r.seasonal)],
+        ['Group type', r.group_type || '—']
+      ];
+
+      const rows = it.type==='Tour' ? rowsTour : rowsSite;
+      const tr = rows.map(([k,v])=>`<tr><th>${k}</th><td>${v}</td></tr>`).join('');
+      return `<table class="stats" aria-label="Details"><tbody>${tr}</tbody></table>`;
     }
 
     function cardHTML(it, score, distMiles, asPopup=false){
@@ -468,6 +522,8 @@
       }
       const openCard = `<a href="#card-${it.id}" onclick="document.getElementById('closeMap').click(); setTimeout(()=>{document.getElementById('card-${it.id}')?.scrollIntoView({behavior:'smooth',block:'start'});},150); return false;">Open card</a>`;
 
+      const stats = buildStatsTableHTML(it);
+
       return `
         <article class="card ${asPopup?'popup-card':''}" id="card-${it.id}">
           <span class="badge">${it.type||'Site'}</span>
@@ -484,6 +540,7 @@
               <div class="more-body">
                 <div class="icons">${[...links, openCard].join(' ')}</div>
                 <p class="desc">${it.description||''}</p>
+                ${stats}
               </div>
             </details>
           </div>
@@ -530,6 +587,12 @@
       }
       icons.innerHTML = links.join(' ');
       node.querySelector('.desc').textContent = it.description||'';
+
+      // Inject stats table
+      const moreBody = root.querySelector('.more-body');
+      const statsDiv = document.createElement('div');
+      statsDiv.innerHTML = buildStatsTableHTML(it);
+      moreBody.appendChild(statsDiv.firstElementChild);
 
       return node;
     }
@@ -715,11 +778,11 @@
         }
       });
 
-      // Tours: soft red halos ONLY; size scales with match score
+      // Tours: soft red halos ONLY; size scales with match score; clickable to show card
       tours.forEach(it=>{
         if(it.center){
           const s = scoreMatches(it);
-          const radius = 250 + 200 * s; // meters
+          const radius = 250 + 200 * s; // meters (more matches => bigger circle)
           const circle = L.circle(it.center, {
             color:'#e11d48',
             fillColor:'#e11d48',

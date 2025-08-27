@@ -3,12 +3,16 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Traipse — Sites + Tours (ranked filters, 3-col, tour halos, map filters & scaled dots)</title>
+  <title>GALLIVANT — Sites & Tours</title>
 
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- Leaflet -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 
   <style>
     :root{
@@ -21,7 +25,7 @@
     a{color:inherit}
     .wrap{max-width:1220px;margin:0 auto;padding:18px}
 
-    /* Header */
+    /* Header / Nav */
     header{display:grid;grid-template-columns:auto 1fr auto;gap:18px;align-items:center;margin-bottom:8px}
     .brand{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:.05em}
     .logo{width:34px;height:34px;border-radius:12px;background:var(--brand);transform:rotate(18deg)}
@@ -36,43 +40,42 @@
     .tab.active{opacity:1;text-decoration:underline;text-underline-offset:6px}
 
     /* Layout */
-    .layout{display:grid;grid-template-columns:280px 1fr;gap:18px}
+    .layout{display:grid;grid-template-columns:300px 1fr;gap:18px}
     @media (max-width:980px){.layout{grid-template-columns:1fr}.sidebar{order:2}}
 
-    /* Sidebar */
+    /* Sidebar + Filters */
     .sidebar .panel{background:var(--panel);border:1px solid var(--ring);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px}
     .sidebar h3{margin:2px 0 10px;font-size:14px;text-transform:uppercase;letter-spacing:.1em}
-
     .view-map{
-      display:flex;align-items:center;gap:12px;width:100%;padding:14px;background:#fff;border:1px solid var(--ring);
-      border-radius:var(--radius);box-shadow:var(--shadow);color:inherit;font-weight:700;margin-bottom:14px
+      display:flex;align-items:center;gap:12px;
+      width:100%; padding:14px; background:#fff; border:1px solid var(--ring);
+      border-radius:var(--radius); box-shadow:var(--shadow); color:inherit;font-weight:700; margin-bottom:14px
     }
-    .view-map .icon{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:#eaf5ff;color:#0b3a68;font-size:18px}
-
+    .view-map .icon{ width:32px;height:32px;border-radius:50%; display:grid;place-items:center; background:#eaf5ff;color:#0b3a68;font-size:18px }
     .filters .group{margin-bottom:14px}
     .filters label{display:flex;align-items:center;gap:8px;margin:6px 0;font-size:14px}
     .filters input[type="checkbox"]{width:16px;height:16px}
     details summary{cursor:pointer;color:#0b3a68;font-weight:700}
 
-    /* Grid: 3 → 2 → 1 columns (wider cards) */
-    .grid{display:grid;grid-template-columns:repeat(3, minmax(0,1fr));gap:18px}
-    @media (max-width:1000px){.grid{grid-template-columns:repeat(2, minmax(0,1fr))}}
-    @media (max-width:640px){.grid{grid-template-columns:1fr}}
+    /* Cards grid: 3 columns (wider) */
+    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+    @media (max-width:1100px){.grid{grid-template-columns:repeat(2,1fr)}}
+    @media (max-width:680px){.grid{grid-template-columns:1fr}}
 
-    /* Card */
+    /* Card (compact) */
     .card{position:relative;background:var(--panel);border:1px solid var(--ring);border-radius:20px;overflow:hidden;box-shadow:var(--shadow)}
     .badge{position:absolute;top:8px;left:8px;background:#111;color:#fff;font-size:10px;padding:3px 7px;border-radius:999px}
     .fav{position:absolute;top:8px;right:8px;width:30px;height:30px;border-radius:999px;display:grid;place-items:center;border:1px solid var(--ring);background:rgba(255,255,255,.9);cursor:pointer}
     .fav svg{width:16px;height:16px;fill:none;stroke:var(--accent);stroke-width:2}
     .fav.active svg{fill:var(--accent)}
-    .img{width:100%;height:132px;object-fit:cover;border-bottom:1px solid var(--ring)}
-    .inner{padding:10px 12px 12px}
+    .img{width:100%;height:148px;object-fit:cover;border-bottom:1px solid var(--ring)}
+    .inner{padding:12px 14px 14px}
     .title{font-size:18px;font-weight:800;margin:2px 0 4px}
     .meta{font-size:12px;color:#4b5563;margin-bottom:8px}
     .chipbar{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
     .chip{display:inline-flex;align-items:center;border:1px solid var(--ring);background:#f1f5f9;font-size:11px;border-radius:999px;padding:2px 6px}
 
-    /* More Info */
+    /* More Info collapsible */
     .more{margin-top:6px}
     .more summary{font-size:12px;color:#0b3a68;cursor:pointer;display:inline-flex;align-items:center;gap:6px;user-select:none}
     .more summary::marker{content:''}
@@ -86,42 +89,28 @@
     /* Overlays */
     #mapPanel,#favoritesPanel{position:fixed;inset:0;background:#fff;display:none;z-index:1000}
     .overlayHeader{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--ring)}
-    #map{height:calc(100vh - 56px);width:100%}
     .btn{border:1px solid var(--ring);background:#fff;border-radius:999px;padding:8px 12px;font-weight:600;cursor:pointer}
 
-    /* Map legend (persistent) */
-    .legend{position:absolute;bottom:16px;right:16px;background:#fff;border:1px solid var(--ring);border-radius:12px;box-shadow:var(--shadow);padding:8px 10px;font-size:12px;z-index:1001}
+    /* Map overlay layout: filters + map with same styles */
+    .mapLayout{display:grid;grid-template-columns:320px 1fr;gap:16px;height:calc(100vh - 56px)}
+    .mapSidebar{padding:14px;border-right:1px solid var(--ring);overflow:auto}
+    .mapCanvas{position:relative}
+    #map{position:absolute;inset:0}
+    .legend{position:absolute;bottom:16px;right:16px;background:#fff;border:1px solid var(--ring);border-radius:12px;box-shadow:var(--shadow);padding:8px 10px;font-size:12px}
     .legend-row{display:flex;align-items:center;gap:8px;margin:4px 0}
-
-    /* Map filters overlay */
-    .map-filters{
-      position:absolute;top:70px;left:16px;width:280px;max-height:70vh;overflow:auto;
-      background:#fff;border:1px solid var(--ring);border-radius:var(--radius);box-shadow:var(--shadow);padding:12px;z-index:1001
-    }
-    .map-filters h3{margin:2px 0 10px;font-size:12px;text-transform:uppercase;letter-spacing:.1em;color:#0b3a68}
-
-    /* Favorites (My Places) grid */
-    #favoritesBody{padding:16px}
-    #favoritesGrid{display:grid;grid-template-columns:repeat(3, minmax(0,1fr));gap:18px}
-    @media (max-width:1000px){#favoritesGrid{grid-template-columns:repeat(2, minmax(0,1fr))}}
-    @media (max-width:640px){#favoritesGrid{grid-template-columns:1fr}}
 
     /* Leaflet popup styled like card */
     .leaflet-popup-content { margin:0; }
     .leaflet-popup-content-wrapper { padding:0; border-radius:20px; overflow:hidden; border:1px solid var(--ring); box-shadow:var(--shadow); }
     .leaflet-popup-tip { display:none; }
-    .leaflet-popup .fav { pointer-events:auto; }
-    .popup-card .img{ height:132px; }
+    .leaflet-popup .fav { pointer-events:auto; } /* clickable heart in popup */
+    .popup-card .img{ height:148px; }
   </style>
-
-  <!-- Leaflet -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
 </head>
 <body>
   <div class="wrap">
     <header>
-      <div class="brand"><div class="logo"></div> TRAIPSE</div>
+      <div class="brand"><div class="logo"></div> GALLIVANT</div>
       <div class="top"><input id="cityInput" class="search" placeholder="CITY" aria-label="City" /></div>
       <nav class="links">
         <a class="pill" href="#" id="myPlacesLink">MY PLACES</a>
@@ -139,19 +128,18 @@
     <div class="layout">
       <aside class="sidebar">
         <button class="view-map" id="viewMap"><span class="icon">🌐</span><strong>View in map</strong></button>
-
-        <div class="panel filters" id="filtersPanel">
+        <div class="panel filters" id="filtersPanelMain">
           <div class="group">
             <h3>Site Type</h3>
-            <div id="siteTypeFilters"></div>
+            <div id="siteTypeFiltersMain"></div>
           </div>
           <div class="group">
             <h3>Time Period</h3>
-            <div id="periodFilters"></div>
+            <div id="periodFiltersMain"></div>
           </div>
           <details class="group" open>
             <summary>More Filters</summary>
-            <div style="margin-top:8px" id="moreFilters"></div>
+            <div style="margin-top:8px" id="moreFiltersMain"></div>
           </details>
         </div>
       </aside>
@@ -162,35 +150,44 @@
     </div>
   </div>
 
-  <!-- Map overlay -->
-  <section id="mapPanel" aria-hidden="true" role="dialog" aria-label="Map view of sites">
+  <!-- Fullscreen Map Panel -->
+  <section id="mapPanel" aria-hidden="true" role="dialog" aria-label="Map view of sites + tours">
     <div class="overlayHeader">
-      <strong>Traipse Map</strong>
+      <strong>GALLIVANT Map</strong>
       <div>
-        <button id="mapShowAll" class="btn">Show all</button>
+        <button id="mapShowAll" class="btn" title="Ignore filters temporarily">Show all</button>
         <button id="closeMap" class="btn">Back to list</button>
       </div>
     </div>
-    <!-- Floating filters inside the map -->
-    <div id="mapFiltersOverlay" class="map-filters">
-      <div class="group">
-        <h3>Site Type</h3>
-        <div id="mapSiteTypeFilters"></div>
-      </div>
-      <div class="group">
-        <h3>Time Period</h3>
-        <div id="mapPeriodFilters"></div>
-      </div>
-      <div class="group">
-        <h3>More Filters</h3>
-        <div id="mapMoreFilters"></div>
+
+    <div class="mapLayout">
+      <!-- LEFT: The SAME filters (identical HTML classes/styles) -->
+      <aside class="mapSidebar">
+        <div class="panel filters" id="filtersPanelMap">
+          <div class="group">
+            <h3>Site Type</h3>
+            <div id="siteTypeFiltersMap"></div>
+          </div>
+          <div class="group">
+            <h3>Time Period</h3>
+            <div id="periodFiltersMap"></div>
+          </div>
+          <details class="group" open>
+            <summary>More Filters</summary>
+            <div style="margin-top:8px" id="moreFiltersMap"></div>
+          </details>
+        </div>
+      </aside>
+
+      <!-- RIGHT: Map canvas -->
+      <div class="mapCanvas">
+        <div id="map"></div>
+        <div class="legend" id="mapLegend"></div>
       </div>
     </div>
-    <div id="map"></div>
-    <div class="legend" id="mapLegend"></div>
   </section>
 
-  <!-- Favorites overlay -->
+  <!-- Fullscreen Favorites Panel -->
   <section id="favoritesPanel" aria-hidden="true" role="dialog" aria-label="My Places">
     <div class="overlayHeader">
       <strong>My Places</strong>
@@ -199,12 +196,11 @@
         <button id="closeFavorites" class="btn">Back to list</button>
       </div>
     </div>
-    <div id="favoritesBody">
-      <section id="favoritesGrid"></section>
+    <div style="padding:16px">
+      <section id="favoritesGrid" class="grid"></section>
     </div>
   </section>
 
-  <!-- Card template -->
   <template id="cardTemplate">
     <article class="card">
       <span class="badge"></span>
@@ -226,7 +222,7 @@
   </template>
 
   <script>
-    /* --------------------- Label maps --------------------- */
+    /* ---------------- Label Maps ---------------- */
     const CATEGORY_LABELS = {
       generalhistory: 'General History', localhistory: 'Local History', indigenous: 'Indigenous History',
       militaryhistory: 'Military History', civilrights: 'Civil Rights', industrialhistory: 'Industrial History',
@@ -234,47 +230,104 @@
       naturalhistory: 'Natural History', technologyandtransportation: 'Science & Technology', historichomes: 'Historic Homes',
       foodanddrink: 'Food & Drink', other: 'Other'
     };
+
     const PERIOD_LABELS = {
       prehistoric:'Prehistoric', colonial:'18th Century', eighteenthcentury:'18th Century', nineteenthcentury:'19th Century',
-      twentiethcentury:'20th Century', industrialrevolution:'Industrial Era', modernhistory:'Modern History', indigenous:'Indigenous', other:'Other'
+      twentiethcentury:'20th Century', industrialrevolution:'Industrial Era', modernhistory:'Modern History',
+      indigenous:'Indigenous', other:'Other'
     };
+
     const SITETYPE_LABELS = {
       museums:'Museum', museum:'Museum', landmark:'Landmark', historichome:'Historical Home', historichomes:'Historical Home',
       archaeological:'Archaeological', archeological:'Archaeological', burial:'Burial', religious:'Religious', political:'Political',
-      industrial:'Industrial', other:'Outdoor'
+      industrial:'Industrial', other:'Outdoor' // fallback
     };
 
-    /* --------- Extra tag filters (predicates + labels) --------- */
-    const TAG_FILTERS = {
-      adaaccessibility:   { label:'ADA-Accessible',      predicate: it => it.kind==='site' && !!it.raw.adaaccessibility },
-      dogfriendly:        { label:'Dog-Friendly',        predicate: it => it.kind==='site' && !!it.raw.dogfriendly },
-      luggagestorage:     { label:'Luggage Storage',     predicate: it => it.kind==='site' && !!it.raw.luggagestorage },
-      family_friendly:    { label:'Family-Friendly',     predicate: it => it.kind==='site' && !!it.raw.family_friendly },
-      publicaccess:       { label:'Public Access',       predicate: it => it.kind==='site' && !!it.raw.publicaccess },
-      spanishtranslations:{ label:'Spanish translations', predicate: it => it.kind==='site' && !!it.raw.spanishtranslations },
-      payment_both:       { label:'Cash & Credit',       predicate: it => it.kind==='site' && String(it.raw.paymentmethod||'').toLowerCase()==='both' },
-      featured:           { label:'Featured site',        predicate: it => it.kind==='site' && it.raw.featured===true },
-      hiddengem:          { label:'Hidden gem',          predicate: it => it.kind==='site' && (it.raw.hiddengem===true || it.raw.featured===false) }
-    };
-
-    /* ------------------------ State ----------------------- */
+    /* ---------------- Global State ---------------- */
     const state = {
-      raw: { sites: [], tours: [] },
-      items: [],
+      rawSites: [],
+      rawTours: [],
+      items: [],      // normalized items: sites + tours
       tab: 'all',
       favorites: new Set(JSON.parse(localStorage.getItem('traipse:favorites')||'[]')),
       city: '',
-      userLoc: null, // {lat,lng}
-      filters: { siteTypes: new Set(), periods: new Set(), tags: new Set() }
+      geoloc: null,
+      filters: { siteTypes:new Set(), periods:new Set(), tags:new Set() }
     };
 
-    /* -------------------- Normalizers --------------------- */
+    const MORE_FILTERS = {
+      spanishtranslations: 'Spanish translations',
+      paymentmethod: 'Cash/Credit',
+      luggagestorage: 'Luggage storage',
+      hiddengem: 'Hidden gem',
+      featured: 'Featured site',
+      publicaccess: 'Public access'
+    };
+
+    /* ---------------- Helpers ---------------- */
+    const resolveImage = (p)=>{
+      if(!p) return '';
+      if(/^https?:\/\//i.test(p)) return p;
+      return p.startsWith('./') || p.startsWith('images/') ? p : `images/${p}`;
+    };
+
+    function haversine(a, b){
+      const toRad = d => d*Math.PI/180;
+      const R=6371; // km
+      const dLat = toRad(b.lat-a.lat), dLng = toRad(b.lng-a.lng);
+      const s = Math.sin(dLat/2)**2 + Math.cos(toRad(a.lat))*Math.cos(toRad(b.lat))*Math.sin(dLng/2)**2;
+      return 2*R*Math.asin(Math.sqrt(s)); // km
+    }
+    const kmToMiles = km => km*0.621371;
+
+    function scoreMatches(it){
+      let score = 0;
+      // site types
+      if(state.filters.siteTypes.size && state.filters.siteTypes.has(it.siteType)) score++;
+      // periods
+      if(state.filters.periods.size){
+        (it.periods||[]).forEach(p=>{ if(state.filters.periods.has(p)) score++; });
+      }
+      // more filters (new set)
+      if(state.filters.tags.size){
+        for(const key of state.filters.tags){
+          if(key === 'paymentmethod'){
+            if((it.raw?.paymentmethod||'').toLowerCase()==='both') score++;
+          }else if(key==='hiddengem'){
+            if(it.raw?.hiddenGem) score++;
+          }else if(it.raw?.[key]) score++;
+        }
+      }
+      return score;
+    }
+
+    function distanceFromUser(it){
+      if(!state.geoloc){ return Infinity; }
+      const pos = state.geoloc;
+      let target = null;
+      if(it.type==='Tour'){
+        // Use centroid of route or first site
+        if(it.center){ target = it.center; }
+      }else{
+        const {lat,lng}=it.raw||{}; if(typeof lat==='number'&&typeof lng==='number'){ target={lat,lng}; }
+      }
+      if(!target) return Infinity;
+      return kmToMiles(haversine({lat:pos.lat,lng:pos.lng}, target));
+    }
+
+    function formatMiles(m){
+      if(!isFinite(m)) return '';
+      if(m<0.2) return `${(m*5280).toFixed(0)} ft`;
+      if(m<10) return `${m.toFixed(1)} mi`;
+      return `${Math.round(m)} mi`;
+    }
+
+    /* ---------------- Normalization ---------------- */
     function normalizeSite(raw){
       const periods = (raw.timeperiod||[]).map(p => PERIOD_LABELS[p]||p);
       const siteTypeSlug = (raw.sitetype||'').toLowerCase();
       const siteType = SITETYPE_LABELS[siteTypeSlug] || (raw.type==='outdoor' ? 'Outdoor' : (SITETYPE_LABELS.other));
       return {
-        kind:'site',
         id: raw.id || (raw.name||'').toLowerCase().replace(/[^a-z0-9]+/g,'-'),
         name: raw.name,
         type: 'Site',
@@ -287,86 +340,90 @@
         costText: raw.dollaramount && !['0','$0','-'].includes(String(raw.dollaramount).trim()) ? String(raw.dollaramount) : (raw.cost==='free'?'Free': (raw.cost==='paid'?'Paid':'')),
         durationText: raw.estimatedtime || '',
         city: (raw.city||'').toLowerCase(),
-        lat: typeof raw.lat==='number' ? raw.lat : undefined,
-        lng: typeof raw.lng==='number' ? raw.lng : undefined,
         raw
       };
-    }
-
-    function firstLink(links){
-      if(!links) return '';
-      const keys = ['getyourguide','viator','airbnb','guruwalk','tripadvisor'];
-      for(const k of keys){ if(links[k]) return links[k]; }
-      const first = Object.values(links)[0];
-      return typeof first === 'string' ? first : '';
-    }
-
-    function centroid(points){
-      if(!points || !points.length) return null;
-      let x=0,y=0; points.forEach(p=>{x+=p.lat; y+=p.lng;});
-      return {lat:x/points.length, lng:y/points.length};
     }
 
     function normalizeTour(raw){
-      const firstSite = Array.isArray(raw.sites) && raw.sites.length ? raw.sites[0] : null;
-      const cat = CATEGORY_LABELS[(raw.thematiccategory||'').toLowerCase()] || 'Other';
-      const center = centroid(raw.sites || raw.route) || (firstSite ? {lat:firstSite.lat,lng:firstSite.lng} : null);
+      // compute a simple center from route (or from first site)
+      let center=null;
+      if(Array.isArray(raw.route) && raw.route.length){
+        const lat = raw.route.reduce((a,b)=>a+b.lat,0)/raw.route.length;
+        const lng = raw.route.reduce((a,b)=>a+b.lng,0)/raw.route.length;
+        center = {lat,lng};
+      }else if(Array.isArray(raw.sites) && raw.sites.length){
+        center = {lat: raw.sites[0].lat, lng: raw.sites[0].lng};
+      }
+
       return {
-        kind:'tour',
         id: raw.tour_id || (raw.tour_name||'').toLowerCase().replace(/[^a-z0-9]+/g,'-'),
-        name: raw.tour_name || 'Tour',
+        name: raw.tour_name,
         type: 'Tour',
         image: raw.image,
-        website: firstLink(raw.external_links),
-        categories: [cat],
+        website: '', // use external links in More Info
+        categories: [CATEGORY_LABELS[raw.thematiccategory]||raw.thematiccategory||'General'],
         siteType: 'Tour',
-        periods: [],
-        description: raw.duration ? `${raw.duration} • ${raw.number_of_sites||''} stops${raw.special_topic? ' • '+(raw.special_topic||[]).join(', '):''}` : (raw.description||''),
-        costText: raw.Cost || (Array.isArray(raw.cost_range)? raw.cost_range.join(' / ') : ''),
+        periods: [], // tours may span periods; can be refined later
+        description: `${raw.duration||''} • ${raw.Cost||''}`.trim(),
         durationText: raw.duration || '',
-        city: (firstSite?.city||'').toLowerCase(),
-        lat: center?.lat, lng: center?.lng,
-        route: Array.isArray(raw.route)? raw.route : [],
-        sites: Array.isArray(raw.sites)? raw.sites : [],
+        color: raw.color || '#e11d48',
+        center,
         raw
       };
     }
 
-    /* -------------------- Utilities ---------------------- */
-    const resolveImage = (p)=>{
-      if(!p) return '';
-      if(/^https?:\/\//i.test(p)) return p;
-      return p.startsWith('./') || p.startsWith('images/') ? p : `images/${p}`;
-    };
+    /* ---------------- Filters UI ---------------- */
+    function addCheckbox(wrap, bucket, value, label){
+      const id = `${bucket}-${value.replace(/[^a-z0-9]+/gi,'-')}-${wrap.id}`;
+      const el = document.createElement('label');
+      el.innerHTML = `<input type="checkbox" id="${id}"> <span>${label}</span>`;
+      const input = el.querySelector('input');
+      input.addEventListener('change', ()=>{
+        const set = state.filters[bucket];
+        if(input.checked) set.add(value); else set.delete(value);
+        render();
+      });
+      wrap.appendChild(el);
+    }
 
-    function chipsFor(it){
-      const chips=[];
-      if(state.filters.siteTypes.size && state.filters.siteTypes.has(it.siteType)) chips.push(it.siteType);
-      if(state.filters.periods.size){ (it.periods||[]).forEach(p=>{ if(state.filters.periods.has(p)) chips.push(p); }); }
-      if(state.filters.tags.size){
-        for(const key of state.filters.tags){
-          const def = TAG_FILTERS[key];
-          if(def && def.predicate(it)) chips.push(def.label);
-        }
-      }
+    function buildFilters(target){
+      const items = state.items;
+      const siteTypes = Array.from(new Set(items.map(i=>i.siteType).filter(Boolean))).filter(t=>t!=='Tour').sort();
+      const periodsSet = new Set();
+      items.forEach(i=> (i.periods||[]).forEach(p=>periodsSet.add(p)));
+      const periods = Array.from(periodsSet).sort();
+
+      const siteWrap = document.getElementById(`siteTypeFilters${target}`);
+      const perWrap  = document.getElementById(`periodFilters${target}`);
+      const moreWrap = document.getElementById(`moreFilters${target}`);
+      siteWrap.innerHTML = perWrap.innerHTML = moreWrap.innerHTML = '';
+
+      siteTypes.forEach(label=>addCheckbox(siteWrap,'siteTypes',label,label));
+      periods.forEach(p=>addCheckbox(perWrap,'periods',p,p));
+      Object.entries(MORE_FILTERS).forEach(([k,v])=>addCheckbox(moreWrap,'tags',k,v));
+    }
+
+    /* ---------------- Cards / Popups ---------------- */
+    function chipsFor(it, score, distMiles){
+      const chips = [];
+      if(score>0){ chips.push(`${score} match${score>1?'es':''}`); }
+      if(isFinite(distMiles)){ chips.push(formatMiles(distMiles)); }
+      // Show some attributes too
+      if(it.durationText) chips.push(it.durationText);
+      if(it.siteType && it.siteType!=='Tour') chips.push(it.siteType);
       return chips;
     }
 
-    function cardHTML(it, asPopup=false){
-      const chips = chipsFor(it);
-      const chipHtml = chips.length
-        ? `<div class="chipbar">${chips.slice(0,5).map(c=>`<span class="chip">${c}</span>`).join('')}</div>`
-        : '';
-      const metaBits=[];
-      if(it.categories?.length) metaBits.push(it.categories.join(', '));
-      if(it.periods?.length) metaBits.push(it.periods[0]);
-      if(typeof it.distanceMiles === 'number') metaBits.push(`${it.distanceMiles.toFixed(1)} mi away`);
+    function cardHTML(it, score, distMiles, asPopup=false){
+      const chipHtml = chipsFor(it,score,distMiles).map(c=>`<span class="chip">${c}</span>`).join('');
+      const metaBits=[]; if(it.categories?.length){ metaBits.push(it.categories.join(', ')); } if(it.periods?.length){ metaBits.push(it.periods[0]); }
       const img = resolveImage(it.image) || 'images/default.jpg';
-      const website = it.website ? `<a href="${it.website}" target="_blank" rel="noopener">🌐 <span>Website</span></a>` : '';
 
-      const extraTour = it.type==='Tour'
-        ? `<div class="icons" style="margin-top:6px">${website} ${it.sites?.length||it.route?.length? `<a href="#" data-zoom-tour="${it.id}">⤢ Zoom to tour</a>`:''}</div>`
-        : `<div class="icons">${website}</div>`;
+      const links = [];
+      if(it.website){ links.push(`<a href="${it.website}" target="_blank" rel="noopener">🌐 <span>Website</span></a>`); }
+      if(it.type==='Tour' && it.raw?.external_links){
+        for(const [name,url] of Object.entries(it.raw.external_links)){ links.push(`<a href="${url}" target="_blank" rel="noopener">🔗 <span>${name}</span></a>`); }
+      }
 
       return `
         <article class="card ${asPopup?'popup-card':''}" id="card-${it.id}">
@@ -378,11 +435,11 @@
           <div class="inner">
             <h3 class="title">${it.name}</h3>
             <div class="meta">${metaBits.join(' • ')}</div>
-            ${chipHtml}
+            <div class="chipbar">${chipHtml}</div>
             <details class="more">
               <summary><span>More Info</span></summary>
               <div class="more-body">
-                ${extraTour}
+                <div class="icons">${links.join(' ')}</div>
                 <p class="desc">${it.description||''}</p>
               </div>
             </details>
@@ -390,112 +447,14 @@
         </article>`;
     }
 
-    /* ---------- Filters UI (main + map) ---------- */
-    function addCheckbox(wrap, bucket, value, label, prefix){
-      const slug = value.replace(/[^a-z0-9]+/gi,'-');
-      const id = `${prefix}-${bucket}-${slug}`;
-      const el = document.createElement('label');
-      el.innerHTML = `<input type="checkbox" id="${id}" data-bucket="${bucket}" data-value="${value}"> <span>${label}</span>`;
-      const input = el.querySelector('input');
-      input.addEventListener('change', ()=>{
-        const set = state.filters[bucket];
-        if(input.checked) set.add(value); else set.delete(value);
-        syncFilterUIs();
-        render();
-      });
-      wrap.appendChild(el);
-    }
-
-    function buildFilters(prefix, containers){
-      // Site Types
-      const siteTypes = Array.from(new Set(state.items.map(i=>i.siteType).concat(['Tour']))).sort();
-      siteTypes.forEach(label=>addCheckbox(containers.siteTypes,'siteTypes',label,label,prefix));
-
-      // Periods
-      const periodSet = new Set(); state.items.forEach(i=>i.periods?.forEach(p=>periodSet.add(p)));
-      Array.from(periodSet).sort().forEach(p=>addCheckbox(containers.periods,'periods',p,p,prefix));
-
-      // More filters
-      Object.entries(TAG_FILTERS).forEach(([k,def])=> addCheckbox(containers.more,'tags',k,def.label,prefix));
-    }
-
-    function syncFilterUIs(){
-      document.querySelectorAll('input[data-bucket]').forEach(inp=>{
-        const bucket = inp.getAttribute('data-bucket');
-        const val = inp.getAttribute('data-value');
-        const checked = state.filters[bucket].has(val);
-        if(inp.checked !== checked) inp.checked = checked;
-      });
-    }
-
-    // Non-binary filters logic: only tab & city gate; ranking does the rest
-    function passesFiltersBasic(item){
-      if(state.tab==='site' && item.type!=='Site') return false;
-      if(state.tab==='tour' && item.type!=='Tour') return false;
-      if(state.city && item.city && !item.city.includes(state.city)) return false;
-      return true;
-    }
-
-    function matchScore(item){
-      let score = 0;
-      if(state.filters.siteTypes.size && state.filters.siteTypes.has(item.siteType)) score++;
-      if(state.filters.periods.size){
-        (item.periods||[]).forEach(p=>{ if(state.filters.periods.has(p)) score++; });
-      }
-      if(state.filters.tags.size){
-        for(const key of state.filters.tags){
-          const def = TAG_FILTERS[key];
-          if(def && def.predicate(item)) score++;
-        }
-      }
-      return score;
-    }
-
-    /* ---------------- Distance + Sort ---------------- */
-    function computeDistanceMiles(a,b){
-      const R=3958.8, toRad=d=>d*Math.PI/180;
-      const dLat=toRad(b.lat-a.lat), dLng=toRad(b.lng-a.lng);
-      const s=Math.sin(dLat/2)**2 + Math.cos(toRad(a.lat))*Math.cos(toRad(b.lat))*Math.sin(dLng/2)**2;
-      return R*2*Math.asin(Math.sqrt(s));
-    }
-
-    function enrichDistances(list){
-      if(!state.userLoc) { list.forEach(it=>{ delete it.distanceMiles; }); return; }
-      list.forEach(it=>{
-        if(typeof it.lat==='number' && typeof it.lng==='number'){
-          it.distanceMiles = computeDistanceMiles(state.userLoc, {lat:it.lat,lng:it.lng});
-        }else{
-          delete it.distanceMiles;
-        }
-      });
-    }
-
-    function sortItems(list){
-      list.sort((a,b)=>{
-        const sa = matchScore(a), sb = matchScore(b);
-        if(sb!==sa) return sb-sa; // more matches first
-        const da = (typeof a.distanceMiles === 'number') ? a.distanceMiles : Infinity;
-        const db = (typeof b.distanceMiles === 'number') ? b.distanceMiles : Infinity;
-        if(da!==db) return da-db; // nearer first
-        return a.name.localeCompare(b.name);
-      });
-    }
-
-    /* ------------------- Favorites ------------------- */
-    function toggleFavorite(id){
-      if(state.favorites.has(id)) state.favorites.delete(id); else state.favorites.add(id);
-      localStorage.setItem('traipse:favorites', JSON.stringify(Array.from(state.favorites)));
-      document.querySelectorAll(`.fav[data-id="${id}"]`).forEach(b=>b.classList.toggle('active', state.favorites.has(id)));
-      if(favoritesOpen) renderFavorites();
-    }
-
-    function buildCardNode(it){
+    function buildCardNode(it, score, distMiles){
       const tpl = document.getElementById('cardTemplate');
       const node = tpl.content.cloneNode(true);
       const root = node.querySelector('.card');
-      root.id = 'card-' + it.id;
+      root.id = 'card-'+it.id;
 
       node.querySelector('.badge').textContent = it.type || 'Site';
+
       const fav = node.querySelector('.fav');
       fav.dataset.id = it.id;
       if(state.favorites.has(it.id)) fav.classList.add('active');
@@ -508,61 +467,78 @@
       img.onerror = ()=>{ img.src = 'images/default.jpg'; };
 
       node.querySelector('.title').textContent = it.name;
-
-      const metaBits=[];
-      if(it.categories?.length) metaBits.push(it.categories.join(', '));
-      if(it.periods?.length) metaBits.push(it.periods[0]);
-      if(typeof it.distanceMiles === 'number') metaBits.push(`${it.distanceMiles.toFixed(1)} mi away`);
+      const metaBits = [];
+      if(it.categories?.length){ metaBits.push(it.categories.join(', ')); }
+      if(it.periods?.length){ metaBits.push(it.periods[0]); }
       node.querySelector('.meta').textContent = metaBits.join(' • ');
 
       const chipbar = node.querySelector('.chipbar');
-      const chips = chipsFor(it);
-      if(chips.length){
-        chipbar.style.display='flex';
-        chips.slice(0,5).forEach(c=>{ const s=document.createElement('span'); s.className='chip'; s.textContent=c; chipbar.appendChild(s); });
-      }else{
-        chipbar.style.display='none';
-      }
+      chipsFor(it,score,distMiles).forEach(c=>{ const s=document.createElement('span'); s.className='chip'; s.textContent=c; chipbar.appendChild(s); });
 
       const icons = node.querySelector('.icons');
-      const website = it.website ? `<a href="${it.website}" target="_blank" rel="noopener">🌐 <span>Website</span></a>` : '';
-      if(it.type==='Tour' && (it.sites?.length || it.route?.length)){
-        const zoom = `<a href="#" data-zoom-tour="${it.id}">⤢ Zoom to tour</a>`;
-        icons.innerHTML = `${website} ${zoom}`;
-      }else{
-        icons.innerHTML = website;
+      const links=[];
+      if(it.website){ links.push(`<a href="${it.website}" target="_blank" rel="noopener">🌐 <span>Website</span></a>`); }
+      if(it.type==='Tour' && it.raw?.external_links){
+        for(const [name,url] of Object.entries(it.raw.external_links)){ links.push(`<a href="${url}" target="_blank" rel="noopener">🔗 <span>${name}</span></a>`); }
       }
+      icons.innerHTML = links.join(' ');
       node.querySelector('.desc').textContent = it.description||'';
 
       return node;
     }
 
-    function renderCards(list){
+    /* ---------------- Favorites ---------------- */
+    function toggleFavorite(id){
+      if(state.favorites.has(id)) state.favorites.delete(id); else state.favorites.add(id);
+      localStorage.setItem('traipse:favorites', JSON.stringify(Array.from(state.favorites)));
+      document.querySelectorAll(`.fav[data-id="${id}"]`).forEach(b=>b.classList.toggle('active', state.favorites.has(id)));
+      if(favoritesOpen) renderFavorites();
+    }
+
+    function renderFavorites(){
+      const host = document.getElementById('favoritesGrid');
+      const list = state.items.filter(it=>state.favorites.has(it.id))
+        .map(it => ({it,score:scoreMatches(it),dist:distanceFromUser(it)}))
+        .sort((a,b)=> b.score-a.score || a.dist-b.dist);
+      host.innerHTML='';
+      if(!list.length){
+        host.innerHTML='<p style="color:#6b7280">No saved places yet. Tap the heart on any card or map popup to save it here.</p>';
+        return;
+      }
+      list.forEach(({it,score,dist}) => host.appendChild(buildCardNode(it,score,dist)));
+    }
+
+    let favoritesOpen=false;
+    document.getElementById('myPlacesLink').addEventListener('click', (e)=>{ e.preventDefault(); favoritesOpen=true; renderFavorites(); document.getElementById('favoritesPanel').style.display='block'; });
+    document.getElementById('closeFavorites').addEventListener('click', ()=>{ favoritesOpen=false; document.getElementById('favoritesPanel').style.display='none'; });
+    document.getElementById('clearFavorites').addEventListener('click', ()=>{
+      state.favorites.clear();
+      localStorage.setItem('traipse:favorites','[]');
+      renderFavorites();
+      document.querySelectorAll('.fav').forEach(b=>b.classList.remove('active'));
+    });
+
+    /* ---------------- Main render ---------------- */
+    function passesTab(it){
+      if(state.tab==='site') return it.type==='Site';
+      if(state.tab==='tour') return it.type==='Tour';
+      return true;
+    }
+
+    function renderCards(){
       const host = document.getElementById('cards');
-      host.innerHTML = '';
-      if(!list.length){ host.innerHTML = '<p style="color:#6b7280;padding:8px">No results match your filters.</p>'; return; }
-      list.forEach(it => host.appendChild(buildCardNode(it)));
+      const list = state.items.filter(passesTab).map(it=>({
+        it,
+        score: scoreMatches(it),
+        dist: distanceFromUser(it)
+      })).sort((a,b)=> b.score-a.score || a.dist-b.dist);
 
-      // Wire up "Zoom to tour" links (cards)
-      host.querySelectorAll('[data-zoom-tour]').forEach(a=>{
-        a.addEventListener('click', (e)=>{
-          e.preventDefault();
-          const id = a.getAttribute('data-zoom-tour');
-          openMap(); // ensure map exists
-          setTimeout(()=> zoomTourRoute(id), 50);
-        });
-      });
+      host.innerHTML='';
+      if(!list.length){ host.innerHTML='<p style="color:#6b7280;padding:8px">No results match your filters.</p>'; return; }
+      list.forEach(({it,score,dist})=> host.appendChild(buildCardNode(it,score,dist)));
     }
 
-    /* ------------------- Render cycle ------------------- */
-    function render(){
-      let list = state.items.filter(passesFiltersBasic);
-      enrichDistances(list);
-      sortItems(list);
-      renderCards(list);
-      syncFilterUIs();
-      if(mapOpen) renderMapPoints(list);
-    }
+    function render(){ renderCards(); if(mapOpen) renderMapPoints(); }
 
     // Tabs
     document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>{
@@ -572,267 +548,177 @@
       render();
     }));
 
-    // City filter
-    document.getElementById('cityInput').addEventListener('input', e=>{ state.city = (e.target.value||'').trim().toLowerCase(); render(); });
-
-    // My Places open/close/clear
-    let favoritesOpen = false;
-    document.getElementById('myPlacesLink').addEventListener('click', (e)=>{ e.preventDefault(); openFavorites(); });
-    document.getElementById('closeFavorites').addEventListener('click', closeFavorites);
-    document.getElementById('clearFavorites').addEventListener('click', ()=>{
-      state.favorites.clear();
-      localStorage.setItem('traipse:favorites', '[]');
-      renderFavorites();
-      document.querySelectorAll('.fav').forEach(b=>b.classList.remove('active'));
-    });
-    function openFavorites(){
-      renderFavorites();
-      document.getElementById('favoritesPanel').style.display='block';
-      document.getElementById('favoritesPanel').setAttribute('aria-hidden','false');
-      favoritesOpen = true;
-    }
-    function closeFavorites(){
-      document.getElementById('favoritesPanel').style.display='none';
-      document.getElementById('favoritesPanel').setAttribute('aria-hidden','true');
-      favoritesOpen = false;
-    }
-    function renderFavorites(){
-      const host = document.getElementById('favoritesGrid');
-      const favItems = state.items.filter(it => state.favorites.has(it.id));
-      host.innerHTML = '';
-      if(!favItems.length){
-        host.innerHTML = '<p style="color:#6b7280">No saved places yet. Tap the heart on any card or map popup to save it here.</p>';
-        return;
-      }
-      enrichDistances(favItems);
-      sortItems(favItems);
-      favItems.forEach(it=> host.appendChild(buildCardNode(it)));
-      host.querySelectorAll('[data-zoom-tour]').forEach(a=>{
-        a.addEventListener('click', (e)=>{
-          e.preventDefault();
-          const id = a.getAttribute('data-zoom-tour');
-          openMap(); setTimeout(()=> zoomTourRoute(id), 50);
-        });
-      });
-    }
-
-    /* ----------------- Filters init (main + map) ----------------- */
-    function initFilters(){
-      initFilters = ()=>{}; // run once
-      buildFilters('main', {
-        siteTypes: document.getElementById('siteTypeFilters'),
-        periods:   document.getElementById('periodFilters'),
-        more:      document.getElementById('moreFilters')
-      });
-      buildFilters('map', {
-        siteTypes: document.getElementById('mapSiteTypeFilters'),
-        periods:   document.getElementById('mapPeriodFilters'),
-        more:      document.getElementById('mapMoreFilters')
-      });
-      syncFilterUIs();
-    }
-
-    /* ----------------- Data loading ---------------- */
-    async function fetchJsonSafe(path, fallback = []) {
-      try {
-        const res = await fetch(path + '?v=' + Date.now());
-        if (!res.ok) throw new Error(res.status + ' ' + res.statusText);
-        return await res.json();
-      } catch (e) {
-        console.warn('Failed to fetch', path, e);
-        return fallback;
-      }
-    }
-
-    async function load(){
-      const sitesRawJson = await fetchJsonSafe('locations.json', []);
-      const toursRawJson = await fetchJsonSafe('tours.json', []);
-
-      const sitesRaw = Array.isArray(sitesRawJson) ? sitesRawJson : (sitesRawJson.locations || []);
-      const toursRaw = Array.isArray(toursRawJson) ? toursRawJson : (toursRawJson.tours || []);
-
-      const sites = sitesRaw.map(normalizeSite);
-      const tours = toursRaw.map(normalizeTour);
-
-      state.raw = { sites: sitesRaw, tours: toursRaw };
-      state.items = sites.concat(tours);
-
-      if (!state.items.length) {
-        document.getElementById('cards').innerHTML =
-          '<p style="color:#6b7280">No data found. Ensure <code>locations.json</code> and/or <code>tours.json</code> are alongside <code>index.html</code>.</p>';
-        return;
-      }
-      initFilters();
-      requestUserLocation();
+    // City input (simple substring match for item.city)
+    document.getElementById('cityInput').addEventListener('input', e=>{
+      state.city = (e.target.value||'').trim().toLowerCase();
       render();
+    });
+
+    /* ---------------- Load data + filters ---------------- */
+    async function loadData(){
+      try{
+        const [siteRes,tourRes] = await Promise.all([
+          fetch('locations.json?v='+Date.now()),
+          fetch('tours.json?v='+Date.now())
+        ]);
+        const sites = await siteRes.json();
+        const tours = await tourRes.json();
+
+        state.rawSites = Array.isArray(sites)?sites: (sites.locations||[]);
+        state.rawTours = Array.isArray(tours)?tours: (tours.tours||[]);
+
+        const siteItems = state.rawSites.map(normalizeSite);
+        const tourItems = state.rawTours.map(normalizeTour);
+        state.items = [...siteItems, ...tourItems];
+
+        // Build filters in both main + map panels (identical look)
+        buildFilters('Main');
+        buildFilters('Map');
+
+        render();
+        locateUser(); // kick geolocation
+      }catch(e){
+        document.getElementById('cards').innerHTML = '<p style="color:#6b7280">Failed to load data files.</p>';
+        console.error(e);
+      }
     }
 
-    /* -------------- Geolocation (distance) --------------- */
-    function requestUserLocation(){
+    /* ---------------- Geolocation ---------------- */
+    function locateUser(){
       if(!navigator.geolocation) return;
       navigator.geolocation.getCurrentPosition(
-        pos => { state.userLoc = {lat:pos.coords.latitude, lng:pos.coords.longitude}; render(); },
-        () => { /* silently ignore */ },
-        { enableHighAccuracy:true, timeout:7000, maximumAge:300000 }
+        pos => { state.geoloc={lat:pos.coords.latitude, lng:pos.coords.longitude}; render(); },
+        () => {}, { enableHighAccuracy:true, timeout:7000, maximumAge:120000 }
       );
     }
 
-    /* -------------------- Map logic ---------------------- */
-    let mapOpen = false;
-    let map, markerLayer, polyLayer;
+    /* ---------------- Map ---------------- */
+    let mapOpen=false, map, siteLayer, tourLayer;
 
-    // All tours = same red
-    const TOUR_COLOR = '#dc2626';
-
+    // Site colors by type
     const TYPE_COLORS = {
       'Museum':'#2563eb','Landmark':'#f97316','Historical Home':'#059669','Archaeological':'#7c3aed',
-      'Religious':'#dc2626','Industrial':'#6b7280','Outdoor':'#16a34a','Burial':'#9ca3af','Political':'#2563eb',
-      'Tour': TOUR_COLOR
+      'Religious':'#dc2626','Industrial':'#6b7280','Outdoor':'#16a34a','Burial':'#9ca3af','Political':'#2563eb'
     };
 
     function ensureMap(){
       if(map) return;
       map = L.map('map',{scrollWheelZoom:true});
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
-        attribution:'&copy; OpenStreetMap contributors'
-      }).addTo(map);
-      markerLayer = L.layerGroup().addTo(map);
-      polyLayer = L.layerGroup().addTo(map); // halos
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{ attribution:'&copy; OpenStreetMap contributors' }).addTo(map);
+      siteLayer = L.layerGroup().addTo(map);
+      tourLayer = L.layerGroup().addTo(map);
       buildLegend();
 
       map.on('popupopen', (e)=>{
-        const root = e.popup?.getElement();
-        if(!root) return;
-        const favBtn = root.querySelector('.fav[data-id]');
-        if(favBtn){
-          favBtn.addEventListener('click', (ev)=>{
-            ev.stopPropagation();
-            toggleFavorite(favBtn.getAttribute('data-id'));
-          });
-        }
-        const zoom = root.querySelector('[data-zoom-tour]');
-        if(zoom){
-          zoom.addEventListener('click', (ev)=>{
-            ev.preventDefault();
-            zoomTourRoute(zoom.getAttribute('data-zoom-tour'));
-          });
+        const btn = e.popup?.getElement()?.querySelector('.fav[data-id]');
+        if(btn){
+          btn.addEventListener('click',(ev)=>{ ev.stopPropagation(); toggleFavorite(btn.getAttribute('data-id')); });
         }
       });
     }
 
     function buildLegend(){
       const legend = document.getElementById('mapLegend');
-      legend.innerHTML = '';
+      legend.innerHTML = '<strong>Legend</strong>';
       Object.entries(TYPE_COLORS).forEach(([label,color])=>{
         const row = document.createElement('div');
         row.className='legend-row';
         row.innerHTML = `<span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:${color};border:2px solid #fff;box-shadow:0 0 0 2px rgba(0,0,0,.12)"></span> <span>${label}</span>`;
         legend.appendChild(row);
       });
-      // Legend remains present; do not toggle hidden
+      const row = document.createElement('div');
+      row.className='legend-row';
+      row.innerHTML = `<span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:#e11d48;opacity:.55;border:1px solid #e11d48;"></span> <span>Tour area</span>`;
+      legend.appendChild(row);
     }
 
-    function iconForSite(it){
-      const color = TYPE_COLORS[it.siteType] || '#3b82f6';
-      const score = matchScore(it);
-      const size = Math.max(14, Math.min(34, 14 + score*6)); // scale with matches
+    function siteIconFor(type){
+      const color = TYPE_COLORS[type] || '#3b82f6';
       return L.divIcon({
         className:'circle-icon',
-        html:`<div style="width:${size}px;height:${size}px;border-radius:50%;background:${color};border:2px solid #fff;box-shadow:0 0 0 2px rgba(0,0,0,.12)"></div>`,
-        iconSize:[size+4,size+4],
-        iconAnchor:[(size+4)/2,(size+4)/2]
+        html:`<div style="width:18px;height:18px;border-radius:50%;background:${color};border:2px solid #fff;box-shadow:0 0 0 2px rgba(0,0,0,.12)"></div>`,
+        iconSize:[22,22], iconAnchor:[11,11]
       });
     }
 
-    // Render: Sites as scaled colored circles; Tours as single clickable halo (no points)
-    function renderMapPoints(list){
+    function renderMapPoints(){
       if(!map) return;
-      markerLayer.clearLayers(); polyLayer.clearLayers();
+      siteLayer.clearLayers();
+      tourLayer.clearLayers();
 
-      const bounds = [];
+      const inTab = state.items.filter(passesTab); // but we still render both in ALL
 
-      list.forEach(it=>{
-        if(it.type === 'Tour'){
-          // Determine center from sites/route or stored lat/lng
-          const pts = Array.isArray(it.sites) && it.sites.length
-            ? it.sites.filter(s=>typeof s.lat==='number' && typeof s.lng==='number').map(s=>({lat:s.lat,lng:s.lng}))
-            : (Array.isArray(it.route) && it.route.length
-                ? it.route.filter(p=>typeof p.lat==='number' && typeof p.lng==='number')
-                : []
-              );
-          let center = null;
-          if(pts.length) center = centroid(pts);
-          else if(typeof it.lat==='number' && typeof it.lng==='number') center = {lat:it.lat,lng:it.lng};
+      const sites = state.items.filter(it=>it.type==='Site');
+      const tours = state.items.filter(it=>it.type==='Tour');
 
-          if(center){
-            // Base radius from spread; slightly more opaque & scaled by match score
-            const baseMiles = pts.length ? pts.reduce((mx,p)=>{
-              const d = computeDistanceMiles(center, {lat:p.lat,lng:p.lng});
-              return Math.max(mx, d);
-            }, 0) : 0.10; // 0.10 mi default
-            const score = matchScore(it);
-            const scale = 1 + score * 0.25; // grow with matches
-            const rMeters = Math.max(180, baseMiles * 1609.34) * scale;
+      const filteredSites = sites.map(it=>({it,score:scoreMatches(it)})).filter(({it})=>passesTab(it) || state.tab==='all');
+      const filteredTours = tours.map(it=>({it,score:scoreMatches(it)})).filter(({it})=>passesTab(it) || state.tab==='all');
 
-            const halo = L.circle([center.lat, center.lng], {
-              radius: rMeters,
-              color: TOUR_COLOR,
-              weight: 1.25,
-              fillColor: TOUR_COLOR,
-              fillOpacity: 0.22,   // slightly more opaque for visibility
-              opacity: 0.9
-            }).addTo(polyLayer);
+      const bounds=[];
 
-            halo.bindPopup(cardHTML(it,true));
-            bounds.push([center.lat, center.lng]);
-          }
-        }else{
-          if(typeof it.lat==='number' && typeof it.lng==='number'){
-            const m = L.marker([it.lat,it.lng], {icon: iconForSite(it)}).addTo(markerLayer);
-            m.bindPopup(cardHTML(it,true));
-            bounds.push([it.lat,it.lng]);
-          }
+      // Sites: colored circle markers
+      filteredSites.forEach(({it})=>{
+        const {lat,lng} = it.raw||{};
+        if(typeof lat==='number' && typeof lng==='number'){
+          const m = L.marker([lat,lng],{icon:siteIconFor(it.siteType)}).addTo(siteLayer);
+          const html = cardHTML(it, scoreMatches(it), distanceFromUser(it), true);
+          m.bindPopup(html);
+          bounds.push([lat,lng]);
         }
       });
 
-      if(bounds.length){ map.fitBounds(bounds, {padding:[30,30]}); }
-      else { map.setView([39.7392,-104.9903], 10); } // Denver-ish
-      setTimeout(()=>map.invalidateSize(), 50);
+      // Tours: soft red halo circles ONLY; size scales with match score
+      filteredTours.forEach(({it,score})=>{
+        if(it.center){
+          // scale radius (meters) : base 250m + 200m * score
+          const radius = 250 + 200 * score;
+          const circle = L.circle(it.center, {
+            color:'#e11d48',
+            fillColor:'#e11d48',
+            fillOpacity:0.45,     /* slightly more opaque per request */
+            weight:1,
+            radius
+          }).addTo(tourLayer);
+          const html = cardHTML(it, score, distanceFromUser(it), true);
+          circle.bindPopup(html);
+          bounds.push([it.center.lat, it.center.lng]);
+        }
+      });
+
+      if(bounds.length){ map.fitBounds(bounds,{padding:[30,30]}); }
+      else{ map.setView([39.7392,-104.9903], 11); }
+
+      setTimeout(()=>map.invalidateSize(), 60);
     }
 
-    function zoomTourRoute(tourId){
-      const tour = state.items.find(i=>i.type==='Tour' && i.id===tourId);
-      if(!tour) return;
-      const pts = (tour.sites||[]).filter(s=>typeof s.lat==='number' && typeof s.lng==='number');
-      const rt  = (tour.route||[]).filter(p=>typeof p.lat==='number' && typeof p.lng==='number');
-      const latlngs = (pts.length ? pts : rt).map(s=>[s.lat,s.lng]);
-      if(latlngs.length){
-        map.fitBounds(latlngs, {padding:[40,40]});
-      }else if(typeof tour.lat==='number' && typeof tour.lng==='number'){
-        map.setView([tour.lat, tour.lng], 14);
-      }
-    }
-
-    function openMap(){
+    document.getElementById('viewMap').addEventListener('click', ()=>{
       ensureMap();
       document.getElementById('mapPanel').style.display='block';
-      document.getElementById('mapPanel').setAttribute('aria-hidden','false');
-      mapOpen = true;
-      renderMapPoints(state.items.filter(passesFiltersBasic));
-    }
-    document.getElementById('viewMap').addEventListener('click', openMap);
+      mapOpen=true;
+      renderMapPoints();
+    });
     document.getElementById('closeMap').addEventListener('click', ()=>{
       document.getElementById('mapPanel').style.display='none';
-      document.getElementById('mapPanel').setAttribute('aria-hidden','true');
-      mapOpen = false;
+      mapOpen=false;
     });
     document.getElementById('mapShowAll').addEventListener('click', ()=>{
       if(!map) return;
-      renderMapPoints(state.items);
+      // temporarily ignore filters: render both layers from full items
+      const backup = JSON.parse(JSON.stringify({
+        siteTypes:Array.from(state.filters.siteTypes),
+        periods:Array.from(state.filters.periods),
+        tags:Array.from(state.filters.tags)
+      }));
+      state.filters.siteTypes.clear(); state.filters.periods.clear(); state.filters.tags.clear();
+      renderMapPoints();
+      // restore
+      state.filters.siteTypes = new Set(backup.siteTypes);
+      state.filters.periods   = new Set(backup.periods);
+      state.filters.tags      = new Set(backup.tags);
     });
 
-    /* --------------------- Boot --------------------- */
-    load();
+    /* ---------------- Init ---------------- */
+    loadData();
   </script>
 </body>
 </html>

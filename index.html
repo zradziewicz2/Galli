@@ -110,6 +110,38 @@
     .leaflet-popup-tip { display:none; }
     .leaflet-popup .fav { pointer-events:auto; }
     .popup-card .img{ height:148px; }
+
+    /* ---------- Additions ---------- */
+    /* Smaller top-right pills */
+    .links .pill{
+      font-size:12px;
+      padding:6px 10px;
+    }
+
+    /* Our Data panel content */
+    #ourDataPanel{position:fixed;inset:0;background:#fff;display:none;z-index:1000}
+    .dataBody{
+      padding:16px;
+      max-width:900px;
+      margin:0 auto;
+    }
+    .dataBody p{
+      margin:0 0 12px;
+      color:#334155;
+      line-height:1.45;
+    }
+    .actionRow{
+      display:flex;
+      gap:12px;
+      flex-wrap:wrap;
+      margin-top:12px;
+    }
+    .actionRow .btn{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      text-decoration:none;
+    }
   </style>
 </head>
 <body>
@@ -203,6 +235,23 @@
     </div>
     <div style="padding:16px">
       <section id="favoritesGrid" class="grid"></section>
+    </div>
+  </section>
+
+  <!-- Our Data (ADDED) -->
+  <section id="ourDataPanel" aria-hidden="true" role="dialog" aria-label="About our data">
+    <div class="overlayHeader">
+      <strong>Our Data</strong>
+      <div>
+        <button id="closeOurData" class="btn">Back to list</button>
+      </div>
+    </div>
+    <div class="dataBody">
+      <p><strong>Traipse is a community resource.</strong> We rely on contributors and visitors to help keep details current—things like hours, prices, accessibility, and transit info can change. If you spot anything that looks off, please let us know so we can keep the map accurate for everyone.</p>
+      <div class="actionRow">
+        <a id="suggestEditBtn" class="btn" href="#" title="Suggest an edit">✏️ <span>Suggest an Edit</span></a>
+        <a id="newSiteBtn" class="btn" href="#" title="Submit a new site">➕ <span>New Site Submission</span></a>
+      </div>
     </div>
   </section>
 
@@ -840,6 +889,50 @@
     });
 
     loadData();
+
+    /* ---------- OUR DATA PANEL: rename nav link, wire up overlay (ADDED) ---------- */
+    (function(){
+      // Find the second pill in the header nav (currently "NEW SITE SUBMISSION")
+      const navPills = document.querySelectorAll('nav.links .pill');
+      if(navPills && navPills[1]){
+        const ourDataLink = navPills[1];
+        ourDataLink.textContent = 'OUR DATA';
+        ourDataLink.id = 'ourDataLink';
+        ourDataLink.setAttribute('aria-haspopup', 'dialog');
+        ourDataLink.addEventListener('click', (e)=>{
+          e.preventDefault();
+          const panel = document.getElementById('ourDataPanel');
+          if(panel){ panel.style.display = 'block'; panel.setAttribute('aria-hidden','false'); }
+        });
+      }
+
+      // Close button
+      const closeOurData = document.getElementById('closeOurData');
+      if(closeOurData){
+        closeOurData.addEventListener('click', ()=>{
+          const panel = document.getElementById('ourDataPanel');
+          if(panel){ panel.style.display='none'; panel.setAttribute('aria-hidden','true'); }
+        });
+      }
+
+      // Hook up action buttons; keep href="#" so you don't lose your original flows.
+      // Replace alerts with your real endpoints/forms when ready.
+      const suggestEditBtn = document.getElementById('suggestEditBtn');
+      if(suggestEditBtn){
+        suggestEditBtn.addEventListener('click', (e)=>{
+          e.preventDefault();
+          alert('Suggest an Edit: wire this up to your form or route.');
+        });
+      }
+
+      const newSiteBtn = document.getElementById('newSiteBtn');
+      if(newSiteBtn){
+        newSiteBtn.addEventListener('click', (e)=>{
+          e.preventDefault();
+          alert('New Site Submission: wire this up to your form or route.');
+        });
+      }
+    })();
   </script>
 </body>
 </html>

@@ -16,14 +16,22 @@
 
   <style>
     :root{
-      --bg:#f7f8fa; --panel:#ffffff; --ink:#0f172a; --muted:#6b7280; --ring:#d1d5db;
-      --brand:#00cfd4; --accent:#00cfd4;
-      --radius:18px; --shadow:0 2px 12px rgba(0,0,0,.06);
+      --bg:#f7f8fa;
+      --panel:#ffffff;
+      --ink:#0f172a;
+      --muted:#6b7280;
+      --ring:#d1d5db;
+      --brand:#00cfd4;         /* unified cyan brand */
+      --accent:#00cfd4;        /* use cyan everywhere */
+      --radius:18px;
+      --shadow:0 2px 12px rgba(0,0,0,.06);
     }
+
     *{box-sizing:border-box}
     html,body{height:100%}
     body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
     a{color:inherit}
+
     .wrap{max-width:1220px;margin:0 auto;padding:18px}
 
     /* Header / Nav */
@@ -39,8 +47,7 @@
     /* Tabs */
     .tabs{display:flex;gap:26px;justify-content:center;margin:6px 0 12px}
     .tab{font-weight:800;letter-spacing:.08em;color:#111;opacity:.6;cursor:pointer;border:none;background:none;font-size:16px}
-    /* remove underline; just use opacity change */
-    .tab.active{opacity:1}
+    .tab.active{opacity:1} /* no underline version */
 
     /* Layout */
     .layout{display:grid;grid-template-columns:300px 1fr;gap:18px}
@@ -49,15 +56,15 @@
     /* Sidebar + Filters */
     .sidebar .panel{background:var(--panel);border:1px solid var(--ring);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px}
     .sidebar h3{margin:2px 0 10px;font-size:14px;text-transform:uppercase;letter-spacing:.1em}
-    .view-map{
-      display:flex;align-items:center;gap:12px;width:100%;padding:14px;background:#fff;border:1px solid var(--ring);
-      border-radius:var(--radius);box-shadow:var(--shadow);color:inherit;font-weight:700;margin-bottom:14px
-    }
-    .view-map .icon{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:#eafffb;color:#0b3a68;font-size:18px}
+
+    .view-map{ display:flex;align-items:center;gap:12px;width:100%;padding:14px;background:#fff;border:1px solid var(--ring);
+      border-radius:var(--radius);box-shadow:var(--shadow);color:inherit;font-weight:700;margin-bottom:14px }
+    .view-map .icon{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:#e6fffd;color:var(--brand);font-size:18px}
+
     .filters .group{margin-bottom:14px}
     .filters label{display:flex;align-items:center;gap:8px;margin:6px 0;font-size:14px}
     .filters input[type="checkbox"]{width:16px;height:16px}
-    details summary{cursor:pointer;color:#0b3a68;font-weight:700}
+    details summary{cursor:pointer;color:var(--brand);font-weight:700}
 
     /* Toolbar */
     .select{border:1px solid var(--ring);border-radius:10px;padding:6px 10px;background:#fff;font-size:12px}
@@ -77,6 +84,7 @@
     .inner{padding:12px 14px 14px}
     .title{font-size:18px;font-weight:800;margin:2px 0 4px}
     .meta{font-size:12px;color:#4b5563;margin-bottom:8px;display:flex;gap:8px;flex-wrap:wrap}
+
     .chipbar{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
     .chip{display:inline-flex;align-items:center;border:1px solid var(--ring);background:#f1f5f9;font-size:11px;border-radius:999px;padding:2px 6px}
     .chip.hit{font-weight:800;border-color:#b6fff8;background:#e6fffd}
@@ -88,13 +96,13 @@
 
     /* More Info */
     .more{margin-top:6px}
-    .more summary{font-size:12px;color:#0b3a68;cursor:pointer;display:inline-flex;align-items:center;gap:6px;user-select:none}
+    .more summary{font-size:12px;color:var(--brand);cursor:pointer;display:inline-flex;align-items:center;gap:6px;user-select:none}
     .more summary::marker{content:''}
-    .more summary span{border-bottom:1px dotted #0b3a68}
+    .more summary span{border-bottom:1px dotted var(--brand)}
     .more[open] summary span{border-bottom-style:solid}
     .more-body{margin-top:6px}
     .desc{font-size:13px;color:#334155;line-height:1.35;margin:0}
-    .icons{display:flex;gap:10px;margin-top:6px;color:#607085;flex-wrap:wrap}
+    .icons{display:flex;gap:10px;margin-top:6px;color:#4b5563;flex-wrap:wrap}
     .icons a{display:inline-flex;align-items:center;gap:6px;text-decoration:none;font-size:12px}
 
     /* Stats */
@@ -105,14 +113,14 @@
 
     /* Overlays */
     #mapPanel,#favoritesPanel,#ourDataPanel{position:fixed;inset:0;background:#fff;display:none;z-index:1000}
-    #favoritesPanel{ z-index:1101; } /* ensure on top */
+    #favoritesPanel{ z-index:1101; } /* on top if both open */
 
     .overlayHeader{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--ring)}
     .btn{border:1px solid var(--ring);background:#fff;border-radius:999px;padding:8px 12px;font-weight:600;cursor:pointer}
 
     /* Map overlay layout */
-    .mapLayout{display:grid;grid-template-columns:320px 1fr;gap:16px;height:calc(100vh - 56px)}
-    .mapSidebar{padding:14px;border-right:1px solid var(--ring);overflow:auto}
+    .mapLayout{display:grid;grid-template-columns:0 1fr;gap:16px;height:calc(100vh - 56px)} /* hide sidebar to “remove/disable” map filters */
+    .mapSidebar{display:none} /* disabled/removed per request */
     .mapCanvas{position:relative}
     #map{position:absolute;inset:0}
     .legend{position:absolute;bottom:16px;right:16px;background:#fff;border:1px solid var(--ring);border-radius:12px;box-shadow:var(--shadow);padding:8px 10px;font-size:12px}
@@ -134,7 +142,7 @@
     /* Footer */
     footer{max-width:1220px;margin:24px auto 40px;padding:0 18px;color:#6b7280;font-size:12px}
     .footer-links{display:flex;gap:12px;flex-wrap:wrap;margin-top:6px}
-    .footer-links a{color:#0b3a68;text-decoration:underline; text-underline-offset:3px}
+    .footer-links a{color:var(--brand);text-decoration:underline; text-underline-offset:3px}
 
     /* MY PLACES upgrades */
     .fav-toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:10px 14px}
@@ -174,17 +182,17 @@
       <aside class="sidebar">
         <button class="view-map" id="viewMap"><span class="icon">🌐</span><strong>View in map</strong></button>
 
-        <!-- Keep original filter container; actual contents built by JS -->
+        <!-- Filters (contents are built by JS and adapt per tab) -->
         <div class="panel filters" id="filtersPanelMain">
-          <div class="group">
+          <div class="group" id="groupSiteTypeMain">
             <h3>Site Type</h3>
             <div id="siteTypeFiltersMain"></div>
           </div>
-          <div class="group">
+          <div class="group" id="groupPeriodMain">
             <h3>Time Period</h3>
             <div id="periodFiltersMain"></div>
           </div>
-          <details class="group" open>
+          <details class="group" open id="groupMoreMain">
             <summary>More Filters</summary>
             <div style="margin-top:8px" id="moreFiltersMain"></div>
           </details>
@@ -201,7 +209,6 @@
             <option value="theme">Theme</option>
           </select>
         </div>
-
         <section id="cards" class="grid" aria-live="polite"></section>
       </main>
     </div>
@@ -218,9 +225,9 @@
     </div>
 
     <div class="mapLayout">
-      <!-- Keep map filters (can be hidden later if you choose) -->
+      <!-- Map filters intentionally removed/disabled -->
       <aside class="mapSidebar">
-        <div class="panel filters" id="filtersPanelMap">
+        <div class="panel filters" id="filtersPanelMap" aria-hidden="true" style="pointer-events:none;opacity:.35">
           <div class="group">
             <h3>Site Type</h3>
             <div id="siteTypeFiltersMap"></div>
@@ -263,9 +270,7 @@
       <button id="tripAdd" class="btn">New Trip</button>
       <button id="tripRename" class="btn">Rename</button>
       <button id="tripDelete" class="btn danger">Delete</button>
-      <span class="mini" style="margin-left:auto">Hidden:
-        <a href="#" id="toggleHidden" class="mini">Show</a>
-      </span>
+      <span class="mini" style="margin-left:auto">Hidden: <a href="#" id="toggleHidden" class="mini">Show</a> </span>
     </div>
 
     <!-- Map for My Places -->
@@ -275,6 +280,7 @@
 
     <div style="padding:16px">
       <section id="favoritesGrid" class="grid"></section>
+
       <div id="hiddenDrawer" style="display:none;margin-top:14px">
         <div class="mini" style="margin-bottom:8px">Hidden items (click restore ⤴):</div>
         <section id="hiddenGrid" class="grid"></section>
@@ -332,23 +338,44 @@
   <script>
     /* ---------------- Label Maps ---------------- */
     const CATEGORY_LABELS = {
-      generalhistory: 'General History', localhistory: 'Local History', indigenous: 'Indigenous History',
-      militaryhistory: 'Military History', civilrights: 'Civil Rights', industrialhistory: 'Industrial History',
-      architecturalhistory: 'Architectural History', artsandculture: 'Arts & Culture', religious: 'Religious',
-      naturalhistory: 'Natural History', technologyandtransportation: 'Science & Technology', historichomes: 'Historic Homes',
-      foodanddrink: 'Food & Drink', other: 'Other'
+      generalhistory: 'General History',
+      localhistory: 'Local History',
+      indigenous: 'Indigenous History',
+      militaryhistory: 'Military History',
+      civilrights: 'Civil Rights',
+      industrialhistory: 'Industrial History',
+      architecturalhistory: 'Architectural History',
+      artsandculture: 'Arts & Culture',
+      religious: 'Religious',
+      naturalhistory: 'Natural History',
+      technologyandtransportation: 'Science & Technology',
+      historichomes: 'Historic Homes',
+      foodanddrink: 'Food & Drink',
+      other: 'Other'
     };
 
     const PERIOD_LABELS = {
-      prehistoric:'Prehistoric', colonial:'18th Century', eighteenthcentury:'18th Century', nineteenthcentury:'19th Century',
-      twentiethcentury:'20th Century', industrialrevolution:'Industrial Era', modernhistory:'Modern History',
-      indigenous:'Indigenous', other:'Other'
+      prehistoric:'Prehistoric',
+      colonial:'18th Century',
+      eighteenthcentury:'18th Century',
+      nineteenthcentury:'19th Century',
+      twentiethcentury:'20th Century',
+      industrialrevolution:'Industrial Era',
+      modernhistory:'Modern History',
+      indigenous:'Indigenous',
+      other:'Other'
     };
 
     const SITETYPE_LABELS = {
-      museums:'Museum', museum:'Museum', landmark:'Landmark', historichome:'Historical Home', historichomes:'Historical Home',
-      archaeological:'Archaeological', archeological:'Archaeological', burial:'Burial', religious:'Religious', political:'Political',
-      industrial:'Industrial', other:'Outdoor'
+      museums:'Museum', museum:'Museum',
+      landmark:'Landmark',
+      historichome:'Historical Home', historichomes:'Historical Home',
+      archaeological:'Archaeological', archeological:'Archaeological',
+      burial:'Burial',
+      religious:'Religious',
+      political:'Political',
+      industrial:'Industrial',
+      other:'Outdoor'
     };
 
     /* ---------------- Global State ---------------- */
@@ -366,7 +393,6 @@
       hidden: new Set(JSON.parse(localStorage.getItem('traipse:hidden')||'[]')),
       notes: JSON.parse(localStorage.getItem('traipse:notes')||'{}')
     };
-    // expose a flag so other helpers can see the overlay state
     window.favoritesOpen = false;
 
     if(!state.trips){
@@ -375,11 +401,7 @@
     }
 
     /* ---------------- Helpers ---------------- */
-    const resolveImage = (p)=>{
-      if(!p) return '';
-      if(/^https?:\/\//i.test(p)) return p;
-      return p.startsWith('./') || p.startsWith('images/') ? p : `images/${p}`;
-    };
+    const resolveImage = (p)=>{ if(!p) return ''; if(/^https?:\/\//i.test(p)) return p; return p.startsWith('./') || p.startsWith('images/') ? p : `images/${p}`; };
 
     function haversine(a, b){
       const toRad = d => d*Math.PI/180;
@@ -414,6 +436,10 @@
         case 'family_friendly': return !!r.family_friendly;
         case 'giftshop': return !!r.giftshop;
         case 'adaaccessibility': return !!r.adaaccessibility;
+        /* Tours-focused keys (added) */
+        case 'reservation_required': return !!r.reservation_required;
+        case 'seasonal': return !!r.seasonal;
+        case 'group_tours': return /group/i.test(String(r.group_type||''));
         default: return !!r[key];
       }
     }
@@ -430,9 +456,11 @@
       if(!state.geoloc) return Infinity;
       const pos = state.geoloc;
       let target = null;
-      if(it.type==='Tour'){ if(it.center){ target = it.center; } }
-      else{
-        const {lat,lng}=it.raw||{}; if(typeof lat==='number'&&typeof lng==='number'){ target={lat,lng}; }
+      if(it.type==='Tour'){
+        if(it.center){ target = it.center; }
+      } else {
+        const {lat,lng}=it.raw||{};
+        if(typeof lat==='number'&&typeof lng==='number'){ target={lat,lng}; }
       }
       if(!target) return Infinity;
       return kmToMiles(haversine({lat:pos.lat,lng:pos.lng}, target));
@@ -450,7 +478,8 @@
         image: raw.image,
         website: raw.website && raw.website!=='notavailable' ? raw.website : '',
         categories: (raw.thematiccategory||[]).map(c => CATEGORY_LABELS[c]||c),
-        siteType, periods,
+        siteType,
+        periods,
         description: raw.description||'',
         costText: raw.dollaramount && !['0','$0','-'].includes(String(raw.dollaramount).trim()) ? String(raw.dollaramount) : (raw.cost==='free'?'Free': (raw.cost==='paid'?'Paid':'')),
         durationText: mergeTime(raw),
@@ -485,7 +514,8 @@
       };
     }
 
-    /* ---------------- Filters UI (original kept) ---------------- */
+    /* ---------------- Filters UI ---------------- */
+    /* Tours-specific extras (additive; doesn't disturb original) */
     const MORE_FILTERS = {
       spanishtranslations: 'Spanish translations',
       paymentmethod: 'Cash/Credit',
@@ -498,7 +528,12 @@
       giftshop: 'Gift shop',
       foodbeverage: 'Food & beverage on-site',
       transit_accessible: 'Accessible by public transit',
-      adaaccessibility: 'ADA accessibility'
+      adaaccessibility: 'ADA accessibility',
+
+      /* tours (new) */
+      reservation_required: 'Reservation required',
+      seasonal: 'Seasonal',
+      group_tours: 'Group tours'
     };
 
     function addCheckbox(wrap, bucket, value, label){
@@ -517,21 +552,53 @@
     }
 
     function buildFilters(target){
-      const items = state.items;
-      const siteTypes = Array.from(new Set(items.map(i=>i.siteType).filter(Boolean))).filter(t=>t!=='Tour').sort();
+      const itemsAll = state.items;
+      const itemsByTab = itemsAll.filter(passesTabForFilters);
+      const isToursTab = state.tab==='tour';
+
+      /* compute unique sets from visible items */
+      const siteTypes = Array.from(new Set(itemsByTab
+        .map(i=>i.siteType)
+        .filter(Boolean)
+        .filter(t=>t!=='Tour'))).sort();
+
       const periodsSet = new Set();
-      items.forEach(i=> (i.periods||[]).forEach(p=>periodsSet.add(p)));
+      itemsByTab.forEach(i=> (i.periods||[]).forEach(p=>periodsSet.add(p)));
       const periods = Array.from(periodsSet).sort();
 
       const siteWrap = document.getElementById(`siteTypeFilters${target}`);
-      const perWrap  = document.getElementById(`periodFilters${target}`);
+      const perWrap = document.getElementById(`periodFilters${target}`);
       const moreWrap = document.getElementById(`moreFilters${target}`);
       if(!siteWrap||!perWrap||!moreWrap) return;
+
       siteWrap.innerHTML = perWrap.innerHTML = moreWrap.innerHTML = '';
 
-      siteTypes.forEach(label=>addCheckbox(siteWrap,'siteTypes',label,label));
-      periods.forEach(p=>addCheckbox(perWrap,'periods',p,p));
-      Object.entries(MORE_FILTERS).forEach(([k,v])=>addCheckbox(moreWrap,'tags',k,v));
+      /* Show/hide groups based on tab */
+      const groupSite = document.getElementById(`groupSiteType${target}`);
+      const groupPeriod = document.getElementById(`groupPeriod${target}`);
+      const groupMore = document.getElementById(`groupMore${target}`);
+
+      if(groupSite) groupSite.style.display = isToursTab ? 'none' : 'block';
+      if(groupPeriod) groupPeriod.style.display = isToursTab ? 'none' : 'block';
+      if(groupMore) groupMore.style.display = 'block';
+
+      /* When in SITES or ALL, build site type + periods */
+      if(!isToursTab){
+        siteTypes.forEach(label=>addCheckbox(siteWrap,'siteTypes',label,label));
+        periods.forEach(p=>addCheckbox(perWrap,'periods',p,p));
+      }
+
+      /* More filters: restrict to relevant set by tab */
+      const entries = Object.entries(MORE_FILTERS)
+        .filter(([k])=>{
+          if(isToursTab){
+            return ['reservation_required','seasonal','group_tours','featured'].includes(k);
+          }else{
+            return !['reservation_required','seasonal','group_tours'].includes(k);
+          }
+        });
+
+      entries.forEach(([k,v])=>addCheckbox(moreWrap,'tags',k,v));
     }
 
     function syncFilterUIs(source){
@@ -554,8 +621,11 @@
         });
       };
 
-      if(source==='map'){ setToByLabels(main, getCheckedWithLabels(mapP)); }
-      else{ setToByLabels(mapP, getCheckedWithLabels(main)); }
+      if(source==='map'){
+        setToByLabels(main, getCheckedWithLabels(mapP));
+      } else {
+        setToByLabels(mapP, getCheckedWithLabels(main));
+      }
     }
 
     /* ---------------- Chips / Cards ---------------- */
@@ -574,11 +644,9 @@
     function buildStatsTableHTML(it){
       const r = it.raw||{};
       const yesNo = v => v===undefined || v===null ? '—' : (v ? 'Yes' : 'No');
-
       const foodOnsite = !!(r.diningonsite || r.diningonsite2);
       const transitOk = (r.transit||'').toLowerCase()==='underhalfamilefromtransit';
-      const payMethod = (r.paymentmethod||'').toLowerCase()==='both' ? 'Cash & credit' :
-                        (r.paymentmethod||'') ? String(r.paymentmethod) : '—';
+      const payMethod = (r.paymentmethod||'').toLowerCase()==='both' ? 'Cash & credit' : (r.paymentmethod||'') ? String(r.paymentmethod) : '—';
 
       const rowsSite = [
         ['Hours', r.hours||'—'],
@@ -616,6 +684,7 @@
       const free = /free|\$?0\b/i.test(c);
       return `<span class="cost-badge ${free?'free':''}">${free?'FREE':c}</span>`;
     }
+
     function timeBadgeHTML(it){
       const t = (it.durationText||'').trim();
       if(!t) return '';
@@ -634,39 +703,40 @@
       if(it.periods?.length){ metaBits.push(it.periods[0]); }
       const distanceText = formatMiles(distMiles);
       if(distanceText) metaBits.push(distanceText);
-      const img = resolveImage(it.image) || 'images/default.jpg';
 
+      const img = resolveImage(it.image) || 'images/default.jpg';
       const links = [];
       if(it.website){ links.push(`<a href="${it.website}" target="_blank" rel="noopener">🌐 <span>Website</span></a>`); }
       if(it.type==='Tour' && it.raw?.external_links){
-        for(const [name,url] of Object.entries(it.raw.external_links)){ links.push(`<a href="${url}" target="_blank" rel="noopener">🔗 <span>${name}</span></a>`); }
+        for(const [name,url] of Object.entries(it.raw.external_links)){
+          links.push(`<a href="${url}" target="_blank" rel="noopener">🔗 <span>${name}</span></a>`);
+        }
       }
       links.push(`<a href="#" class="add-to-trip" data-id="${it.id}">➕ <span>Add to Trip</span></a>`);
-      const openCard = `<a href="#card-${it.id}" onclick="document.getElementById('closeMap').click(); setTimeout(()=>{document.getElementById('card-${it.id}')?.scrollIntoView({behavior:'smooth',block:'start'});},150); return false;">Open card</a>`;
 
+      const openCard = `<a href="#card-${it.id}" onclick="document.getElementById('closeMap').click(); setTimeout(()=>{document.getElementById('card-${it.id}')?.scrollIntoView({behavior:'smooth',block:'start'});},150); return false;">Open card</a>`;
       const stats = buildStatsTableHTML(it);
 
-      return `
-        <article class="card ${asPopup?'popup-card':''}" id="card-${it.id}">
-          <span class="badge">${it.type||'Site'}</span>
-          <button class="fav${state.favorites.has(it.id)?' active':''}" aria-label="Save" data-id="${it.id}">
-            <svg viewBox="0 0 24 24"><path d="M12 21s-7-4.35-7-10a4 4 0 0 1 7-2 4 4 0 0 1 7 2c0 5.65-7 10-7 10z"/></svg>
-          </button>
-          <img class="img" src="${img}" alt="${it.name} image" onerror="this.src='images/default.jpg'"/>
-          <div class="inner">
-            <h3 class="title">${it.name}</h3>
-            <div class="meta">${metaBits.join(' • ')}</div>
-            <div class="chipbar">${chipHtml}</div>
-            <details class="more">
-              <summary><span>More Info</span></summary>
-              <div class="more-body">
-                <div class="icons">${[...links, openCard].join(' ')}</div>
-                <p class="desc">${it.description||''}</p>
-                ${stats}
-              </div>
-            </details>
-          </div>
-        </article>`;
+      return `<article class="card ${asPopup?'popup-card':''}" id="card-${it.id}">
+        <span class="badge">${it.type||'Site'}</span>
+        <button class="fav${state.favorites.has(it.id)?' active':''}" aria-label="Save" data-id="${it.id}">
+          <svg viewBox="0 0 24 24"><path d="M12 21s-7-4.35-7-10a4 4 0 0 1 7-2 4 4 0 0 1 7 2c0 5.65-7 10-7 10z"/></svg>
+        </button>
+        <img class="img" src="${img}" alt="${it.name} image" onerror="this.src='images/default.jpg'"/>
+        <div class="inner">
+          <h3 class="title">${it.name}</h3>
+          <div class="meta">${metaBits.join(' • ')}</div>
+          <div class="chipbar">${chipHtml}</div>
+          <details class="more">
+            <summary><span>More Info</span></summary>
+            <div class="more-body">
+              <div class="icons">${[...links, openCard].join(' ')}</div>
+              <p class="desc">${it.description||''}</p>
+              ${stats}
+            </div>
+          </details>
+        </div>
+      </article>`;
     }
 
     function buildCardNode(it, score, distMiles){
@@ -709,10 +779,13 @@
       const links=[];
       if(it.website){ links.push(`<a href="${it.website}" target="_blank" rel="noopener">🌐 <span>Website</span></a>`); }
       if(it.type==='Tour' && it.raw?.external_links){
-        for(const [name,url] of Object.entries(it.raw.external_links)){ links.push(`<a href="${url}" target="_blank" rel="noopener">🔗 <span>${name}</span></a>`); }
+        for(const [name,url] of Object.entries(it.raw.external_links)){
+          links.push(`<a href="${url}" target="_blank" rel="noopener">🔗 <span>${name}</span></a>`);
+        }
       }
       links.push(`<a href="#" class="add-to-trip" data-id="${it.id}">➕ <span>Add to Trip</span></a>`);
       icons.innerHTML = links.join(' ');
+
       node.querySelector('.desc').textContent = it.description||'';
 
       const moreBody = root.querySelector('.more-body');
@@ -720,13 +793,9 @@
       statsDiv.innerHTML = buildStatsTableHTML(it);
       moreBody.appendChild(statsDiv.firstElementChild);
 
-      // wire "Add to Trip" click
       setTimeout(()=>{
         root.querySelectorAll('.add-to-trip').forEach(a=>{
-          a.addEventListener('click', (e)=>{
-            e.preventDefault();
-            addCurrentToTrip(it.id);
-          });
+          a.addEventListener('click', (e)=>{ e.preventDefault(); addCurrentToTrip(it.id); });
         });
       },0);
 
@@ -735,12 +804,12 @@
 
     /* ---------------- Favorites + Trips ---------------- */
     function toggleFavorite(id){
-      if(state.favorites.has(id)) state.favorites.delete(id); else state.favorites.add(id);
+      if(state.favorites.has(id)) state.favorites.delete(id);
+      else state.favorites.add(id);
       localStorage.setItem('traipse:favorites', JSON.stringify(Array.from(state.favorites)));
       document.querySelectorAll(`.fav[data-id="${id}"]`).forEach(b=>b.classList.toggle('active', state.favorites.has(id)));
       if(window.favoritesOpen) renderFavorites();
     }
-
     function saveTrips(){ localStorage.setItem('traipse:trips', JSON.stringify(state.trips)); }
     function saveHidden(){ localStorage.setItem('traipse:hidden', JSON.stringify(Array.from(state.hidden))); }
     function saveNotes(){ localStorage.setItem('traipse:notes', JSON.stringify(state.notes)); }
@@ -782,15 +851,16 @@
       state.trips.activeId = 'default';
       saveTrips(); ensureTripSelect(); renderFavorites();
     }
-
     function addCurrentToTrip(itemId){
       const id = state.trips.activeId;
       const list = state.trips.lists[id];
       if(!list) return;
       if(!list.items.includes(itemId)) list.items.push(itemId);
       saveTrips();
-      // auto-favorite when added to a trip
-      if(!state.favorites.has(itemId)){ state.favorites.add(itemId); localStorage.setItem('traipse:favorites', JSON.stringify(Array.from(state.favorites))); }
+      if(!state.favorites.has(itemId)){
+        state.favorites.add(itemId);
+        localStorage.setItem('traipse:favorites', JSON.stringify(Array.from(state.favorites)));
+      }
       if(window.favoritesOpen) renderFavorites();
       alert('Added to '+list.name);
     }
@@ -801,14 +871,8 @@
       state.trips.lists[id].items = list.items.filter(x=>x!==itemId);
       saveTrips(); renderFavorites();
     }
-
-    function hideItem(itemId){
-      state.hidden.add(itemId); saveHidden(); renderFavorites();
-    }
-    function restoreItem(itemId){
-      state.hidden.delete(itemId); saveHidden(); renderFavorites();
-    }
-
+    function hideItem(itemId){ state.hidden.add(itemId); saveHidden(); renderFavorites(); }
+    function restoreItem(itemId){ state.hidden.delete(itemId); saveHidden(); renderFavorites(); }
     function itemById(id){ return state.items.find(x=>x.id===id); }
 
     function renderFavorites(){
@@ -833,11 +897,9 @@
           wrapper.appendChild(node);
           const card = wrapper.querySelector('.card .more-body');
 
-          // notes
           const notesWrap = document.createElement('div');
           notesWrap.className='notes';
-          const key = it.id;
-          const existing = state.notes[key] || '';
+          const key = it.id; const existing = state.notes[key] || '';
           notesWrap.innerHTML = `
             <label class="mini">Notes</label>
             <textarea data-id="${key}" placeholder="Add notes for your trip…">${existing}</textarea>
@@ -860,15 +922,21 @@
         });
       }
 
-      // hidden drawer
       const hiddenBox = document.getElementById('hiddenDrawer');
       const toggleHidden = document.getElementById('toggleHidden');
       const hiddenGrid = document.getElementById('hiddenGrid');
       hiddenGrid.innerHTML='';
       const hiddenList = Array.from(state.hidden).map(id=>itemById(id)).filter(Boolean);
+
       if(toggleHidden){
-        toggleHidden.onclick = (e)=>{ e.preventDefault(); const vis = hiddenBox.style.display!=='none'; hiddenBox.style.display = vis?'none':'block'; toggleHidden.textContent = vis?'Show':'Hide'; };
+        toggleHidden.onclick = (e)=>{
+          e.preventDefault();
+          const vis = hiddenBox.style.display!=='none';
+          hiddenBox.style.display = vis?'none':'block';
+          toggleHidden.textContent = vis?'Show':'Hide';
+        };
       }
+
       if(hiddenList.length){
         hiddenList.forEach(it=>{
           const mini = document.createElement('article');
@@ -896,11 +964,19 @@
       if(state.tab==='tour') return it.type==='Tour';
       return true;
     }
+    /* for filters, treat ALL like SITES+TOURS but site/tour groups will hide */
+    function passesTabForFilters(it){
+      if(state.tab==='site') return it.type==='Site';
+      if(state.tab==='tour') return it.type==='Tour';
+      return true;
+    }
+
     function cityPass(it){
       if(!state.city) return true;
       const c = (it.city||'').toLowerCase();
       return c.includes(state.city);
     }
+
     function costRank(it){
       const c = (it.costText || it.raw?.Cost || '').toString().trim().toLowerCase();
       if(!c) return 999;
@@ -911,13 +987,12 @@
       if(!isNaN(num)) return num;
       return 999;
     }
+
     function sortItems(arr){
       const sortMode = state.sort;
       if(sortMode==='closest'){ return arr.sort((a,b)=> a.dist-b.dist || b.score-a.score); }
       if(sortMode==='cheapest'){ return arr.sort((a,b)=> costRank(a.it)-costRank(b.it) || b.score-a.score || a.dist-b.dist); }
-      if(sortMode==='theme'){
-        return arr.sort((a,b)=>{ const at=(a.it.categories?.length||0), bt=(b.it.categories?.length||0); if(bt!==at) return bt-at; return b.score-a.score || a.dist-b.dist; });
-      }
+      if(sortMode==='theme'){ return arr.sort((a,b)=>{ const at=(a.it.categories?.length||0), bt=(b.it.categories?.length||0); if(bt!==at) return bt-at; return b.score-a.score || a.dist-b.dist; }); }
       return arr.sort((a,b)=> b.score-a.score || a.dist-b.dist);
     }
 
@@ -928,7 +1003,6 @@
       if(!list.length){ host.innerHTML='<p style="color:#6b7280;padding:8px">No results.</p>'; return; }
       const sorted = sortItems(list);
       sorted.forEach(({it,score,dist})=> host.appendChild(buildCardNode(it,score,dist)));
-
       document.querySelectorAll('.add-to-trip').forEach(a=>{
         a.addEventListener('click', (e)=>{
           e.preventDefault();
@@ -945,13 +1019,15 @@
       document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
       btn.classList.add('active');
       state.tab = btn.dataset.tab;
+      /* rebuild filters to show correct set per tab */
+      buildFilters('Main');
+      syncFilterUIs('main');
       render();
     }));
 
     // City input
     document.getElementById('cityInput').addEventListener('input', e=>{
-      state.city = (e.target.value||'').trim().toLowerCase();
-      render();
+      state.city = (e.target.value||'').trim().toLowerCase(); render();
     });
 
     // Sort control
@@ -959,9 +1035,7 @@
     if(sortSelect){
       sortSelect.value = state.sort;
       sortSelect.addEventListener('change', ()=>{
-        state.sort = sortSelect.value;
-        localStorage.setItem('traipse:sort', state.sort);
-        render();
+        state.sort = sortSelect.value; localStorage.setItem('traipse:sort', state.sort); render();
       });
     }
 
@@ -974,7 +1048,6 @@
         ]);
         const sites = await siteRes.json();
         const tours = await tourRes.json();
-
         state.rawSites = Array.isArray(sites)?sites: (sites.locations||[]);
         state.rawTours = Array.isArray(tours)?tours: (tours.tours||[]);
 
@@ -982,10 +1055,8 @@
         const tourItems = state.rawTours.map(normalizeTour);
         state.items = [...siteItems, ...tourItems];
 
-        buildFilters('Main');
-        buildFilters('Map');
+        buildFilters('Main');               // initial
         syncFilterUIs('main');
-
         render();
         locateUser();
       }catch(e){
@@ -999,13 +1070,13 @@
       if(!navigator.geolocation) return;
       navigator.geolocation.getCurrentPosition(
         pos => { state.geoloc={lat:pos.coords.latitude, lng:pos.coords.longitude}; render(); },
-        () => {}, { enableHighAccuracy:true, timeout:7000, maximumAge:120000 }
+        () => {},
+        { enableHighAccuracy:true, timeout:7000, maximumAge:120000 }
       );
     }
 
     /* ---------------- Main Map ---------------- */
     let mapOpen=false, map, siteLayer, tourLayer;
-
     const TYPE_COLORS = {
       'Museum':'#00cfd4','Landmark':'#00cfd4','Historical Home':'#00cfd4','Archaeological':'#00cfd4',
       'Religious':'#00cfd4','Industrial':'#00cfd4','Outdoor':'#00cfd4','Burial':'#00cfd4','Political':'#00cfd4'
@@ -1018,11 +1089,13 @@
       siteLayer = L.layerGroup().addTo(map);
       tourLayer = L.layerGroup().addTo(map);
       buildLegend();
-
       map.on('popupopen', (e)=>{
         const btn = e.popup?.getElement()?.querySelector('.fav[data-id]');
         if(btn){
-          btn.addEventListener('click',(ev)=>{ ev.stopPropagation(); toggleFavorite(btn.getAttribute('data-id')); });
+          btn.addEventListener('click',(ev)=>{
+            ev.stopPropagation();
+            toggleFavorite(btn.getAttribute('data-id'));
+          });
         }
       });
     }
@@ -1038,7 +1111,7 @@
       });
       const row = document.createElement('div');
       row.className='legend-row';
-      row.innerHTML = `<span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:#facc15;opacity:.55;border:1px solid #eab308;"></span> <span>Tour area (size = matches)</span>`;
+      row.innerHTML = `<span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:rgba(0,207,212,.55);border:1px solid rgba(0,207,212,.8);"></span> <span>Tour area (size = matches)</span>`;
       legend.appendChild(row);
     }
 
@@ -1053,12 +1126,10 @@
 
     function renderMapPoints(){
       if(!map) return;
-      siteLayer.clearLayers();
-      tourLayer.clearLayers();
+      siteLayer.clearLayers(); tourLayer.clearLayers();
 
       const sites = state.items.filter(it=>it.type==='Site' && passesTab(it)).filter(cityPass);
       const tours = state.items.filter(it=>it.type==='Tour' && passesTab(it));
-
       const bounds=[];
 
       sites.forEach(it=>{
@@ -1076,8 +1147,8 @@
           const s = scoreMatches(it);
           const radius = 250 + 200 * s;
           const circle = L.circle(it.center, {
-            color:'#eab308',
-            fillColor:'#facc15',
+            color:'rgba(0,207,212,1)',
+            fillColor:'rgba(0,207,212,.35)',
             fillOpacity:0.35,
             weight:1,
             radius
@@ -1088,8 +1159,7 @@
         }
       });
 
-      if(bounds.length){ map.fitBounds(bounds,{padding:[30,30]}); }
-      else{ map.setView([39.7392,-104.9903], 11); }
+      if(bounds.length){ map.fitBounds(bounds,{padding:[30,30]}); } else { map.setView([39.7392,-104.9903], 11); }
       setTimeout(()=>map.invalidateSize(), 60);
     }
 
@@ -1111,9 +1181,14 @@
         periods:new Set(state.filters.periods),
         tags:new Set(state.filters.tags)
       };
-      state.filters.siteTypes.clear(); state.filters.periods.clear(); state.filters.tags.clear();
-      syncFilterUIs('main'); renderMapPoints();
-      state.filters.siteTypes=backup.siteTypes; state.filters.periods=backup.periods; state.filters.tags=backup.tags;
+      state.filters.siteTypes.clear();
+      state.filters.periods.clear();
+      state.filters.tags.clear();
+      syncFilterUIs('main');
+      renderMapPoints();
+      state.filters.siteTypes=backup.siteTypes;
+      state.filters.periods=backup.periods;
+      state.filters.tags=backup.tags;
       syncFilterUIs('main');
     });
 
@@ -1135,7 +1210,7 @@
       const bounds=[];
       items.forEach(it=>{
         if(it.type==='Tour' && it.center){
-          const circle = L.circle(it.center,{color:'#0ea5e9',fillColor:'#7dd3fc',fillOpacity:0.25,weight:1,radius:400}).addTo(favLayerTours);
+          const circle = L.circle(it.center,{color:'rgba(0,207,212,1)',fillColor:'rgba(0,207,212,.30)',fillOpacity:0.30,weight:1,radius:400}).addTo(favLayerTours);
           circle.bindPopup(`<strong>${it.name}</strong>`);
           bounds.push([it.center.lat,it.center.lng]);
         }else{
@@ -1150,7 +1225,6 @@
       if(bounds.length){ favoritesMap.fitBounds(bounds,{padding:[30,30]}); }
       setTimeout(()=>favoritesMap.invalidateSize(),60);
     }
-
     document.getElementById('favoritesToggleMap').addEventListener('click', ()=>{
       const box = document.getElementById('favoritesMapBox');
       const show = box.style.display==='none';
@@ -1174,13 +1248,18 @@
       if(closeOurData){
         closeOurData.addEventListener('click', ()=>{
           const panel = document.getElementById('ourDataPanel');
-          panel.style.display='none'; panel.setAttribute('aria-hidden','true');
+          panel.style.display='none';
+          panel.setAttribute('aria-hidden','true');
         });
       }
       const suggestEditBtn = document.getElementById('suggestEditBtn');
       const newSiteBtn = document.getElementById('newSiteBtn');
-      if(suggestEditBtn){ suggestEditBtn.addEventListener('click', (e)=>{ e.preventDefault(); alert('Suggest an Edit: wire this to your form.'); }); }
-      if(newSiteBtn){ newSiteBtn.addEventListener('click', (e)=>{ e.preventDefault(); alert('New Site Submission: wire this to your form.'); }); }
+      if(suggestEditBtn){
+        suggestEditBtn.addEventListener('click', (e)=>{ e.preventDefault(); alert('Suggest an Edit: wire this to your form.'); });
+      }
+      if(newSiteBtn){
+        newSiteBtn.addEventListener('click', (e)=>{ e.preventDefault(); alert('New Site Submission: wire this to your form.'); });
+      }
       const footNew = document.getElementById('footerNewSite');
       const footCorr = document.getElementById('footerCorrection');
       if(footNew){ footNew.addEventListener('click', (e)=>{ e.preventDefault(); document.getElementById('ourDataPanel').style.display='block'; }); }
@@ -1198,11 +1277,8 @@
     (function(){
       function $(sel){ return document.querySelector(sel); }
       function openFavorites(){
-        const panel = $('#favoritesPanel');
-        if(!panel) return;
-        // close other overlays so nothing blocks it
-        const mapPanel = $('#mapPanel');
-        const dataPanel = $('#ourDataPanel');
+        const panel = $('#favoritesPanel'); if(!panel) return;
+        const mapPanel = $('#mapPanel'); const dataPanel = $('#ourDataPanel');
         if(mapPanel) mapPanel.style.display = 'none';
         if(dataPanel) dataPanel.style.display = 'none';
         window.favoritesOpen = true;
@@ -1211,17 +1287,14 @@
         panel.setAttribute('aria-hidden','false');
       }
       function closeFavorites(){
-        const panel = $('#favoritesPanel');
-        if(!panel) return;
+        const panel = $('#favoritesPanel'); if(!panel) return;
         panel.style.display = 'none';
         panel.setAttribute('aria-hidden','true');
         window.favoritesOpen = false;
       }
-      // expose for any earlier handlers
       window.openFavorites = openFavorites;
       window.closeFavorites = closeFavorites;
 
-      // Bind link reliably (click + keyboard) and avoid double-binding
       const link = $('#myPlacesLink');
       if(link && !link.__galliBound){
         link.__galliBound = true;
@@ -1232,13 +1305,27 @@
         link.setAttribute('role','button');
         link.setAttribute('tabindex','0');
       }
-
-      // Also bind close button defensively
       const closeBtn = $('#closeFavorites');
       if(closeBtn && !closeBtn.__galliBound){
         closeBtn.__galliBound = true;
         closeBtn.addEventListener('click', function(){ closeFavorites(); });
       }
+
+      /* Clear all favorites button (non-destructive to trips) */
+      const clearBtn = document.getElementById('clearFavorites');
+      if(clearBtn){
+        clearBtn.addEventListener('click', ()=>{
+          if(!confirm('Remove all favorites?')) return;
+          state.favorites = new Set();
+          localStorage.setItem('traipse:favorites','[]');
+          renderFavorites(); render();
+        });
+      }
+
+      /* Trip buttons */
+      document.getElementById('tripAdd')?.addEventListener('click', newTrip);
+      document.getElementById('tripRename')?.addEventListener('click', renameTrip);
+      document.getElementById('tripDelete')?.addEventListener('click', deleteTrip);
     })();
   </script>
 </body>

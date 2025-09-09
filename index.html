@@ -16,9 +16,7 @@
 
   <style>
     :root{
-      --bg:#f7f8fa; --panel:#ffffff; --ink:#0f172a; --muted:#6b7280; --ring:#d1d5db;
-      /* unify to brand cyan */
-      --brand:#00cfd4; --accent:#00cfd4;
+      --bg:#f7f8fa; --panel:#ffffff; --ink:#0f172a; --muted:#6b7280; --ring:#d1d5db; --brand:#00cfd4; --accent:#00cfd4;
       --radius:18px; --shadow:0 2px 12px rgba(0,0,0,.06);
     }
     *{box-sizing:border-box}
@@ -58,9 +56,6 @@
     .filters input[type="checkbox"]{width:16px;height:16px}
     details summary{cursor:pointer;color:#0b3a68;font-weight:700}
 
-    /* Small pills in top-right */
-    .links .pill{ font-size:12px; padding:6px 10px; }
-
     /* Cards grid — 3 columns (wider) */
     .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
     @media (max-width:1100px){.grid{grid-template-columns:repeat(2,1fr)}}
@@ -80,9 +75,10 @@
     .chip{display:inline-flex;align-items:center;border:1px solid var(--ring);background:#f1f5f9;font-size:11px;border-radius:999px;padding:2px 6px}
     .chip.hit{font-weight:800;border-color:#b6fff8;background:#e6fffd}
 
-    /* Cost badge */
+    /* Cost / time badges */
     .cost-badge{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--ring);padding:0 6px;border-radius:8px;font-weight:700}
     .cost-badge.free{color:#059669;border-color:#bbf7d0;background:#ecfdf5}
+    .time-badge{display:inline-flex;align-items:center;gap:4px;border:1px dashed var(--ring);padding:0 6px;border-radius:8px}
 
     /* More Info */
     .more{margin-top:6px}
@@ -92,7 +88,7 @@
     .more[open] summary span{border-bottom-style:solid}
     .more-body{margin-top:6px}
     .desc{font-size:13px;color:#334155;line-height:1.35;margin:0}
-    .icons{display:flex;gap:10px;margin-top:6px;color:#607085}
+    .icons{display:flex;gap:10px;margin-top:6px;color:#607085;flex-wrap:wrap}
     .icons a{display:inline-flex;align-items:center;gap:6px;text-decoration:none;font-size:12px}
 
     /* Stats table */
@@ -101,16 +97,12 @@
     .stats td{padding:6px 0}
     .stats tr+tr th, .stats tr+tr td{border-top:1px dashed #e5e7eb}
 
-    /* Toolbar (sorting) */
-    .toolbar{display:flex;align-items:center;gap:10px;justify-content:flex-end;margin-bottom:10px}
-    .select{border:1px solid var(--ring);border-radius:10px;padding:6px 10px;background:#fff;font-size:12px}
-
     /* Overlays */
     #mapPanel,#favoritesPanel{position:fixed;inset:0;background:#fff;display:none;z-index:1000}
     .overlayHeader{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--ring)}
     .btn{border:1px solid var(--ring);background:#fff;border-radius:999px;padding:8px 12px;font-weight:600;cursor:pointer}
 
-    /* Map overlay layout: same filter styles on the left */
+    /* Map overlay layout */
     .mapLayout{display:grid;grid-template-columns:320px 1fr;gap:16px;height:calc(100vh - 56px)}
     .mapSidebar{padding:14px;border-right:1px solid var(--ring);overflow:auto}
     .mapCanvas{position:relative}
@@ -125,17 +117,36 @@
     .leaflet-popup .fav { pointer-events:auto; }
     .popup-card .img{ height:148px; }
 
-    /* Our Data panel content (kept) */
+    /* Smaller top-right pills (kept) */
+    .links .pill{font-size:12px;padding:6px 10px;}
+
+    /* Our Data panel content */
     #ourDataPanel{position:fixed;inset:0;background:#fff;display:none;z-index:1000}
     .dataBody{padding:16px;max-width:900px;margin:0 auto;}
     .dataBody p{margin:0 0 12px;color:#334155;line-height:1.45;}
     .actionRow{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px;}
     .actionRow .btn{display:inline-flex;align-items:center;gap:8px;text-decoration:none;}
 
-    /* Footer links (anti-spam placement for submissions) */
+    /* Footer links */
     footer{max-width:1220px;margin:24px auto 40px;padding:0 18px;color:#6b7280;font-size:12px}
     .footer-links{display:flex;gap:12px;flex-wrap:wrap;margin-top:6px}
     .footer-links a{color:#0b3a68;text-decoration:underline; text-underline-offset:3px}
+
+    /* ---------- NEW: MY PLACES upgrades ---------- */
+    .fav-toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:10px 14px}
+    .fav-toolbar .select, .select{border:1px solid var(--ring);border-radius:10px;padding:6px 10px;background:#fff;font-size:12px}
+    .fav-actions{display:flex;gap:8px;flex-wrap:wrap}
+    .notes{margin-top:8px}
+    .notes textarea{width:100%;min-height:70px;border:1px solid var(--ring);border-radius:12px;padding:8px;font-size:12px}
+    .danger{border-color:#fecaca!important;color:#b91c1c!important}
+    .x-btn{border:1px solid #fecaca;background:#fff0f0;color:#b91c1c;border-radius:999px;padding:4px 8px;font-size:12px;cursor:pointer}
+    .fav-bottom{display:flex;justify-content:space-between;align-items:center;margin-top:6px}
+    .mini{font-size:12px;color:#6b7280}
+    .mapBox{height:320px;border-top:1px solid var(--ring)}
+    #favoritesMap{height:100%}
+    .trip-chip{display:inline-flex;align-items:center;gap:6px;border:1px dashed var(--ring);border-radius:999px;padding:4px 10px;font-size:12px;background:#f8fafc}
+    .addToTrip{border:1px solid var(--ring);border-radius:999px;padding:4px 8px;font-size:12px;background:#fff;cursor:pointer}
+    .pro{border:1px dashed var(--ring)}
   </style>
 </head>
 <body>
@@ -160,7 +171,6 @@
       <aside class="sidebar">
         <button class="view-map" id="viewMap"><span class="icon">🌐</span><strong>View in map</strong></button>
 
-        <!-- existing filters panel (kept intact) -->
         <div class="panel filters" id="filtersPanelMain">
           <div class="group">
             <h3>Site Type</h3>
@@ -178,8 +188,7 @@
       </aside>
 
       <main>
-        <!-- Added: toolbar with Sort control (non-destructive) -->
-        <div class="toolbar">
+        <div class="toolbar" style="display:flex;align-items:center;gap:10px;justify-content:flex-end;margin-bottom:10px">
           <label for="sortSelect" class="muted">Sort:</label>
           <select id="sortSelect" class="select" aria-label="Sort results">
             <option value="best">Best match</option>
@@ -205,7 +214,7 @@
     </div>
 
     <div class="mapLayout">
-      <!-- Same filters in map (kept) -->
+      <!-- Same filters in map (kept as-is) -->
       <aside class="mapSidebar">
         <div class="panel filters" id="filtersPanelMap">
           <div class="group">
@@ -234,17 +243,44 @@
   <section id="favoritesPanel" aria-hidden="true" role="dialog" aria-label="My Places">
     <div class="overlayHeader">
       <strong>My Places</strong>
-      <div>
+      <div class="fav-actions">
+        <button id="favoritesToggleMap" class="btn">View in Map</button>
+        <button id="proItin" class="btn pro" title="Paid feature">Generate Itinerary (Pro)</button>
+        <button id="proExport" class="btn pro" title="Paid feature">Export to AI (Pro)</button>
         <button id="clearFavorites" class="btn">Clear all</button>
         <button id="closeFavorites" class="btn">Back to list</button>
       </div>
     </div>
+
+    <!-- Trip Creator / Selector -->
+    <div class="fav-toolbar">
+      <span class="mini">Trip:</span>
+      <select id="tripSelect" class="select" aria-label="Select trip"></select>
+      <button id="tripAdd" class="btn">New Trip</button>
+      <button id="tripRename" class="btn">Rename</button>
+      <button id="tripDelete" class="btn danger">Delete</button>
+      <span class="mini" style="margin-left:auto">Hidden:
+        <a href="#" id="toggleHidden" class="mini">Show</a>
+      </span>
+    </div>
+
+    <!-- Map for My Places -->
+    <div id="favoritesMapBox" class="mapBox" style="display:none">
+      <div id="favoritesMap"></div>
+    </div>
+
     <div style="padding:16px">
       <section id="favoritesGrid" class="grid"></section>
+
+      <!-- Hidden list drawer -->
+      <div id="hiddenDrawer" style="display:none;margin-top:14px">
+        <div class="mini" style="margin-bottom:8px">Hidden items (click restore ⤴):</div>
+        <section id="hiddenGrid" class="grid"></section>
+      </div>
     </div>
   </section>
 
-  <!-- Our Data (ADDED earlier, preserved) -->
+  <!-- Our Data -->
   <section id="ourDataPanel" aria-hidden="true" role="dialog" aria-label="About our data">
     <div class="overlayHeader">
       <strong>Our Data</strong>
@@ -253,7 +289,7 @@
       </div>
     </div>
     <div class="dataBody">
-      <p><strong>Gallivant is a community resource.</strong> We rely on contributors and visitors to help keep details accurate - such as hours, prices, accessibility, and management operations. If you spot anything that looks off, please let us know so we can keep this resource accurate for everyone.</p>
+      <p><strong>Gallivant is a community resource.</strong> We rely on contributors and visitors to help keep details accurate—hours, prices, accessibility, and more. If you spot anything off, please tell us so we can keep this helpful for everyone.</p>
       <div class="actionRow">
         <a id="suggestEditBtn" class="btn" href="#" title="Suggest an edit">✏️ <span>Suggest an Edit</span></a>
         <a id="newSiteBtn" class="btn" href="#" title="Submit a new site">➕ <span>New Site Submission</span></a>
@@ -261,7 +297,7 @@
     </div>
   </section>
 
-  <!-- Card template (kept) -->
+  <!-- Card template -->
   <template id="cardTemplate">
     <article class="card">
       <span class="badge"></span>
@@ -292,7 +328,7 @@
   </footer>
 
   <script>
-    /* ---------------- Label Maps (kept) ---------------- */
+    /* ---------------- Label Maps ---------------- */
     const CATEGORY_LABELS = {
       generalhistory: 'General History', localhistory: 'Local History', indigenous: 'Indigenous History',
       militaryhistory: 'Military History', civilrights: 'Civil Rights', industrialhistory: 'Industrial History',
@@ -310,10 +346,10 @@
     const SITETYPE_LABELS = {
       museums:'Museum', museum:'Museum', landmark:'Landmark', historichome:'Historical Home', historichomes:'Historical Home',
       archaeological:'Archaeological', archeological:'Archaeological', burial:'Burial', religious:'Religious', political:'Political',
-      industrial:'Industrial', other:'Outdoor' // fallback
+      industrial:'Industrial', other:'Outdoor'
     };
 
-    /* ---------------- Global State (kept + additions) ---------------- */
+    /* ---------------- Global State ---------------- */
     const state = {
       rawSites: [],
       rawTours: [],
@@ -323,10 +359,24 @@
       city: '',
       geoloc: null,
       filters: { siteTypes:new Set(), periods:new Set(), tags:new Set() },
-      sort: localStorage.getItem('traipse:sort') || 'best'
+      sort: localStorage.getItem('traipse:sort') || 'best',
+
+      // NEW: trips + hidden + notes
+      trips: JSON.parse(localStorage.getItem('traipse:trips')||'null'),
+      hidden: new Set(JSON.parse(localStorage.getItem('traipse:hidden')||'[]')),
+      notes: JSON.parse(localStorage.getItem('traipse:notes')||'{}')
     };
 
-    // More Filters (kept)
+    // initialize trips if missing
+    if(!state.trips){
+      state.trips = {
+        activeId: 'default',
+        lists: { default: { name: 'My Trip', items: [] } }
+      };
+      localStorage.setItem('traipse:trips', JSON.stringify(state.trips));
+    }
+
+    // More Filters (unchanged)
     const MORE_FILTERS = {
       spanishtranslations: 'Spanish translations',
       paymentmethod: 'Cash/Credit',
@@ -342,7 +392,7 @@
       adaaccessibility: 'ADA accessibility'
     };
 
-    /* ---------------- Helpers (kept + additions) ---------------- */
+    /* ---------------- Helpers ---------------- */
     const resolveImage = (p)=>{
       if(!p) return '';
       if(/^https?:\/\//i.test(p)) return p;
@@ -351,7 +401,7 @@
 
     function haversine(a, b){
       const toRad = d => d*Math.PI/180;
-      const R=6371; // km
+      const R=6371;
       const dLat = toRad(b.lat-a.lat), dLng = toRad(b.lng-a.lng);
       const s = Math.sin(dLat/2)**2 + Math.cos(toRad(a.lat))*Math.cos(toRad(b.lat))*Math.sin(dLng/2)**2;
       return 2*R*Math.asin(Math.sqrt(s));
@@ -359,7 +409,7 @@
     const kmToMiles = km => km*0.621371;
     const formatMiles = m => !isFinite(m) ? '' : (m<0.2? `${(m*5280).toFixed(0)} ft away` : (m<10? `${m.toFixed(1)} mi away` : `${Math.round(m)} mi away`));
 
-    // parse a numeric-ish cost for sorting (Free=0, $=1, $$=2, $$$=3), fallbacks if numeric present
+    // unify and parse cost ranks
     function costRank(it){
       const c = (it.costText || it.raw?.Cost || '').toString().trim().toLowerCase();
       if(!c) return 999;
@@ -367,11 +417,11 @@
       const dollarMatch = c.match(/\${1,4}/);
       if(dollarMatch) return dollarMatch[0].length;
       const num = parseFloat(c.replace(/[^0-9.]/g,''));
-      if(!isNaN(num)) return num; // numeric price if available
+      if(!isNaN(num)) return num;
       return 999;
     }
 
-    /* ---------------- Determine tag matches (kept) ---------------- */
+    /* ---------------- Tag matches ---------------- */
     function hasTag(it, key){
       const r = it.raw||{};
       switch(key){
@@ -416,7 +466,15 @@
       return kmToMiles(haversine({lat:pos.lat,lng:pos.lng}, target));
     }
 
-    /* ---------------- Normalization (kept) ---------------- */
+    /* ---------------- Normalization ---------------- */
+    function mergeTime(raw){
+      // consolidate "duration" + "estimated time" => "time needed"
+      const a = raw.estimatedtime || raw.estimated_time || '';
+      const b = raw.duration || raw.Duration || '';
+      const t = String(a||b||'').trim();
+      return t;
+    }
+
     function normalizeSite(raw){
       const periods = (raw.timeperiod||[]).map(p => PERIOD_LABELS[p]||p);
       const siteTypeSlug = (raw.sitetype||'').toLowerCase();
@@ -432,7 +490,7 @@
         periods,
         description: raw.description||'',
         costText: raw.dollaramount && !['0','$0','-'].includes(String(raw.dollaramount).trim()) ? String(raw.dollaramount) : (raw.cost==='free'?'Free': (raw.cost==='paid'?'Paid':'')),
-        durationText: raw.estimatedtime || '',
+        durationText: mergeTime(raw), // unified
         city: (raw.city||'').toLowerCase(),
         raw
       };
@@ -457,8 +515,8 @@
         categories: [CATEGORY_LABELS[raw.thematiccategory]||raw.thematiccategory||'General'],
         siteType: 'Tour',
         periods: [],
-        description: `${raw.duration||''} • ${raw.Cost||''}`.trim(),
-        durationText: raw.duration || '',
+        description: `${mergeTime(raw)||''} • ${raw.Cost||''}`.trim(),
+        durationText: mergeTime(raw), // unified
         color: '#e11d48',
         center,
         raw
@@ -474,7 +532,6 @@
       input.addEventListener('change', ()=>{
         const set = state.filters[bucket];
         if(input.checked) set.add(value); else set.delete(value);
-
         const source = wrap.id.endsWith('Map') ? 'map' : 'main';
         syncFilterUIs(source);
         render();
@@ -525,7 +582,7 @@
       }
     }
 
-    /* ---------------- Chips / Cards (extended) ---------------- */
+    /* ---------------- Chips / Cards ---------------- */
     function filterChips(it){
       const chips=[];
       if(state.filters.siteTypes.size && state.filters.siteTypes.has(it.siteType)) chips.push(it.siteType);
@@ -538,7 +595,6 @@
       return chips;
     }
 
-    // Build the Stats table HTML for an item (kept)
     function buildStatsTableHTML(it){
       const r = it.raw||{};
       const yesNo = v => v===undefined || v===null ? '—' : (v ? 'Yes' : 'No');
@@ -548,10 +604,11 @@
       const payMethod = (r.paymentmethod||'').toLowerCase()==='both' ? 'Cash & credit' :
                         (r.paymentmethod||'') ? String(r.paymentmethod) : '—';
 
+      // Consolidated "Time needed"
       const rowsSite = [
         ['Hours', r.hours||'—'],
         ['Cost', it.costText || '—'],
-        ['Duration', it.durationText || '—'],
+        ['Time needed', it.durationText || '—'],
         ['Pet-friendly', yesNo(r.dogfriendly)],
         ['Family-friendly', yesNo(r.family_friendly)],
         ['Gift shop', yesNo(r.giftshop)],
@@ -565,7 +622,7 @@
       ];
 
       const rowsTour = [
-        ['Duration', it.durationText || '—'],
+        ['Time needed', it.durationText || '—'],
         ['# of sites', r.number_of_sites || '—'],
         ['Cost', r.Cost || r.cost_range?.join(' - ') || '—'],
         ['Reservation required', yesNo(r.reservation_required)],
@@ -584,14 +641,20 @@
       const free = /free|\$?0\b/i.test(c);
       return `<span class="cost-badge ${free?'free':''}">${free?'FREE':c}</span>`;
     }
+    function timeBadgeHTML(it){
+      const t = (it.durationText||'').trim();
+      if(!t) return '';
+      return `<span class="time-badge">⏱ ${t}</span>`;
+    }
 
     function cardHTML(it, score, distMiles, asPopup=false){
       const chips = filterChips(it);
       const chipHtml = chips.map(c=>`<span class="chip hit">${c}</span>`).join('');
       const metaBits=[];
-      // cost badge visible up front (requested); keep existing meta intact too
       const costBadge = costBadgeHTML(it);
+      const timeBadge = timeBadgeHTML(it);
       if(costBadge) metaBits.push(costBadge);
+      if(timeBadge) metaBits.push(timeBadge);
       if(it.categories?.length){ metaBits.push(it.categories.join(', ')); }
       if(it.periods?.length){ metaBits.push(it.periods[0]); }
       const distanceText = formatMiles(distMiles);
@@ -603,6 +666,8 @@
       if(it.type==='Tour' && it.raw?.external_links){
         for(const [name,url] of Object.entries(it.raw.external_links)){ links.push(`<a href="${url}" target="_blank" rel="noopener">🔗 <span>${name}</span></a>`); }
       }
+      // NEW: Add to Trip shortcut
+      links.push(`<a href="#" class="add-to-trip" data-id="${it.id}">➕ <span>Add to Trip</span></a>`);
       const openCard = `<a href="#card-${it.id}" onclick="document.getElementById('closeMap').click(); setTimeout(()=>{document.getElementById('card-${it.id}')?.scrollIntoView({behavior:'smooth',block:'start'});},150); return false;">Open card</a>`;
 
       const stats = buildStatsTableHTML(it);
@@ -651,17 +716,17 @@
 
       node.querySelector('.title').textContent = it.name;
 
-      // meta row + cost badge
       const metaBits=[];
       const costBadge = costBadgeHTML(it);
+      const timeBadge = timeBadgeHTML(it);
       if(costBadge) metaBits.push(costBadge);
+      if(timeBadge) metaBits.push(timeBadge);
       if(it.categories?.length){ metaBits.push(it.categories.join(', ')); }
       if(it.periods?.length){ metaBits.push(it.periods[0]); }
       const distanceText = formatMiles(distMiles);
       if(distanceText) metaBits.push(distanceText);
       node.querySelector('.meta').innerHTML = metaBits.join(' • ');
 
-      // chips with hit class if they came from active filters
       const chipbar = node.querySelector('.chipbar');
       const chips = filterChips(it);
       chips.forEach(c=>{ const s=document.createElement('span'); s.className='chip hit'; s.textContent=c; chipbar.appendChild(s); });
@@ -672,6 +737,7 @@
       if(it.type==='Tour' && it.raw?.external_links){
         for(const [name,url] of Object.entries(it.raw.external_links)){ links.push(`<a href="${url}" target="_blank" rel="noopener">🔗 <span>${name}</span></a>`); }
       }
+      links.push(`<a href="#" class="add-to-trip" data-id="${it.id}">➕ <span>Add to Trip</span></a>`);
       icons.innerHTML = links.join(' ');
       node.querySelector('.desc').textContent = it.description||'';
 
@@ -681,10 +747,20 @@
       statsDiv.innerHTML = buildStatsTableHTML(it);
       moreBody.appendChild(statsDiv.firstElementChild);
 
+      // wire "Add to Trip" click
+      setTimeout(()=>{
+        root.querySelectorAll('.add-to-trip').forEach(a=>{
+          a.addEventListener('click', (e)=>{
+            e.preventDefault();
+            addCurrentToTrip(it.id);
+          });
+        });
+      },0);
+
       return node;
     }
 
-    /* ---------------- Favorites (kept) ---------------- */
+    /* ---------------- Favorites + Trips ---------------- */
     function toggleFavorite(id){
       if(state.favorites.has(id)) state.favorites.delete(id); else state.favorites.add(id);
       localStorage.setItem('traipse:favorites', JSON.stringify(Array.from(state.favorites)));
@@ -692,17 +768,165 @@
       if(favoritesOpen) renderFavorites();
     }
 
+    function saveTrips(){ localStorage.setItem('traipse:trips', JSON.stringify(state.trips)); }
+    function saveHidden(){ localStorage.setItem('traipse:hidden', JSON.stringify(Array.from(state.hidden))); }
+    function saveNotes(){ localStorage.setItem('traipse:notes', JSON.stringify(state.notes)); }
+
+    function ensureTripSelect(){
+      const sel = document.getElementById('tripSelect');
+      if(!sel) return;
+      sel.innerHTML = '';
+      Object.entries(state.trips.lists).forEach(([id,list])=>{
+        const opt=document.createElement('option');
+        opt.value=id; opt.textContent=list.name;
+        if(id===state.trips.activeId) opt.selected=true;
+        sel.appendChild(opt);
+      });
+      sel.onchange = ()=>{ state.trips.activeId = sel.value; saveTrips(); renderFavorites(); };
+    }
+
+    function newTrip(){
+      const name = prompt('Trip name?','New Trip');
+      if(!name) return;
+      const id = name.toLowerCase().replace(/[^a-z0-9]+/g,'-')+'-'+Date.now().toString(36);
+      state.trips.lists[id] = { name, items: [] };
+      state.trips.activeId = id;
+      saveTrips(); ensureTripSelect(); renderFavorites();
+    }
+    function renameTrip(){
+      const id = state.trips.activeId;
+      const cur = state.trips.lists[id];
+      if(!cur) return;
+      const name = prompt('Rename trip:', cur.name);
+      if(!name) return;
+      cur.name = name; saveTrips(); ensureTripSelect();
+    }
+    function deleteTrip(){
+      const id = state.trips.activeId;
+      if(!confirm('Delete this trip? Items will not be deleted from favorites.')) return;
+      if(id==='default'){ alert('Cannot delete default trip.'); return; }
+      delete state.trips.lists[id];
+      state.trips.activeId = 'default';
+      saveTrips(); ensureTripSelect(); renderFavorites();
+    }
+
+    function addCurrentToTrip(itemId){
+      const id = state.trips.activeId;
+      const list = state.trips.lists[id];
+      if(!list) return;
+      if(!list.items.includes(itemId)) list.items.push(itemId);
+      saveTrips();
+      if(favoritesOpen) renderFavorites();
+      // auto-favorite when added to a trip
+      if(!state.favorites.has(itemId)){ state.favorites.add(itemId); localStorage.setItem('traipse:favorites', JSON.stringify(Array.from(state.favorites))); }
+      alert('Added to '+list.name);
+    }
+    function removeFromTrip(itemId){
+      const id = state.trips.activeId;
+      const list = state.trips.lists[id];
+      if(!list) return;
+      state.trips.lists[id].items = list.items.filter(x=>x!==itemId);
+      saveTrips(); renderFavorites();
+    }
+
+    function hideItem(itemId){
+      state.hidden.add(itemId); saveHidden(); renderFavorites();
+    }
+    function restoreItem(itemId){
+      state.hidden.delete(itemId); saveHidden(); renderFavorites();
+    }
+
+    function itemById(id){ return state.items.find(x=>x.id===id); }
+
     function renderFavorites(){
+      ensureTripSelect();
       const host = document.getElementById('favoritesGrid');
-      const list = state.items.filter(it=>state.favorites.has(it.id))
+      const active = state.trips.lists[state.trips.activeId];
+      const listIds = active?.items?.length ? active.items : Array.from(state.favorites);
+      const list = listIds
+        .map(id => itemById(id))
+        .filter(Boolean)
+        .filter(it => !state.hidden.has(it.id))
         .map(it => ({it,score:scoreMatches(it),dist:distanceFromUser(it)}))
         .sort((a,b)=> b.score-a.score || a.dist-b.dist);
+
       host.innerHTML='';
       if(!list.length){
-        host.innerHTML='<p style="color:#6b7280">No saved places yet. Tap the heart on any card or map popup to save it here.</p>';
-        return;
+        host.innerHTML='<p style="color:#6b7280">No saved places yet. Tap the heart on any card or “Add to Trip” to collect them here.</p>';
+      }else{
+        list.forEach(({it,score,dist}) => {
+          const node = buildCardNode(it,score,dist);
+          // append notes + remove/hide actions
+          const wrapper = document.createElement('div');
+          wrapper.appendChild(node);
+          const card = wrapper.querySelector('.card .more-body');
+
+          // notes
+          const notesWrap = document.createElement('div');
+          notesWrap.className='notes';
+          const key = it.id;
+          const existing = state.notes[key] || '';
+          notesWrap.innerHTML = `
+            <label class="mini">Notes</label>
+            <textarea data-id="${key}" placeholder="Add notes for your trip…">${existing}</textarea>
+            <div class="fav-bottom">
+              <span class="mini trip-chip">Trip: ${state.trips.lists[state.trips.activeId].name}</span>
+              <div style="display:flex;gap:8px">
+                <button class="x-btn" data-remove="${key}" title="Remove from this trip">❌ Remove</button>
+                <button class="x-btn" data-hide="${key}" title="Hide from view">🙈 Hide</button>
+              </div>
+            </div>`;
+          card.appendChild(notesWrap);
+
+          // save notes
+          notesWrap.querySelector('textarea').addEventListener('input', (e)=>{
+            state.notes[key] = e.target.value;
+            saveNotes();
+          });
+          // remove from trip
+          notesWrap.querySelector('[data-remove]').addEventListener('click', ()=>{
+            removeFromTrip(key);
+          });
+          // hide
+          notesWrap.querySelector('[data-hide]').addEventListener('click', ()=>{
+            hideItem(key);
+          });
+
+          host.appendChild(wrapper.firstElementChild);
+        });
       }
-      list.forEach(({it,score,dist}) => host.appendChild(buildCardNode(it,score,dist)));
+
+      // render hidden drawer
+      const hiddenBox = document.getElementById('hiddenDrawer');
+      const toggleHidden = document.getElementById('toggleHidden');
+      const hiddenGrid = document.getElementById('hiddenGrid');
+      hiddenGrid.innerHTML='';
+      const hiddenList = Array.from(state.hidden).map(id=>itemById(id)).filter(Boolean);
+      if(toggleHidden){
+        toggleHidden.onclick = (e)=>{ e.preventDefault(); const vis = hiddenBox.style.display!=='none'; hiddenBox.style.display = vis?'none':'block'; toggleHidden.textContent = vis?'Show':'Hide'; };
+      }
+      if(hiddenList.length){
+        hiddenList.forEach(it=>{
+          const mini = document.createElement('article');
+          mini.className='card';
+          mini.innerHTML = `
+            <div class="inner">
+              <div class="title">${it.name}</div>
+              <div class="fav-bottom">
+                <span class="mini">${(it.categories||[]).join(', ')||''}</span>
+                <button class="btn" data-restore="${it.id}">Restore</button>
+              </div>
+            </div>`;
+          hiddenGrid.appendChild(mini);
+        });
+        hiddenGrid.querySelectorAll('[data-restore]').forEach(b=>{
+          b.addEventListener('click', ()=> restoreItem(b.dataset.restore));
+        });
+      }
+      document.getElementById('hiddenDrawer').style.display='none'; // start closed
+
+      // update favorites-only map for this selection
+      if(favoritesMapOpen) renderFavoritesMap();
     }
 
     let favoritesOpen=false;
@@ -715,7 +939,12 @@
       document.querySelectorAll('.fav').forEach(b=>b.classList.remove('active'));
     });
 
-    /* ---------------- Sorting & Main render (extended) ---------------- */
+    // Trip buttons
+    document.getElementById('tripAdd').addEventListener('click', newTrip);
+    document.getElementById('tripRename').addEventListener('click', renameTrip);
+    document.getElementById('tripDelete').addEventListener('click', deleteTrip);
+
+    /* ---------------- Sorting & Main render ---------------- */
     function passesTab(it){
       if(state.tab==='site') return it.type==='Site';
       if(state.tab==='tour') return it.type==='Tour';
@@ -737,14 +966,12 @@
         return arr.sort((a,b)=> costRank(a.it)-costRank(b.it) || b.score-a.score || a.dist-b.dist);
       }
       if(sortMode==='theme'){
-        // very light theme bias: items with categories get a small bump; fallback to best
         return arr.sort((a,b)=>{
           const at=(a.it.categories?.length||0), bt=(b.it.categories?.length||0);
           if(bt!==at) return bt-at;
           return b.score-a.score || a.dist-b.dist;
         });
       }
-      // default: best (match count then distance)
       return arr.sort((a,b)=> b.score-a.score || a.dist-b.dist);
     }
 
@@ -760,11 +987,20 @@
 
       const sorted = sortItems(list);
       sorted.forEach(({it,score,dist})=> host.appendChild(buildCardNode(it,score,dist)));
+
+      // wire up "Add to Trip" links in list view too
+      document.querySelectorAll('.add-to-trip').forEach(a=>{
+        a.addEventListener('click', (e)=>{
+          e.preventDefault();
+          const id = a.getAttribute('data-id');
+          addCurrentToTrip(id);
+        });
+      });
     }
 
     function render(){ renderCards(); if(mapOpen) renderMapPoints(); }
 
-    // Tabs (kept)
+    // Tabs
     document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>{
       document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
       btn.classList.add('active');
@@ -772,13 +1008,13 @@
       render();
     }));
 
-    // City input (kept)
+    // City input
     document.getElementById('cityInput').addEventListener('input', e=>{
       state.city = (e.target.value||'').trim().toLowerCase();
       render();
     });
 
-    // Sort control (added)
+    // Sort control
     const sortSelect = document.getElementById('sortSelect');
     if(sortSelect){
       sortSelect.value = state.sort;
@@ -789,7 +1025,7 @@
       });
     }
 
-    /* ---------------- Load data + filters (kept) ---------------- */
+    /* ---------------- Load data + filters ---------------- */
     async function loadData(){
       try{
         const [siteRes,tourRes] = await Promise.all([
@@ -818,7 +1054,7 @@
       }
     }
 
-    /* ---------------- Geolocation (kept) ---------------- */
+    /* ---------------- Geolocation ---------------- */
     function locateUser(){
       if(!navigator.geolocation) return;
       navigator.geolocation.getCurrentPosition(
@@ -827,7 +1063,7 @@
       );
     }
 
-    /* ---------------- Map ---------------- */
+    /* ---------------- Main Map ---------------- */
     let mapOpen=false, map, siteLayer, tourLayer;
 
     const TYPE_COLORS = {
@@ -885,7 +1121,7 @@
 
       const bounds=[];
 
-      // Sites: colored circle markers (unified cyan)
+      // Sites
       sites.forEach(it=>{
         const {lat,lng} = it.raw||{};
         if(typeof lat==='number' && typeof lng==='number'){
@@ -900,10 +1136,10 @@
       tours.forEach(it=>{
         if(it.center){
           const s = scoreMatches(it);
-          const radius = 250 + 200 * s; // meters (more matches => bigger circle)
+          const radius = 250 + 200 * s;
           const circle = L.circle(it.center, {
-            color:'#eab308',       // stroke (amber-500)
-            fillColor:'#facc15',   // fill (amber-400)
+            color:'#eab308',
+            fillColor:'#facc15',
             fillOpacity:0.35,
             weight:1,
             radius
@@ -916,7 +1152,6 @@
 
       if(bounds.length){ map.fitBounds(bounds,{padding:[30,30]}); }
       else{ map.setView([39.7392,-104.9903], 11); }
-
       setTimeout(()=>map.invalidateSize(), 60);
     }
 
@@ -944,7 +1179,49 @@
       syncFilterUIs('main');
     });
 
-    /* ---------------- Init (kept) ---------------- */
+    /* ---------- FAVORITES MAP (My Places only) ---------- */
+    let favoritesMapOpen=false, favoritesMap, favLayerSites, favLayerTours;
+    function ensureFavoritesMap(){
+      if(favoritesMap) return;
+      favoritesMap = L.map('favoritesMap',{scrollWheelZoom:true});
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{ attribution:'&copy; OpenStreetMap contributors' }).addTo(favoritesMap);
+      favLayerSites = L.layerGroup().addTo(favoritesMap);
+      favLayerTours = L.layerGroup().addTo(favoritesMap);
+    }
+    function renderFavoritesMap(){
+      ensureFavoritesMap();
+      favLayerSites.clearLayers(); favLayerTours.clearLayers();
+      const active = state.trips.lists[state.trips.activeId];
+      const ids = active?.items?.length ? active.items : Array.from(state.favorites);
+      const items = ids.map(id=>itemById(id)).filter(Boolean).filter(it=>!state.hidden.has(it.id));
+      const bounds=[];
+      items.forEach(it=>{
+        if(it.type==='Tour' && it.center){
+          const circle = L.circle(it.center,{color:'#0ea5e9',fillColor:'#7dd3fc',fillOpacity:0.25,weight:1,radius:400}).addTo(favLayerTours);
+          circle.bindPopup(`<strong>${it.name}</strong>`);
+          bounds.push([it.center.lat,it.center.lng]);
+        }else{
+          const {lat,lng}=it.raw||{};
+          if(typeof lat==='number' && typeof lng==='number'){
+            const m=L.marker([lat,lng],{icon:siteIconFor(it.siteType)}).addTo(favLayerSites);
+            m.bindPopup(`<strong>${it.name}</strong>`);
+            bounds.push([lat,lng]);
+          }
+        }
+      });
+      if(bounds.length){ favoritesMap.fitBounds(bounds,{padding:[30,30]}); }
+      setTimeout(()=>favoritesMap.invalidateSize(),60);
+    }
+
+    document.getElementById('favoritesToggleMap').addEventListener('click', ()=>{
+      const box = document.getElementById('favoritesMapBox');
+      const show = box.style.display==='none';
+      box.style.display = show ? 'block':'none';
+      favoritesMapOpen = show;
+      if(show){ renderFavoritesMap(); }
+    });
+
+    /* ---------------- Init ---------------- */
     document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>{
       document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
       btn.classList.add('active');
@@ -959,7 +1236,7 @@
 
     loadData();
 
-    /* ---------- OUR DATA PANEL: rename nav link, wire up overlay (kept) ---------- */
+    /* ---------- OUR DATA PANEL: rename nav link (kept) ---------- */
     (function(){
       const navPills = document.querySelectorAll('nav.links .pill');
       if(navPills && navPills[1]){
@@ -998,12 +1275,16 @@
         });
       }
 
-      // Footer links trigger same overlay actions (anti-spam placement)
+      // Footer links trigger same overlay actions
       const footNew = document.getElementById('footerNewSite');
       const footCorr = document.getElementById('footerCorrection');
       if(footNew){ footNew.addEventListener('click', (e)=>{ e.preventDefault(); document.getElementById('ourDataPanel').style.display='block'; }); }
       if(footCorr){ footCorr.addEventListener('click', (e)=>{ e.preventDefault(); document.getElementById('ourDataPanel').style.display='block'; }); }
     })();
+
+    // Pro placeholders
+    document.getElementById('proItin').addEventListener('click', ()=> alert('Itinerary Generator is a Pro feature (placeholder).'));
+    document.getElementById('proExport').addEventListener('click', ()=> alert('Export to AI is a Pro feature (placeholder).'));
   </script>
 </body>
 </html>

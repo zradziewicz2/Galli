@@ -16,7 +16,9 @@
 
   <style>
     :root{
-      --bg:#f7f8fa; --panel:#ffffff; --ink:#0f172a; --muted:#6b7280; --ring:#d1d5db; --brand:#00cfd4; --accent:#12a4ff;
+      --bg:#f7f8fa; --panel:#ffffff; --ink:#0f172a; --muted:#6b7280; --ring:#d1d5db;
+      /* unify to brand cyan */
+      --brand:#00cfd4; --accent:#00cfd4;
       --radius:18px; --shadow:0 2px 12px rgba(0,0,0,.06);
     }
     *{box-sizing:border-box}
@@ -50,11 +52,14 @@
       display:flex;align-items:center;gap:12px;width:100%;padding:14px;background:#fff;border:1px solid var(--ring);
       border-radius:var(--radius);box-shadow:var(--shadow);color:inherit;font-weight:700;margin-bottom:14px
     }
-    .view-map .icon{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:#eaf5ff;color:#0b3a68;font-size:18px}
+    .view-map .icon{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:#eafffb;color:#0b3a68;font-size:18px}
     .filters .group{margin-bottom:14px}
     .filters label{display:flex;align-items:center;gap:8px;margin:6px 0;font-size:14px}
     .filters input[type="checkbox"]{width:16px;height:16px}
     details summary{cursor:pointer;color:#0b3a68;font-weight:700}
+
+    /* Small pills in top-right */
+    .links .pill{ font-size:12px; padding:6px 10px; }
 
     /* Cards grid — 3 columns (wider) */
     .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
@@ -73,6 +78,11 @@
     .meta{font-size:12px;color:#4b5563;margin-bottom:8px;display:flex;gap:8px;flex-wrap:wrap}
     .chipbar{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
     .chip{display:inline-flex;align-items:center;border:1px solid var(--ring);background:#f1f5f9;font-size:11px;border-radius:999px;padding:2px 6px}
+    .chip.hit{font-weight:800;border-color:#b6fff8;background:#e6fffd}
+
+    /* Cost badge */
+    .cost-badge{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--ring);padding:0 6px;border-radius:8px;font-weight:700}
+    .cost-badge.free{color:#059669;border-color:#bbf7d0;background:#ecfdf5}
 
     /* More Info */
     .more{margin-top:6px}
@@ -85,11 +95,15 @@
     .icons{display:flex;gap:10px;margin-top:6px;color:#607085}
     .icons a{display:inline-flex;align-items:center;gap:6px;text-decoration:none;font-size:12px}
 
-    /* NEW: Stats table under More Info */
+    /* Stats table */
     .stats{width:100%;border-collapse:collapse;margin-top:10px;font-size:12px;color:#334155}
     .stats th{font-weight:600;text-align:left;padding:6px 0;width:52%}
     .stats td{padding:6px 0}
     .stats tr+tr th, .stats tr+tr td{border-top:1px dashed #e5e7eb}
+
+    /* Toolbar (sorting) */
+    .toolbar{display:flex;align-items:center;gap:10px;justify-content:flex-end;margin-bottom:10px}
+    .select{border:1px solid var(--ring);border-radius:10px;padding:6px 10px;background:#fff;font-size:12px}
 
     /* Overlays */
     #mapPanel,#favoritesPanel{position:fixed;inset:0;background:#fff;display:none;z-index:1000}
@@ -111,37 +125,17 @@
     .leaflet-popup .fav { pointer-events:auto; }
     .popup-card .img{ height:148px; }
 
-    /* ---------- Additions ---------- */
-    /* Smaller top-right pills */
-    .links .pill{
-      font-size:12px;
-      padding:6px 10px;
-    }
-
-    /* Our Data panel content */
+    /* Our Data panel content (kept) */
     #ourDataPanel{position:fixed;inset:0;background:#fff;display:none;z-index:1000}
-    .dataBody{
-      padding:16px;
-      max-width:900px;
-      margin:0 auto;
-    }
-    .dataBody p{
-      margin:0 0 12px;
-      color:#334155;
-      line-height:1.45;
-    }
-    .actionRow{
-      display:flex;
-      gap:12px;
-      flex-wrap:wrap;
-      margin-top:12px;
-    }
-    .actionRow .btn{
-      display:inline-flex;
-      align-items:center;
-      gap:8px;
-      text-decoration:none;
-    }
+    .dataBody{padding:16px;max-width:900px;margin:0 auto;}
+    .dataBody p{margin:0 0 12px;color:#334155;line-height:1.45;}
+    .actionRow{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px;}
+    .actionRow .btn{display:inline-flex;align-items:center;gap:8px;text-decoration:none;}
+
+    /* Footer links (anti-spam placement for submissions) */
+    footer{max-width:1220px;margin:24px auto 40px;padding:0 18px;color:#6b7280;font-size:12px}
+    .footer-links{display:flex;gap:12px;flex-wrap:wrap;margin-top:6px}
+    .footer-links a{color:#0b3a68;text-decoration:underline; text-underline-offset:3px}
   </style>
 </head>
 <body>
@@ -166,6 +160,7 @@
       <aside class="sidebar">
         <button class="view-map" id="viewMap"><span class="icon">🌐</span><strong>View in map</strong></button>
 
+        <!-- existing filters panel (kept intact) -->
         <div class="panel filters" id="filtersPanelMain">
           <div class="group">
             <h3>Site Type</h3>
@@ -183,6 +178,17 @@
       </aside>
 
       <main>
+        <!-- Added: toolbar with Sort control (non-destructive) -->
+        <div class="toolbar">
+          <label for="sortSelect" class="muted">Sort:</label>
+          <select id="sortSelect" class="select" aria-label="Sort results">
+            <option value="best">Best match</option>
+            <option value="closest">Closest</option>
+            <option value="cheapest">Cheapest</option>
+            <option value="theme">Theme</option>
+          </select>
+        </div>
+
         <section id="cards" class="grid" aria-live="polite"></section>
       </main>
     </div>
@@ -199,7 +205,7 @@
     </div>
 
     <div class="mapLayout">
-      <!-- Same filters in map -->
+      <!-- Same filters in map (kept) -->
       <aside class="mapSidebar">
         <div class="panel filters" id="filtersPanelMap">
           <div class="group">
@@ -238,7 +244,7 @@
     </div>
   </section>
 
-  <!-- Our Data (ADDED) -->
+  <!-- Our Data (ADDED earlier, preserved) -->
   <section id="ourDataPanel" aria-hidden="true" role="dialog" aria-label="About our data">
     <div class="overlayHeader">
       <strong>Our Data</strong>
@@ -255,7 +261,7 @@
     </div>
   </section>
 
-  <!-- Card template -->
+  <!-- Card template (kept) -->
   <template id="cardTemplate">
     <article class="card">
       <span class="badge"></span>
@@ -277,8 +283,16 @@
     </article>
   </template>
 
+  <footer>
+    <div><strong>Our Data</strong> — We rely on our community to keep GALLIVANT accurate.</div>
+    <div class="footer-links">
+      <a href="#" id="footerNewSite">New Site Submission</a>
+      <a href="#" id="footerCorrection">Submit Correction</a>
+    </div>
+  </footer>
+
   <script>
-    /* ---------------- Label Maps ---------------- */
+    /* ---------------- Label Maps (kept) ---------------- */
     const CATEGORY_LABELS = {
       generalhistory: 'General History', localhistory: 'Local History', indigenous: 'Indigenous History',
       militaryhistory: 'Military History', civilrights: 'Civil Rights', industrialhistory: 'Industrial History',
@@ -299,20 +313,20 @@
       industrial:'Industrial', other:'Outdoor' // fallback
     };
 
-    /* ---------------- Global State ---------------- */
+    /* ---------------- Global State (kept + additions) ---------------- */
     const state = {
       rawSites: [],
       rawTours: [],
-      items: [],      // normalized items: sites + tours
+      items: [],
       tab: 'all',
       favorites: new Set(JSON.parse(localStorage.getItem('traipse:favorites')||'[]')),
       city: '',
       geoloc: null,
-      filters: { siteTypes:new Set(), periods:new Set(), tags:new Set() }
+      filters: { siteTypes:new Set(), periods:new Set(), tags:new Set() },
+      sort: localStorage.getItem('traipse:sort') || 'best'
     };
 
-    // More Filters for both sites & tours (normalized keys)
-    // (ADDED new filters while preserving existing)
+    // More Filters (kept)
     const MORE_FILTERS = {
       spanishtranslations: 'Spanish translations',
       paymentmethod: 'Cash/Credit',
@@ -320,8 +334,6 @@
       hiddengem: 'Hidden gem',
       featured: 'Featured site',
       publicaccess: 'Public access',
-
-      // New ones you requested:
       dogfriendly: 'Pet-friendly',
       family_friendly: 'Family-friendly',
       giftshop: 'Gift shop',
@@ -330,7 +342,7 @@
       adaaccessibility: 'ADA accessibility'
     };
 
-    /* ---------------- Helpers ---------------- */
+    /* ---------------- Helpers (kept + additions) ---------------- */
     const resolveImage = (p)=>{
       if(!p) return '';
       if(/^https?:\/\//i.test(p)) return p;
@@ -347,7 +359,19 @@
     const kmToMiles = km => km*0.621371;
     const formatMiles = m => !isFinite(m) ? '' : (m<0.2? `${(m*5280).toFixed(0)} ft away` : (m<10? `${m.toFixed(1)} mi away` : `${Math.round(m)} mi away`));
 
-    // Determine if an item matches a "more filter" key
+    // parse a numeric-ish cost for sorting (Free=0, $=1, $$=2, $$$=3), fallbacks if numeric present
+    function costRank(it){
+      const c = (it.costText || it.raw?.Cost || '').toString().trim().toLowerCase();
+      if(!c) return 999;
+      if(c.includes('free') || c==='$0' || c==='0') return 0;
+      const dollarMatch = c.match(/\${1,4}/);
+      if(dollarMatch) return dollarMatch[0].length;
+      const num = parseFloat(c.replace(/[^0-9.]/g,''));
+      if(!isNaN(num)) return num; // numeric price if available
+      return 999;
+    }
+
+    /* ---------------- Determine tag matches (kept) ---------------- */
     function hasTag(it, key){
       const r = it.raw||{};
       switch(key){
@@ -355,7 +379,6 @@
         case 'hiddengem': return !!r.hiddenGem;
         case 'foodbeverage': return !!(r.diningonsite || r.diningonsite2);
         case 'transit_accessible': return (r.transit||'').toLowerCase()==='underhalfamilefromtransit';
-        // direct boolean flags:
         case 'spanishtranslations': return !!r.spanishtranslations;
         case 'luggagestorage': return !!r.luggagestorage;
         case 'featured': return !!r.featured;
@@ -393,7 +416,7 @@
       return kmToMiles(haversine({lat:pos.lat,lng:pos.lng}, target));
     }
 
-    /* ---------------- Normalization ---------------- */
+    /* ---------------- Normalization (kept) ---------------- */
     function normalizeSite(raw){
       const periods = (raw.timeperiod||[]).map(p => PERIOD_LABELS[p]||p);
       const siteTypeSlug = (raw.sitetype||'').toLowerCase();
@@ -442,7 +465,7 @@
       };
     }
 
-    /* ---------------- Filters UI ---------------- */
+    /* ---------------- Filters UI (kept) ---------------- */
     function addCheckbox(wrap, bucket, value, label){
       const id = `${bucket}-${value.replace(/[^a-z0-9]+/gi,'-')}-${wrap.id}`;
       const el = document.createElement('label');
@@ -502,7 +525,7 @@
       }
     }
 
-    /* ---------------- Chips / Cards ---------------- */
+    /* ---------------- Chips / Cards (extended) ---------------- */
     function filterChips(it){
       const chips=[];
       if(state.filters.siteTypes.size && state.filters.siteTypes.has(it.siteType)) chips.push(it.siteType);
@@ -515,12 +538,11 @@
       return chips;
     }
 
-    // Build the Stats table HTML for an item
+    // Build the Stats table HTML for an item (kept)
     function buildStatsTableHTML(it){
       const r = it.raw||{};
       const yesNo = v => v===undefined || v===null ? '—' : (v ? 'Yes' : 'No');
 
-      // derived
       const foodOnsite = !!(r.diningonsite || r.diningonsite2);
       const transitOk = (r.transit||'').toLowerCase()==='underhalfamilefromtransit';
       const payMethod = (r.paymentmethod||'').toLowerCase()==='both' ? 'Cash & credit' :
@@ -556,10 +578,22 @@
       return `<table class="stats" aria-label="Details"><tbody>${tr}</tbody></table>`;
     }
 
+    function costBadgeHTML(it){
+      const c = (it.costText || it.raw?.Cost || '').toString().trim();
+      if(!c) return '';
+      const free = /free|\$?0\b/i.test(c);
+      return `<span class="cost-badge ${free?'free':''}">${free?'FREE':c}</span>`;
+    }
+
     function cardHTML(it, score, distMiles, asPopup=false){
       const chips = filterChips(it);
-      const chipHtml = chips.map(c=>`<span class="chip">${c}</span>`).join('');
-      const metaBits=[]; if(it.categories?.length){ metaBits.push(it.categories.join(', ')); } if(it.periods?.length){ metaBits.push(it.periods[0]); }
+      const chipHtml = chips.map(c=>`<span class="chip hit">${c}</span>`).join('');
+      const metaBits=[];
+      // cost badge visible up front (requested); keep existing meta intact too
+      const costBadge = costBadgeHTML(it);
+      if(costBadge) metaBits.push(costBadge);
+      if(it.categories?.length){ metaBits.push(it.categories.join(', ')); }
+      if(it.periods?.length){ metaBits.push(it.periods[0]); }
       const distanceText = formatMiles(distMiles);
       if(distanceText) metaBits.push(distanceText);
       const img = resolveImage(it.image) || 'images/default.jpg';
@@ -617,16 +651,20 @@
 
       node.querySelector('.title').textContent = it.name;
 
-      const metaBits = [];
+      // meta row + cost badge
+      const metaBits=[];
+      const costBadge = costBadgeHTML(it);
+      if(costBadge) metaBits.push(costBadge);
       if(it.categories?.length){ metaBits.push(it.categories.join(', ')); }
       if(it.periods?.length){ metaBits.push(it.periods[0]); }
       const distanceText = formatMiles(distMiles);
       if(distanceText) metaBits.push(distanceText);
-      node.querySelector('.meta').textContent = metaBits.join(' • ');
+      node.querySelector('.meta').innerHTML = metaBits.join(' • ');
 
+      // chips with hit class if they came from active filters
       const chipbar = node.querySelector('.chipbar');
       const chips = filterChips(it);
-      chips.forEach(c=>{ const s=document.createElement('span'); s.className='chip'; s.textContent=c; chipbar.appendChild(s); });
+      chips.forEach(c=>{ const s=document.createElement('span'); s.className='chip hit'; s.textContent=c; chipbar.appendChild(s); });
 
       const icons = node.querySelector('.icons');
       const links=[];
@@ -637,7 +675,7 @@
       icons.innerHTML = links.join(' ');
       node.querySelector('.desc').textContent = it.description||'';
 
-      // Inject stats table
+      // stats
       const moreBody = root.querySelector('.more-body');
       const statsDiv = document.createElement('div');
       statsDiv.innerHTML = buildStatsTableHTML(it);
@@ -646,7 +684,7 @@
       return node;
     }
 
-    /* ---------------- Favorites ---------------- */
+    /* ---------------- Favorites (kept) ---------------- */
     function toggleFavorite(id){
       if(state.favorites.has(id)) state.favorites.delete(id); else state.favorites.add(id);
       localStorage.setItem('traipse:favorites', JSON.stringify(Array.from(state.favorites)));
@@ -677,7 +715,7 @@
       document.querySelectorAll('.fav').forEach(b=>b.classList.remove('active'));
     });
 
-    /* ---------------- Main render ---------------- */
+    /* ---------------- Sorting & Main render (extended) ---------------- */
     function passesTab(it){
       if(state.tab==='site') return it.type==='Site';
       if(state.tab==='tour') return it.type==='Tour';
@@ -690,22 +728,43 @@
       return c.includes(state.city);
     }
 
+    function sortItems(arr){
+      const sortMode = state.sort;
+      if(sortMode==='closest'){
+        return arr.sort((a,b)=> a.dist-b.dist || b.score-a.score);
+      }
+      if(sortMode==='cheapest'){
+        return arr.sort((a,b)=> costRank(a.it)-costRank(b.it) || b.score-a.score || a.dist-b.dist);
+      }
+      if(sortMode==='theme'){
+        // very light theme bias: items with categories get a small bump; fallback to best
+        return arr.sort((a,b)=>{
+          const at=(a.it.categories?.length||0), bt=(b.it.categories?.length||0);
+          if(bt!==at) return bt-at;
+          return b.score-a.score || a.dist-b.dist;
+        });
+      }
+      // default: best (match count then distance)
+      return arr.sort((a,b)=> b.score-a.score || a.dist-b.dist);
+    }
+
     function renderCards(){
       const host = document.getElementById('cards');
-      const list = state.items.filter(passesTab).filter(cityPass).map(it=>({
-        it,
-        score: scoreMatches(it),
-        dist: distanceFromUser(it)
-      })).sort((a,b)=> b.score-a.score || a.dist-b.dist);
+      const list = state.items
+        .filter(passesTab)
+        .filter(cityPass)
+        .map(it=>({ it, score:scoreMatches(it), dist:distanceFromUser(it) }));
 
       host.innerHTML='';
       if(!list.length){ host.innerHTML='<p style="color:#6b7280;padding:8px">No results.</p>'; return; }
-      list.forEach(({it,score,dist})=> host.appendChild(buildCardNode(it,score,dist)));
+
+      const sorted = sortItems(list);
+      sorted.forEach(({it,score,dist})=> host.appendChild(buildCardNode(it,score,dist)));
     }
 
     function render(){ renderCards(); if(mapOpen) renderMapPoints(); }
 
-    // Tabs
+    // Tabs (kept)
     document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>{
       document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
       btn.classList.add('active');
@@ -713,13 +772,24 @@
       render();
     }));
 
-    // City input
+    // City input (kept)
     document.getElementById('cityInput').addEventListener('input', e=>{
       state.city = (e.target.value||'').trim().toLowerCase();
       render();
     });
 
-    /* ---------------- Load data + filters ---------------- */
+    // Sort control (added)
+    const sortSelect = document.getElementById('sortSelect');
+    if(sortSelect){
+      sortSelect.value = state.sort;
+      sortSelect.addEventListener('change', ()=>{
+        state.sort = sortSelect.value;
+        localStorage.setItem('traipse:sort', state.sort);
+        render();
+      });
+    }
+
+    /* ---------------- Load data + filters (kept) ---------------- */
     async function loadData(){
       try{
         const [siteRes,tourRes] = await Promise.all([
@@ -738,7 +808,6 @@
 
         buildFilters('Main');
         buildFilters('Map');
-        // initial sync (mirror main -> map)
         syncFilterUIs('main');
 
         render();
@@ -749,7 +818,7 @@
       }
     }
 
-    /* ---------------- Geolocation ---------------- */
+    /* ---------------- Geolocation (kept) ---------------- */
     function locateUser(){
       if(!navigator.geolocation) return;
       navigator.geolocation.getCurrentPosition(
@@ -762,8 +831,8 @@
     let mapOpen=false, map, siteLayer, tourLayer;
 
     const TYPE_COLORS = {
-      'Museum':'#2563eb','Landmark':'#f97316','Historical Home':'#059669','Archaeological':'#7c3aed',
-      'Religious':'#dc2626','Industrial':'#6b7280','Outdoor':'#16a34a','Burial':'#9ca3af','Political':'#2563eb'
+      'Museum':'#00cfd4','Landmark':'#00cfd4','Historical Home':'#00cfd4','Archaeological':'#00cfd4',
+      'Religious':'#00cfd4','Industrial':'#00cfd4','Outdoor':'#00cfd4','Burial':'#00cfd4','Political':'#00cfd4'
     };
 
     function ensureMap(){
@@ -793,12 +862,12 @@
       });
       const row = document.createElement('div');
       row.className='legend-row';
-      row.innerHTML = `<span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:#e11d48;opacity:.55;border:1px solid #e11d48;"></span> <span>Tour area (size = matches)</span>`;
+      row.innerHTML = `<span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:#facc15;opacity:.55;border:1px solid #eab308;"></span> <span>Tour area (size = matches)</span>`;
       legend.appendChild(row);
     }
 
     function siteIconFor(type){
-      const color = TYPE_COLORS[type] || '#3b82f6';
+      const color = TYPE_COLORS[type] || '#00cfd4';
       return L.divIcon({
         className:'circle-icon',
         html:`<div style="width:18px;height:18px;border-radius:50%;background:${color};border:2px solid #fff;box-shadow:0 0 0 2px rgba(0,0,0,.12)"></div>`,
@@ -816,7 +885,7 @@
 
       const bounds=[];
 
-      // Sites: colored circle markers
+      // Sites: colored circle markers (unified cyan)
       sites.forEach(it=>{
         const {lat,lng} = it.raw||{};
         if(typeof lat==='number' && typeof lng==='number'){
@@ -827,15 +896,15 @@
         }
       });
 
-      // Tours: soft red halos ONLY; size scales with match score; clickable to show card
+      // Tours: muted yellow halo
       tours.forEach(it=>{
         if(it.center){
           const s = scoreMatches(it);
           const radius = 250 + 200 * s; // meters (more matches => bigger circle)
           const circle = L.circle(it.center, {
-            color:'#e11d48',
-            fillColor:'#e11d48',
-            fillOpacity:0.45,
+            color:'#eab308',       // stroke (amber-500)
+            fillColor:'#facc15',   // fill (amber-400)
+            fillOpacity:0.35,
             weight:1,
             radius
           }).addTo(tourLayer);
@@ -855,7 +924,7 @@
       ensureMap();
       document.getElementById('mapPanel').style.display='block';
       mapOpen=true;
-      syncFilterUIs('main');  // mirror current main filters into map panel on open
+      syncFilterUIs('main');
       renderMapPoints();
     });
     document.getElementById('closeMap').addEventListener('click', ()=>{
@@ -875,7 +944,7 @@
       syncFilterUIs('main');
     });
 
-    /* ---------------- Init ---------------- */
+    /* ---------------- Init (kept) ---------------- */
     document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>{
       document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
       btn.classList.add('active');
@@ -890,9 +959,8 @@
 
     loadData();
 
-    /* ---------- OUR DATA PANEL: rename nav link, wire up overlay (ADDED) ---------- */
+    /* ---------- OUR DATA PANEL: rename nav link, wire up overlay (kept) ---------- */
     (function(){
-      // Find the second pill in the header nav (currently "NEW SITE SUBMISSION")
       const navPills = document.querySelectorAll('nav.links .pill');
       if(navPills && navPills[1]){
         const ourDataLink = navPills[1];
@@ -906,7 +974,6 @@
         });
       }
 
-      // Close button
       const closeOurData = document.getElementById('closeOurData');
       if(closeOurData){
         closeOurData.addEventListener('click', ()=>{
@@ -915,8 +982,6 @@
         });
       }
 
-      // Hook up action buttons; keep href="#" so you don't lose your original flows.
-      // Replace alerts with your real endpoints/forms when ready.
       const suggestEditBtn = document.getElementById('suggestEditBtn');
       if(suggestEditBtn){
         suggestEditBtn.addEventListener('click', (e)=>{
@@ -932,6 +997,12 @@
           alert('New Site Submission: wire this up to your form or route.');
         });
       }
+
+      // Footer links trigger same overlay actions (anti-spam placement)
+      const footNew = document.getElementById('footerNewSite');
+      const footCorr = document.getElementById('footerCorrection');
+      if(footNew){ footNew.addEventListener('click', (e)=>{ e.preventDefault(); document.getElementById('ourDataPanel').style.display='block'; }); }
+      if(footCorr){ footCorr.addEventListener('click', (e)=>{ e.preventDefault(); document.getElementById('ourDataPanel').style.display='block'; }); }
     })();
   </script>
 </body>

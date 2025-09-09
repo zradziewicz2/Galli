@@ -21,17 +21,15 @@
       --ink:#0f172a;
       --muted:#6b7280;
       --ring:#d1d5db;
-      --brand:#00cfd4;         /* unified cyan brand */
-      --accent:#00cfd4;        /* use cyan everywhere */
+      --brand:#00cfd4; /* unified cyan */
+      --accent:#00cfd4;
       --radius:18px;
       --shadow:0 2px 12px rgba(0,0,0,.06);
     }
-
     *{box-sizing:border-box}
     html,body{height:100%}
     body{margin:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
     a{color:inherit}
-
     .wrap{max-width:1220px;margin:0 auto;padding:18px}
 
     /* Header / Nav */
@@ -42,12 +40,12 @@
     .search{width:min(520px,100%);padding:10px 14px;border:1px solid var(--ring);border-radius:999px;background:#fff}
     .links{display:flex;gap:14px}
     .pill{border:1px solid var(--ring);background:#fff;padding:8px 12px;border-radius:999px;font-weight:600}
-    .links .pill{font-size:12px;padding:6px 10px;} /* smaller buttons */
+    .links .pill{font-size:12px;padding:6px 10px;}
 
     /* Tabs */
     .tabs{display:flex;gap:26px;justify-content:center;margin:6px 0 12px}
     .tab{font-weight:800;letter-spacing:.08em;color:#111;opacity:.6;cursor:pointer;border:none;background:none;font-size:16px}
-    .tab.active{opacity:1} /* no underline version */
+    .tab.active{opacity:1}
 
     /* Layout */
     .layout{display:grid;grid-template-columns:300px 1fr;gap:18px}
@@ -56,11 +54,8 @@
     /* Sidebar + Filters */
     .sidebar .panel{background:var(--panel);border:1px solid var(--ring);border-radius:var(--radius);box-shadow:var(--shadow);padding:14px}
     .sidebar h3{margin:2px 0 10px;font-size:14px;text-transform:uppercase;letter-spacing:.1em}
-
-    .view-map{ display:flex;align-items:center;gap:12px;width:100%;padding:14px;background:#fff;border:1px solid var(--ring);
-      border-radius:var(--radius);box-shadow:var(--shadow);color:inherit;font-weight:700;margin-bottom:14px }
+    .view-map{display:flex;align-items:center;gap:12px;width:100%;padding:14px;background:#fff;border:1px solid var(--ring);border-radius:var(--radius);box-shadow:var(--shadow);color:inherit;font-weight:700;margin-bottom:14px}
     .view-map .icon{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;background:#e6fffd;color:var(--brand);font-size:18px}
-
     .filters .group{margin-bottom:14px}
     .filters label{display:flex;align-items:center;gap:8px;margin:6px 0;font-size:14px}
     .filters input[type="checkbox"]{width:16px;height:16px}
@@ -84,7 +79,6 @@
     .inner{padding:12px 14px 14px}
     .title{font-size:18px;font-weight:800;margin:2px 0 4px}
     .meta{font-size:12px;color:#4b5563;margin-bottom:8px;display:flex;gap:8px;flex-wrap:wrap}
-
     .chipbar{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
     .chip{display:inline-flex;align-items:center;border:1px solid var(--ring);background:#f1f5f9;font-size:11px;border-radius:999px;padding:2px 6px}
     .chip.hit{font-weight:800;border-color:#b6fff8;background:#e6fffd}
@@ -113,14 +107,14 @@
 
     /* Overlays */
     #mapPanel,#favoritesPanel,#ourDataPanel{position:fixed;inset:0;background:#fff;display:none;z-index:1000}
-    #favoritesPanel{ z-index:1101; } /* on top if both open */
+    #favoritesPanel{z-index:1101}
 
     .overlayHeader{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--ring)}
     .btn{border:1px solid var(--ring);background:#fff;border-radius:999px;padding:8px 12px;font-weight:600;cursor:pointer}
 
     /* Map overlay layout */
-    .mapLayout{display:grid;grid-template-columns:0 1fr;gap:16px;height:calc(100vh - 56px)} /* hide sidebar to “remove/disable” map filters */
-    .mapSidebar{display:none} /* disabled/removed per request */
+    .mapLayout{display:grid;grid-template-columns:0 1fr;gap:16px;height:calc(100vh - 56px)} /* hide map filters */
+    .mapSidebar{display:none} /* disabled */
     .mapCanvas{position:relative}
     #map{position:absolute;inset:0}
     .legend{position:absolute;bottom:16px;right:16px;background:#fff;border:1px solid var(--ring);border-radius:12px;box-shadow:var(--shadow);padding:8px 10px;font-size:12px}
@@ -144,7 +138,7 @@
     .footer-links{display:flex;gap:12px;flex-wrap:wrap;margin-top:6px}
     .footer-links a{color:var(--brand);text-decoration:underline; text-underline-offset:3px}
 
-    /* MY PLACES upgrades */
+    /* MY PLACES */
     .fav-toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:10px 14px}
     .fav-actions{display:flex;gap:8px;flex-wrap:wrap}
     .notes{margin-top:8px}
@@ -166,7 +160,8 @@
       <div class="brand"><div class="logo"></div> GALLIVANT</div>
       <div class="top"><input id="cityInput" class="search" placeholder="CITY" aria-label="City" /></div>
       <nav class="links">
-        <a class="pill" href="#" id="myPlacesLink">MY PLACES</a>
+        <!-- Inline fallback ensures MY PLACES always opens -->
+        <a class="pill" href="#" id="myPlacesLink" onclick="window.openFavorites && window.openFavorites(); return false;">MY PLACES</a>
         <a class="pill" href="#" id="ourDataLink">OUR DATA</a>
         <a class="pill" href="#">CONNECT</a>
       </nav>
@@ -182,7 +177,7 @@
       <aside class="sidebar">
         <button class="view-map" id="viewMap"><span class="icon">🌐</span><strong>View in map</strong></button>
 
-        <!-- Filters (contents are built by JS and adapt per tab) -->
+        <!-- Filters (built by JS and adapt per tab) -->
         <div class="panel filters" id="filtersPanelMain">
           <div class="group" id="groupSiteTypeMain">
             <h3>Site Type</h3>
@@ -225,7 +220,7 @@
     </div>
 
     <div class="mapLayout">
-      <!-- Map filters intentionally removed/disabled -->
+      <!-- Map filters intentionally disabled/hidden -->
       <aside class="mapSidebar">
         <div class="panel filters" id="filtersPanelMap" aria-hidden="true" style="pointer-events:none;opacity:.35">
           <div class="group">
@@ -336,6 +331,48 @@
   </footer>
 
   <script>
+    /* ========= ABSOLUTE FIRST: robust, global open/close for MY PLACES ========= */
+    (function bootstrapFavoritesGlobally(){
+      function qs(s){return document.querySelector(s);}
+      window.openFavorites = function(){
+        const panel = qs('#favoritesPanel'); if(!panel) return;
+        // Close other overlays in case they’re open
+        const mapPanel = qs('#mapPanel'); const dataPanel = qs('#ourDataPanel');
+        if(mapPanel) mapPanel.style.display='none';
+        if(dataPanel) dataPanel.style.display='none';
+        panel.style.display='block';
+        panel.setAttribute('aria-hidden','false');
+        window.favoritesOpen = true;
+        // Safe call if later defined
+        if(typeof window.renderFavorites === 'function'){ window.renderFavorites(); }
+      };
+      window.closeFavorites = function(){
+        const panel = qs('#favoritesPanel'); if(!panel) return;
+        panel.style.display='none';
+        panel.setAttribute('aria-hidden','true');
+        window.favoritesOpen = false;
+      };
+
+      // Fallback: delegated listener in case the link gets re-rendered
+      document.addEventListener('click', (e)=>{
+        const el = e.target.closest('#myPlacesLink');
+        if(el){
+          e.preventDefault();
+          window.openFavorites();
+        }
+      });
+      // Keyboard fallback
+      document.addEventListener('keydown',(e)=>{
+        const el = document.activeElement;
+        if(el && el.id==='myPlacesLink' && (e.key==='Enter' || e.key===' ')){
+          e.preventDefault();
+          window.openFavorites();
+        }
+      });
+    })();
+  </script>
+
+  <script>
     /* ---------------- Label Maps ---------------- */
     const CATEGORY_LABELS = {
       generalhistory: 'General History',
@@ -413,14 +450,12 @@
     const kmToMiles = km => km*0.621371;
     const formatMiles = m => !isFinite(m) ? '' : (m<0.2? `${(m*5280).toFixed(0)} ft away` : (m<10? `${m.toFixed(1)} mi away` : `${Math.round(m)} mi away`));
 
-    /* unify "Time needed" */
     function mergeTime(raw){
       const a = raw.estimatedtime || raw.estimated_time || '';
       const b = raw.duration || raw.Duration || '';
       return String(a||b||'').trim();
     }
 
-    /* tag checks */
     function hasTag(it, key){
       const r = it.raw||{};
       switch(key){
@@ -436,7 +471,6 @@
         case 'family_friendly': return !!r.family_friendly;
         case 'giftshop': return !!r.giftshop;
         case 'adaaccessibility': return !!r.adaaccessibility;
-        /* Tours-focused keys (added) */
         case 'reservation_required': return !!r.reservation_required;
         case 'seasonal': return !!r.seasonal;
         case 'group_tours': return /group/i.test(String(r.group_type||''));
@@ -515,7 +549,6 @@
     }
 
     /* ---------------- Filters UI ---------------- */
-    /* Tours-specific extras (additive; doesn't disturb original) */
     const MORE_FILTERS = {
       spanishtranslations: 'Spanish translations',
       paymentmethod: 'Cash/Credit',
@@ -529,8 +562,6 @@
       foodbeverage: 'Food & beverage on-site',
       transit_accessible: 'Accessible by public transit',
       adaaccessibility: 'ADA accessibility',
-
-      /* tours (new) */
       reservation_required: 'Reservation required',
       seasonal: 'Seasonal',
       group_tours: 'Group tours'
@@ -551,12 +582,17 @@
       wrap.appendChild(el);
     }
 
+    function passesTab(it){
+      if(state.tab==='site') return it.type==='Site';
+      if(state.tab==='tour') return it.type==='Tour';
+      return true;
+    }
+    function passesTabForFilters(it){ return passesTab(it); }
+
     function buildFilters(target){
-      const itemsAll = state.items;
-      const itemsByTab = itemsAll.filter(passesTabForFilters);
+      const itemsByTab = state.items.filter(passesTabForFilters);
       const isToursTab = state.tab==='tour';
 
-      /* compute unique sets from visible items */
       const siteTypes = Array.from(new Set(itemsByTab
         .map(i=>i.siteType)
         .filter(Boolean)
@@ -573,7 +609,6 @@
 
       siteWrap.innerHTML = perWrap.innerHTML = moreWrap.innerHTML = '';
 
-      /* Show/hide groups based on tab */
       const groupSite = document.getElementById(`groupSiteType${target}`);
       const groupPeriod = document.getElementById(`groupPeriod${target}`);
       const groupMore = document.getElementById(`groupMore${target}`);
@@ -582,13 +617,11 @@
       if(groupPeriod) groupPeriod.style.display = isToursTab ? 'none' : 'block';
       if(groupMore) groupMore.style.display = 'block';
 
-      /* When in SITES or ALL, build site type + periods */
       if(!isToursTab){
         siteTypes.forEach(label=>addCheckbox(siteWrap,'siteTypes',label,label));
         periods.forEach(p=>addCheckbox(perWrap,'periods',p,p));
       }
 
-      /* More filters: restrict to relevant set by tab */
       const entries = Object.entries(MORE_FILTERS)
         .filter(([k])=>{
           if(isToursTab){
@@ -597,7 +630,6 @@
             return !['reservation_required','seasonal','group_tours'].includes(k);
           }
         });
-
       entries.forEach(([k,v])=>addCheckbox(moreWrap,'tags',k,v));
     }
 
@@ -621,11 +653,8 @@
         });
       };
 
-      if(source==='map'){
-        setToByLabels(main, getCheckedWithLabels(mapP));
-      } else {
-        setToByLabels(mapP, getCheckedWithLabels(main));
-      }
+      if(source==='map'){ setToByLabels(main, getCheckedWithLabels(mapP)); }
+      else{ setToByLabels(mapP, getCheckedWithLabels(main)); }
     }
 
     /* ---------------- Chips / Cards ---------------- */
@@ -691,59 +720,10 @@
       return `<span class="time-badge">⏱ ${t}</span>`;
     }
 
-    function cardHTML(it, score, distMiles, asPopup=false){
-      const chips = filterChips(it);
-      const chipHtml = chips.map(c=>`<span class="chip hit">${c}</span>`).join('');
-      const metaBits=[];
-      const costBadge = costBadgeHTML(it);
-      const timeBadge = timeBadgeHTML(it);
-      if(costBadge) metaBits.push(costBadge);
-      if(timeBadge) metaBits.push(timeBadge);
-      if(it.categories?.length){ metaBits.push(it.categories.join(', ')); }
-      if(it.periods?.length){ metaBits.push(it.periods[0]); }
-      const distanceText = formatMiles(distMiles);
-      if(distanceText) metaBits.push(distanceText);
-
-      const img = resolveImage(it.image) || 'images/default.jpg';
-      const links = [];
-      if(it.website){ links.push(`<a href="${it.website}" target="_blank" rel="noopener">🌐 <span>Website</span></a>`); }
-      if(it.type==='Tour' && it.raw?.external_links){
-        for(const [name,url] of Object.entries(it.raw.external_links)){
-          links.push(`<a href="${url}" target="_blank" rel="noopener">🔗 <span>${name}</span></a>`);
-        }
-      }
-      links.push(`<a href="#" class="add-to-trip" data-id="${it.id}">➕ <span>Add to Trip</span></a>`);
-
-      const openCard = `<a href="#card-${it.id}" onclick="document.getElementById('closeMap').click(); setTimeout(()=>{document.getElementById('card-${it.id}')?.scrollIntoView({behavior:'smooth',block:'start'});},150); return false;">Open card</a>`;
-      const stats = buildStatsTableHTML(it);
-
-      return `<article class="card ${asPopup?'popup-card':''}" id="card-${it.id}">
-        <span class="badge">${it.type||'Site'}</span>
-        <button class="fav${state.favorites.has(it.id)?' active':''}" aria-label="Save" data-id="${it.id}">
-          <svg viewBox="0 0 24 24"><path d="M12 21s-7-4.35-7-10a4 4 0 0 1 7-2 4 4 0 0 1 7 2c0 5.65-7 10-7 10z"/></svg>
-        </button>
-        <img class="img" src="${img}" alt="${it.name} image" onerror="this.src='images/default.jpg'"/>
-        <div class="inner">
-          <h3 class="title">${it.name}</h3>
-          <div class="meta">${metaBits.join(' • ')}</div>
-          <div class="chipbar">${chipHtml}</div>
-          <details class="more">
-            <summary><span>More Info</span></summary>
-            <div class="more-body">
-              <div class="icons">${[...links, openCard].join(' ')}</div>
-              <p class="desc">${it.description||''}</p>
-              ${stats}
-            </div>
-          </details>
-        </div>
-      </article>`;
-    }
-
     function buildCardNode(it, score, distMiles){
       const tpl = document.getElementById('cardTemplate');
       const node = tpl.content.cloneNode(true);
-      const root = node.querySelector('.card');
-      root.id = 'card-'+it.id;
+      const root = node.querySelector('.card'); root.id = 'card-'+it.id;
 
       node.querySelector('.badge').textContent = it.type || 'Site';
 
@@ -828,19 +808,15 @@
     }
 
     function newTrip(){
-      const name = prompt('Trip name?','New Trip');
-      if(!name) return;
+      const name = prompt('Trip name?','New Trip'); if(!name) return;
       const id = name.toLowerCase().replace(/[^a-z0-9]+/g,'-')+'-'+Date.now().toString(36);
       state.trips.lists[id] = { name, items: [] };
       state.trips.activeId = id;
       saveTrips(); ensureTripSelect(); renderFavorites();
     }
     function renameTrip(){
-      const id = state.trips.activeId;
-      const cur = state.trips.lists[id];
-      if(!cur) return;
-      const name = prompt('Rename trip:', cur.name);
-      if(!name) return;
+      const id = state.trips.activeId; const cur = state.trips.lists[id]; if(!cur) return;
+      const name = prompt('Rename trip:', cur.name); if(!name) return;
       cur.name = name; saveTrips(); ensureTripSelect();
     }
     function deleteTrip(){
@@ -852,9 +828,7 @@
       saveTrips(); ensureTripSelect(); renderFavorites();
     }
     function addCurrentToTrip(itemId){
-      const id = state.trips.activeId;
-      const list = state.trips.lists[id];
-      if(!list) return;
+      const id = state.trips.activeId; const list = state.trips.lists[id]; if(!list) return;
       if(!list.items.includes(itemId)) list.items.push(itemId);
       saveTrips();
       if(!state.favorites.has(itemId)){
@@ -865,9 +839,7 @@
       alert('Added to '+list.name);
     }
     function removeFromTrip(itemId){
-      const id = state.trips.activeId;
-      const list = state.trips.lists[id];
-      if(!list) return;
+      const id = state.trips.activeId; const list = state.trips.lists[id]; if(!list) return;
       state.trips.lists[id].items = list.items.filter(x=>x!==itemId);
       saveTrips(); renderFavorites();
     }
@@ -959,18 +931,6 @@
     }
 
     /* ---------------- Sorting & Main render ---------------- */
-    function passesTab(it){
-      if(state.tab==='site') return it.type==='Site';
-      if(state.tab==='tour') return it.type==='Tour';
-      return true;
-    }
-    /* for filters, treat ALL like SITES+TOURS but site/tour groups will hide */
-    function passesTabForFilters(it){
-      if(state.tab==='site') return it.type==='Site';
-      if(state.tab==='tour') return it.type==='Tour';
-      return true;
-    }
-
     function cityPass(it){
       if(!state.city) return true;
       const c = (it.city||'').toLowerCase();
@@ -1019,7 +979,6 @@
       document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
       btn.classList.add('active');
       state.tab = btn.dataset.tab;
-      /* rebuild filters to show correct set per tab */
       buildFilters('Main');
       syncFilterUIs('main');
       render();
@@ -1055,7 +1014,7 @@
         const tourItems = state.rawTours.map(normalizeTour);
         state.items = [...siteItems, ...tourItems];
 
-        buildFilters('Main');               // initial
+        buildFilters('Main');
         syncFilterUIs('main');
         render();
         locateUser();
@@ -1136,7 +1095,29 @@
         const {lat,lng} = it.raw||{};
         if(typeof lat==='number' && typeof lng==='number'){
           const m = L.marker([lat,lng],{icon:siteIconFor(it.siteType)}).addTo(siteLayer);
-          const html = cardHTML(it, scoreMatches(it), distanceFromUser(it), true);
+          const html = `
+            <div class="leaflet-popup-content-inner">
+              ${(() => {
+                const chips = filterChips(it).map(c=>`<span class="chip hit">${c}</span>`).join('');
+                const metaBits=[];
+                const cb = costBadgeHTML(it); const tb = timeBadgeHTML(it);
+                if(cb) metaBits.push(cb); if(tb) metaBits.push(tb);
+                if(it.categories?.length){ metaBits.push(it.categories.join(', ')); }
+                if(it.periods?.length){ metaBits.push(it.periods[0]); }
+                return `<article class="card popup-card" id="card-${it.id}">
+                  <span class="badge">${it.type||'Site'}</span>
+                  <button class="fav${state.favorites.has(it.id)?' active':''}" aria-label="Save" data-id="${it.id}">
+                    <svg viewBox="0 0 24 24"><path d="M12 21s-7-4.35-7-10a4 4 0 0 1 7-2 4 4 0 0 1 7 2c0 5.65-7 10-7 10z"/></svg>
+                  </button>
+                  <img class="img" src="${resolveImage(it.image)||'images/default.jpg'}" alt="${it.name} image" onerror="this.src='images/default.jpg'"/>
+                  <div class="inner">
+                    <h3 class="title">${it.name}</h3>
+                    <div class="meta">${metaBits.join(' • ')}</div>
+                    <div class="chipbar">${chips}</div>
+                  </div>
+                </article>`;
+              })()}
+            </div>`;
           m.bindPopup(html);
           bounds.push([lat,lng]);
         }
@@ -1153,8 +1134,7 @@
             weight:1,
             radius
           }).addTo(tourLayer);
-          const html = cardHTML(it, s, distanceFromUser(it), true);
-          circle.bindPopup(html);
+          circle.bindPopup(`<strong>${it.name}</strong>`);
           bounds.push([it.center.lat, it.center.lng]);
         }
       });
@@ -1254,12 +1234,8 @@
       }
       const suggestEditBtn = document.getElementById('suggestEditBtn');
       const newSiteBtn = document.getElementById('newSiteBtn');
-      if(suggestEditBtn){
-        suggestEditBtn.addEventListener('click', (e)=>{ e.preventDefault(); alert('Suggest an Edit: wire this to your form.'); });
-      }
-      if(newSiteBtn){
-        newSiteBtn.addEventListener('click', (e)=>{ e.preventDefault(); alert('New Site Submission: wire this to your form.'); });
-      }
+      if(suggestEditBtn){ suggestEditBtn.addEventListener('click', (e)=>{ e.preventDefault(); alert('Suggest an Edit: wire this to your form.'); }); }
+      if(newSiteBtn){ newSiteBtn.addEventListener('click', (e)=>{ e.preventDefault(); alert('New Site Submission: wire this to your form.'); }); }
       const footNew = document.getElementById('footerNewSite');
       const footCorr = document.getElementById('footerCorrection');
       if(footNew){ footNew.addEventListener('click', (e)=>{ e.preventDefault(); document.getElementById('ourDataPanel').style.display='block'; }); }
@@ -1273,45 +1249,12 @@
     /* ---------- INIT ---------- */
     loadData();
 
-    /* ---------- HARDEN MY PLACES OPEN/CLOSE (robust) ---------- */
+    /* ---------- Bind close for MY PLACES (extra robust) ---------- */
     (function(){
-      function $(sel){ return document.querySelector(sel); }
-      function openFavorites(){
-        const panel = $('#favoritesPanel'); if(!panel) return;
-        const mapPanel = $('#mapPanel'); const dataPanel = $('#ourDataPanel');
-        if(mapPanel) mapPanel.style.display = 'none';
-        if(dataPanel) dataPanel.style.display = 'none';
-        window.favoritesOpen = true;
-        if(typeof window.renderFavorites === 'function'){ window.renderFavorites(); }
-        panel.style.display = 'block';
-        panel.setAttribute('aria-hidden','false');
-      }
-      function closeFavorites(){
-        const panel = $('#favoritesPanel'); if(!panel) return;
-        panel.style.display = 'none';
-        panel.setAttribute('aria-hidden','true');
-        window.favoritesOpen = false;
-      }
-      window.openFavorites = openFavorites;
-      window.closeFavorites = closeFavorites;
+      const closeBtn = document.getElementById('closeFavorites');
+      if(closeBtn){ closeBtn.addEventListener('click', ()=> window.closeFavorites && window.closeFavorites()); }
 
-      const link = $('#myPlacesLink');
-      if(link && !link.__galliBound){
-        link.__galliBound = true;
-        link.addEventListener('click', function(e){ e.preventDefault(); openFavorites(); });
-        link.addEventListener('keydown', function(e){
-          if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); openFavorites(); }
-        });
-        link.setAttribute('role','button');
-        link.setAttribute('tabindex','0');
-      }
-      const closeBtn = $('#closeFavorites');
-      if(closeBtn && !closeBtn.__galliBound){
-        closeBtn.__galliBound = true;
-        closeBtn.addEventListener('click', function(){ closeFavorites(); });
-      }
-
-      /* Clear all favorites button (non-destructive to trips) */
+      // “Clear all” favorites
       const clearBtn = document.getElementById('clearFavorites');
       if(clearBtn){
         clearBtn.addEventListener('click', ()=>{
@@ -1322,7 +1265,7 @@
         });
       }
 
-      /* Trip buttons */
+      // Trip buttons
       document.getElementById('tripAdd')?.addEventListener('click', newTrip);
       document.getElementById('tripRename')?.addEventListener('click', renameTrip);
       document.getElementById('tripDelete')?.addEventListener('click', deleteTrip);

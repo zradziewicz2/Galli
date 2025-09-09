@@ -16,7 +16,8 @@
 
   <style>
     :root{
-      --bg:#f7f8fa; --panel:#ffffff; --ink:#0f172a; --muted:#6b7280; --ring:#d1d5db; --brand:#00cfd4; --accent:#00cfd4;
+      --bg:#f7f8fa; --panel:#ffffff; --ink:#0f172a; --muted:#6b7280; --ring:#d1d5db;
+      --brand:#00cfd4; --accent:#00cfd4;
       --radius:18px; --shadow:0 2px 12px rgba(0,0,0,.06);
     }
     *{box-sizing:border-box}
@@ -33,11 +34,13 @@
     .search{width:min(520px,100%);padding:10px 14px;border:1px solid var(--ring);border-radius:999px;background:#fff}
     .links{display:flex;gap:14px}
     .pill{border:1px solid var(--ring);background:#fff;padding:8px 12px;border-radius:999px;font-weight:600}
+    .links .pill{font-size:12px;padding:6px 10px;} /* smaller buttons */
 
     /* Tabs */
     .tabs{display:flex;gap:26px;justify-content:center;margin:6px 0 12px}
     .tab{font-weight:800;letter-spacing:.08em;color:#111;opacity:.6;cursor:pointer;border:none;background:none;font-size:16px}
-    .tab.active{opacity:1;text-decoration:underline;text-underline-offset:6px}
+    /* remove underline; just use opacity change */
+    .tab.active{opacity:1}
 
     /* Layout */
     .layout{display:grid;grid-template-columns:300px 1fr;gap:18px}
@@ -56,7 +59,10 @@
     .filters input[type="checkbox"]{width:16px;height:16px}
     details summary{cursor:pointer;color:#0b3a68;font-weight:700}
 
-    /* Cards grid — 3 columns (wider) */
+    /* Toolbar */
+    .select{border:1px solid var(--ring);border-radius:10px;padding:6px 10px;background:#fff;font-size:12px}
+
+    /* Cards grid */
     .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
     @media (max-width:1100px){.grid{grid-template-columns:repeat(2,1fr)}}
     @media (max-width:680px){.grid{grid-template-columns:1fr}}
@@ -91,14 +97,16 @@
     .icons{display:flex;gap:10px;margin-top:6px;color:#607085;flex-wrap:wrap}
     .icons a{display:inline-flex;align-items:center;gap:6px;text-decoration:none;font-size:12px}
 
-    /* Stats table */
+    /* Stats */
     .stats{width:100%;border-collapse:collapse;margin-top:10px;font-size:12px;color:#334155}
     .stats th{font-weight:600;text-align:left;padding:6px 0;width:52%}
     .stats td{padding:6px 0}
     .stats tr+tr th, .stats tr+tr td{border-top:1px dashed #e5e7eb}
 
     /* Overlays */
-    #mapPanel,#favoritesPanel{position:fixed;inset:0;background:#fff;display:none;z-index:1000}
+    #mapPanel,#favoritesPanel,#ourDataPanel{position:fixed;inset:0;background:#fff;display:none;z-index:1000}
+    #favoritesPanel{ z-index:1101; } /* ensure on top */
+
     .overlayHeader{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--ring)}
     .btn{border:1px solid var(--ring);background:#fff;border-radius:999px;padding:8px 12px;font-weight:600;cursor:pointer}
 
@@ -117,24 +125,19 @@
     .leaflet-popup .fav { pointer-events:auto; }
     .popup-card .img{ height:148px; }
 
-    /* Smaller top-right pills (kept) */
-    .links .pill{font-size:12px;padding:6px 10px;}
-
-    /* Our Data panel content */
-    #ourDataPanel{position:fixed;inset:0;background:#fff;display:none;z-index:1000}
+    /* Our Data */
     .dataBody{padding:16px;max-width:900px;margin:0 auto;}
     .dataBody p{margin:0 0 12px;color:#334155;line-height:1.45;}
     .actionRow{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px;}
     .actionRow .btn{display:inline-flex;align-items:center;gap:8px;text-decoration:none;}
 
-    /* Footer links */
+    /* Footer */
     footer{max-width:1220px;margin:24px auto 40px;padding:0 18px;color:#6b7280;font-size:12px}
     .footer-links{display:flex;gap:12px;flex-wrap:wrap;margin-top:6px}
     .footer-links a{color:#0b3a68;text-decoration:underline; text-underline-offset:3px}
 
-    /* ---------- NEW: MY PLACES upgrades ---------- */
+    /* MY PLACES upgrades */
     .fav-toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:10px 14px}
-    .fav-toolbar .select, .select{border:1px solid var(--ring);border-radius:10px;padding:6px 10px;background:#fff;font-size:12px}
     .fav-actions{display:flex;gap:8px;flex-wrap:wrap}
     .notes{margin-top:8px}
     .notes textarea{width:100%;min-height:70px;border:1px solid var(--ring);border-radius:12px;padding:8px;font-size:12px}
@@ -156,7 +159,7 @@
       <div class="top"><input id="cityInput" class="search" placeholder="CITY" aria-label="City" /></div>
       <nav class="links">
         <a class="pill" href="#" id="myPlacesLink">MY PLACES</a>
-        <a class="pill" href="#">NEW SITE SUBMISSION</a>
+        <a class="pill" href="#" id="ourDataLink">OUR DATA</a>
         <a class="pill" href="#">CONNECT</a>
       </nav>
     </header>
@@ -171,6 +174,7 @@
       <aside class="sidebar">
         <button class="view-map" id="viewMap"><span class="icon">🌐</span><strong>View in map</strong></button>
 
+        <!-- Keep original filter container; actual contents built by JS -->
         <div class="panel filters" id="filtersPanelMain">
           <div class="group">
             <h3>Site Type</h3>
@@ -189,7 +193,7 @@
 
       <main>
         <div class="toolbar" style="display:flex;align-items:center;gap:10px;justify-content:flex-end;margin-bottom:10px">
-          <label for="sortSelect" class="muted">Sort:</label>
+          <label for="sortSelect" class="mini">Sort:</label>
           <select id="sortSelect" class="select" aria-label="Sort results">
             <option value="best">Best match</option>
             <option value="closest">Closest</option>
@@ -214,7 +218,7 @@
     </div>
 
     <div class="mapLayout">
-      <!-- Same filters in map (kept as-is) -->
+      <!-- Keep map filters (can be hidden later if you choose) -->
       <aside class="mapSidebar">
         <div class="panel filters" id="filtersPanelMap">
           <div class="group">
@@ -271,8 +275,6 @@
 
     <div style="padding:16px">
       <section id="favoritesGrid" class="grid"></section>
-
-      <!-- Hidden list drawer -->
       <div id="hiddenDrawer" style="display:none;margin-top:14px">
         <div class="mini" style="margin-bottom:8px">Hidden items (click restore ⤴):</div>
         <section id="hiddenGrid" class="grid"></section>
@@ -360,37 +362,17 @@
       geoloc: null,
       filters: { siteTypes:new Set(), periods:new Set(), tags:new Set() },
       sort: localStorage.getItem('traipse:sort') || 'best',
-
-      // NEW: trips + hidden + notes
       trips: JSON.parse(localStorage.getItem('traipse:trips')||'null'),
       hidden: new Set(JSON.parse(localStorage.getItem('traipse:hidden')||'[]')),
       notes: JSON.parse(localStorage.getItem('traipse:notes')||'{}')
     };
+    // expose a flag so other helpers can see the overlay state
+    window.favoritesOpen = false;
 
-    // initialize trips if missing
     if(!state.trips){
-      state.trips = {
-        activeId: 'default',
-        lists: { default: { name: 'My Trip', items: [] } }
-      };
+      state.trips = { activeId: 'default', lists: { default: { name: 'My Trip', items: [] } } };
       localStorage.setItem('traipse:trips', JSON.stringify(state.trips));
     }
-
-    // More Filters (unchanged)
-    const MORE_FILTERS = {
-      spanishtranslations: 'Spanish translations',
-      paymentmethod: 'Cash/Credit',
-      luggagestorage: 'Luggage storage',
-      hiddengem: 'Hidden gem',
-      featured: 'Featured site',
-      publicaccess: 'Public access',
-      dogfriendly: 'Pet-friendly',
-      family_friendly: 'Family-friendly',
-      giftshop: 'Gift shop',
-      foodbeverage: 'Food & beverage on-site',
-      transit_accessible: 'Accessible by public transit',
-      adaaccessibility: 'ADA accessibility'
-    };
 
     /* ---------------- Helpers ---------------- */
     const resolveImage = (p)=>{
@@ -409,19 +391,14 @@
     const kmToMiles = km => km*0.621371;
     const formatMiles = m => !isFinite(m) ? '' : (m<0.2? `${(m*5280).toFixed(0)} ft away` : (m<10? `${m.toFixed(1)} mi away` : `${Math.round(m)} mi away`));
 
-    // unify and parse cost ranks
-    function costRank(it){
-      const c = (it.costText || it.raw?.Cost || '').toString().trim().toLowerCase();
-      if(!c) return 999;
-      if(c.includes('free') || c==='$0' || c==='0') return 0;
-      const dollarMatch = c.match(/\${1,4}/);
-      if(dollarMatch) return dollarMatch[0].length;
-      const num = parseFloat(c.replace(/[^0-9.]/g,''));
-      if(!isNaN(num)) return num;
-      return 999;
+    /* unify "Time needed" */
+    function mergeTime(raw){
+      const a = raw.estimatedtime || raw.estimated_time || '';
+      const b = raw.duration || raw.Duration || '';
+      return String(a||b||'').trim();
     }
 
-    /* ---------------- Tag matches ---------------- */
+    /* tag checks */
     function hasTag(it, key){
       const r = it.raw||{};
       switch(key){
@@ -444,12 +421,8 @@
     function scoreMatches(it){
       let score = 0;
       if(state.filters.siteTypes.size && state.filters.siteTypes.has(it.siteType)) score++;
-      if(state.filters.periods.size){
-        (it.periods||[]).forEach(p=>{ if(state.filters.periods.has(p)) score++; });
-      }
-      if(state.filters.tags.size){
-        for(const key of state.filters.tags){ if(hasTag(it,key)) score++; }
-      }
+      if(state.filters.periods.size){ (it.periods||[]).forEach(p=>{ if(state.filters.periods.has(p)) score++; }); }
+      if(state.filters.tags.size){ for(const key of state.filters.tags){ if(hasTag(it,key)) score++; } }
       return score;
     }
 
@@ -457,9 +430,8 @@
       if(!state.geoloc) return Infinity;
       const pos = state.geoloc;
       let target = null;
-      if(it.type==='Tour'){
-        if(it.center){ target = it.center; }
-      }else{
+      if(it.type==='Tour'){ if(it.center){ target = it.center; } }
+      else{
         const {lat,lng}=it.raw||{}; if(typeof lat==='number'&&typeof lng==='number'){ target={lat,lng}; }
       }
       if(!target) return Infinity;
@@ -467,14 +439,6 @@
     }
 
     /* ---------------- Normalization ---------------- */
-    function mergeTime(raw){
-      // consolidate "duration" + "estimated time" => "time needed"
-      const a = raw.estimatedtime || raw.estimated_time || '';
-      const b = raw.duration || raw.Duration || '';
-      const t = String(a||b||'').trim();
-      return t;
-    }
-
     function normalizeSite(raw){
       const periods = (raw.timeperiod||[]).map(p => PERIOD_LABELS[p]||p);
       const siteTypeSlug = (raw.sitetype||'').toLowerCase();
@@ -486,11 +450,10 @@
         image: raw.image,
         website: raw.website && raw.website!=='notavailable' ? raw.website : '',
         categories: (raw.thematiccategory||[]).map(c => CATEGORY_LABELS[c]||c),
-        siteType,
-        periods,
+        siteType, periods,
         description: raw.description||'',
         costText: raw.dollaramount && !['0','$0','-'].includes(String(raw.dollaramount).trim()) ? String(raw.dollaramount) : (raw.cost==='free'?'Free': (raw.cost==='paid'?'Paid':'')),
-        durationText: mergeTime(raw), // unified
+        durationText: mergeTime(raw),
         city: (raw.city||'').toLowerCase(),
         raw
       };
@@ -505,7 +468,6 @@
       }else if(Array.isArray(raw.sites) && raw.sites.length){
         center = {lat: raw.sites[0].lat, lng: raw.sites[0].lng};
       }
-
       return {
         id: raw.tour_id || (raw.tour_name||'').toLowerCase().replace(/[^a-z0-9]+/g,'-'),
         name: raw.tour_name,
@@ -516,14 +478,29 @@
         siteType: 'Tour',
         periods: [],
         description: `${mergeTime(raw)||''} • ${raw.Cost||''}`.trim(),
-        durationText: mergeTime(raw), // unified
+        durationText: mergeTime(raw),
         color: '#e11d48',
         center,
         raw
       };
     }
 
-    /* ---------------- Filters UI (kept) ---------------- */
+    /* ---------------- Filters UI (original kept) ---------------- */
+    const MORE_FILTERS = {
+      spanishtranslations: 'Spanish translations',
+      paymentmethod: 'Cash/Credit',
+      luggagestorage: 'Luggage storage',
+      hiddengem: 'Hidden gem',
+      featured: 'Featured site',
+      publicaccess: 'Public access',
+      dogfriendly: 'Pet-friendly',
+      family_friendly: 'Family-friendly',
+      giftshop: 'Gift shop',
+      foodbeverage: 'Food & beverage on-site',
+      transit_accessible: 'Accessible by public transit',
+      adaaccessibility: 'ADA accessibility'
+    };
+
     function addCheckbox(wrap, bucket, value, label){
       const id = `${bucket}-${value.replace(/[^a-z0-9]+/gi,'-')}-${wrap.id}`;
       const el = document.createElement('label');
@@ -549,6 +526,7 @@
       const siteWrap = document.getElementById(`siteTypeFilters${target}`);
       const perWrap  = document.getElementById(`periodFilters${target}`);
       const moreWrap = document.getElementById(`moreFilters${target}`);
+      if(!siteWrap||!perWrap||!moreWrap) return;
       siteWrap.innerHTML = perWrap.innerHTML = moreWrap.innerHTML = '';
 
       siteTypes.forEach(label=>addCheckbox(siteWrap,'siteTypes',label,label));
@@ -559,6 +537,7 @@
     function syncFilterUIs(source){
       const main = document.getElementById('filtersPanelMain');
       const mapP = document.getElementById('filtersPanelMap');
+      if(!main || !mapP) return;
 
       const getCheckedWithLabels = (panel) => {
         const res = new Set();
@@ -575,11 +554,8 @@
         });
       };
 
-      if(source==='map'){
-        setToByLabels(main, getCheckedWithLabels(mapP));
-      }else{
-        setToByLabels(mapP, getCheckedWithLabels(main));
-      }
+      if(source==='map'){ setToByLabels(main, getCheckedWithLabels(mapP)); }
+      else{ setToByLabels(mapP, getCheckedWithLabels(main)); }
     }
 
     /* ---------------- Chips / Cards ---------------- */
@@ -604,7 +580,6 @@
       const payMethod = (r.paymentmethod||'').toLowerCase()==='both' ? 'Cash & credit' :
                         (r.paymentmethod||'') ? String(r.paymentmethod) : '—';
 
-      // Consolidated "Time needed"
       const rowsSite = [
         ['Hours', r.hours||'—'],
         ['Cost', it.costText || '—'],
@@ -666,7 +641,6 @@
       if(it.type==='Tour' && it.raw?.external_links){
         for(const [name,url] of Object.entries(it.raw.external_links)){ links.push(`<a href="${url}" target="_blank" rel="noopener">🔗 <span>${name}</span></a>`); }
       }
-      // NEW: Add to Trip shortcut
       links.push(`<a href="#" class="add-to-trip" data-id="${it.id}">➕ <span>Add to Trip</span></a>`);
       const openCard = `<a href="#card-${it.id}" onclick="document.getElementById('closeMap').click(); setTimeout(()=>{document.getElementById('card-${it.id}')?.scrollIntoView({behavior:'smooth',block:'start'});},150); return false;">Open card</a>`;
 
@@ -741,7 +715,6 @@
       icons.innerHTML = links.join(' ');
       node.querySelector('.desc').textContent = it.description||'';
 
-      // stats
       const moreBody = root.querySelector('.more-body');
       const statsDiv = document.createElement('div');
       statsDiv.innerHTML = buildStatsTableHTML(it);
@@ -765,7 +738,7 @@
       if(state.favorites.has(id)) state.favorites.delete(id); else state.favorites.add(id);
       localStorage.setItem('traipse:favorites', JSON.stringify(Array.from(state.favorites)));
       document.querySelectorAll(`.fav[data-id="${id}"]`).forEach(b=>b.classList.toggle('active', state.favorites.has(id)));
-      if(favoritesOpen) renderFavorites();
+      if(window.favoritesOpen) renderFavorites();
     }
 
     function saveTrips(){ localStorage.setItem('traipse:trips', JSON.stringify(state.trips)); }
@@ -816,9 +789,9 @@
       if(!list) return;
       if(!list.items.includes(itemId)) list.items.push(itemId);
       saveTrips();
-      if(favoritesOpen) renderFavorites();
       // auto-favorite when added to a trip
       if(!state.favorites.has(itemId)){ state.favorites.add(itemId); localStorage.setItem('traipse:favorites', JSON.stringify(Array.from(state.favorites))); }
+      if(window.favoritesOpen) renderFavorites();
       alert('Added to '+list.name);
     }
     function removeFromTrip(itemId){
@@ -856,7 +829,6 @@
       }else{
         list.forEach(({it,score,dist}) => {
           const node = buildCardNode(it,score,dist);
-          // append notes + remove/hide actions
           const wrapper = document.createElement('div');
           wrapper.appendChild(node);
           const card = wrapper.querySelector('.card .more-body');
@@ -878,25 +850,17 @@
             </div>`;
           card.appendChild(notesWrap);
 
-          // save notes
           notesWrap.querySelector('textarea').addEventListener('input', (e)=>{
-            state.notes[key] = e.target.value;
-            saveNotes();
+            state.notes[key] = e.target.value; saveNotes();
           });
-          // remove from trip
-          notesWrap.querySelector('[data-remove]').addEventListener('click', ()=>{
-            removeFromTrip(key);
-          });
-          // hide
-          notesWrap.querySelector('[data-hide]').addEventListener('click', ()=>{
-            hideItem(key);
-          });
+          notesWrap.querySelector('[data-remove]').addEventListener('click', ()=> removeFromTrip(key));
+          notesWrap.querySelector('[data-hide]').addEventListener('click', ()=> hideItem(key));
 
           host.appendChild(wrapper.firstElementChild);
         });
       }
 
-      // render hidden drawer
+      // hidden drawer
       const hiddenBox = document.getElementById('hiddenDrawer');
       const toggleHidden = document.getElementById('toggleHidden');
       const hiddenGrid = document.getElementById('hiddenGrid');
@@ -919,30 +883,12 @@
             </div>`;
           hiddenGrid.appendChild(mini);
         });
-        hiddenGrid.querySelectorAll('[data-restore]').forEach(b=>{
-          b.addEventListener('click', ()=> restoreItem(b.dataset.restore));
-        });
+        hiddenGrid.querySelectorAll('[data-restore]').forEach(b=> b.addEventListener('click', ()=> restoreItem(b.dataset.restore)));
       }
-      document.getElementById('hiddenDrawer').style.display='none'; // start closed
+      document.getElementById('hiddenDrawer').style.display='none';
 
-      // update favorites-only map for this selection
       if(favoritesMapOpen) renderFavoritesMap();
     }
-
-    let favoritesOpen=false;
-    document.getElementById('myPlacesLink').addEventListener('click', (e)=>{ e.preventDefault(); favoritesOpen=true; renderFavorites(); document.getElementById('favoritesPanel').style.display='block'; });
-    document.getElementById('closeFavorites').addEventListener('click', ()=>{ favoritesOpen=false; document.getElementById('favoritesPanel').style.display='none'; });
-    document.getElementById('clearFavorites').addEventListener('click', ()=>{
-      state.favorites.clear();
-      localStorage.setItem('traipse:favorites','[]');
-      renderFavorites();
-      document.querySelectorAll('.fav').forEach(b=>b.classList.remove('active'));
-    });
-
-    // Trip buttons
-    document.getElementById('tripAdd').addEventListener('click', newTrip);
-    document.getElementById('tripRename').addEventListener('click', renameTrip);
-    document.getElementById('tripDelete').addEventListener('click', deleteTrip);
 
     /* ---------------- Sorting & Main render ---------------- */
     function passesTab(it){
@@ -950,45 +896,39 @@
       if(state.tab==='tour') return it.type==='Tour';
       return true;
     }
-
     function cityPass(it){
       if(!state.city) return true;
       const c = (it.city||'').toLowerCase();
       return c.includes(state.city);
     }
-
+    function costRank(it){
+      const c = (it.costText || it.raw?.Cost || '').toString().trim().toLowerCase();
+      if(!c) return 999;
+      if(c.includes('free') || c==='$0' || c==='0') return 0;
+      const dollarMatch = c.match(/\${1,4}/);
+      if(dollarMatch) return dollarMatch[0].length;
+      const num = parseFloat(c.replace(/[^0-9.]/g,''));
+      if(!isNaN(num)) return num;
+      return 999;
+    }
     function sortItems(arr){
       const sortMode = state.sort;
-      if(sortMode==='closest'){
-        return arr.sort((a,b)=> a.dist-b.dist || b.score-a.score);
-      }
-      if(sortMode==='cheapest'){
-        return arr.sort((a,b)=> costRank(a.it)-costRank(b.it) || b.score-a.score || a.dist-b.dist);
-      }
+      if(sortMode==='closest'){ return arr.sort((a,b)=> a.dist-b.dist || b.score-a.score); }
+      if(sortMode==='cheapest'){ return arr.sort((a,b)=> costRank(a.it)-costRank(b.it) || b.score-a.score || a.dist-b.dist); }
       if(sortMode==='theme'){
-        return arr.sort((a,b)=>{
-          const at=(a.it.categories?.length||0), bt=(b.it.categories?.length||0);
-          if(bt!==at) return bt-at;
-          return b.score-a.score || a.dist-b.dist;
-        });
+        return arr.sort((a,b)=>{ const at=(a.it.categories?.length||0), bt=(b.it.categories?.length||0); if(bt!==at) return bt-at; return b.score-a.score || a.dist-b.dist; });
       }
       return arr.sort((a,b)=> b.score-a.score || a.dist-b.dist);
     }
 
     function renderCards(){
       const host = document.getElementById('cards');
-      const list = state.items
-        .filter(passesTab)
-        .filter(cityPass)
-        .map(it=>({ it, score:scoreMatches(it), dist:distanceFromUser(it) }));
-
+      const list = state.items.filter(passesTab).filter(cityPass).map(it=>({ it, score:scoreMatches(it), dist:distanceFromUser(it) }));
       host.innerHTML='';
       if(!list.length){ host.innerHTML='<p style="color:#6b7280;padding:8px">No results.</p>'; return; }
-
       const sorted = sortItems(list);
       sorted.forEach(({it,score,dist})=> host.appendChild(buildCardNode(it,score,dist)));
 
-      // wire up "Add to Trip" links in list view too
       document.querySelectorAll('.add-to-trip').forEach(a=>{
         a.addEventListener('click', (e)=>{
           e.preventDefault();
@@ -1000,7 +940,7 @@
 
     function render(){ renderCards(); if(mapOpen) renderMapPoints(); }
 
-    // Tabs
+    // Tabs switching
     document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>{
       document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
       btn.classList.add('active');
@@ -1121,7 +1061,6 @@
 
       const bounds=[];
 
-      // Sites
       sites.forEach(it=>{
         const {lat,lng} = it.raw||{};
         if(typeof lat==='number' && typeof lng==='number'){
@@ -1132,7 +1071,6 @@
         }
       });
 
-      // Tours: muted yellow halo
       tours.forEach(it=>{
         if(it.center){
           const s = scoreMatches(it);
@@ -1221,61 +1159,28 @@
       if(show){ renderFavoritesMap(); }
     });
 
-    /* ---------------- Init ---------------- */
-    document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>{
-      document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
-      btn.classList.add('active');
-      state.tab = btn.dataset.tab;
-      render();
-    }));
-
-    document.getElementById('cityInput').addEventListener('input', e=>{
-      state.city = (e.target.value||'').trim().toLowerCase();
-      render();
-    });
-
-    loadData();
-
-    /* ---------- OUR DATA PANEL: rename nav link (kept) ---------- */
+    /* ---------- OUR DATA panel wiring ---------- */
     (function(){
-      const navPills = document.querySelectorAll('nav.links .pill');
-      if(navPills && navPills[1]){
-        const ourDataLink = navPills[1];
-        ourDataLink.textContent = 'OUR DATA';
-        ourDataLink.id = 'ourDataLink';
-        ourDataLink.setAttribute('aria-haspopup', 'dialog');
+      const ourDataLink = document.getElementById('ourDataLink');
+      if(ourDataLink){
+        ourDataLink.setAttribute('aria-haspopup','dialog');
         ourDataLink.addEventListener('click', (e)=>{
           e.preventDefault();
-          const panel = document.getElementById('ourDataPanel');
-          if(panel){ panel.style.display = 'block'; panel.setAttribute('aria-hidden','false'); }
+          document.getElementById('ourDataPanel').style.display='block';
+          document.getElementById('ourDataPanel').setAttribute('aria-hidden','false');
         });
       }
-
       const closeOurData = document.getElementById('closeOurData');
       if(closeOurData){
         closeOurData.addEventListener('click', ()=>{
           const panel = document.getElementById('ourDataPanel');
-          if(panel){ panel.style.display='none'; panel.setAttribute('aria-hidden','true'); }
+          panel.style.display='none'; panel.setAttribute('aria-hidden','true');
         });
       }
-
       const suggestEditBtn = document.getElementById('suggestEditBtn');
-      if(suggestEditBtn){
-        suggestEditBtn.addEventListener('click', (e)=>{
-          e.preventDefault();
-          alert('Suggest an Edit: wire this up to your form or route.');
-        });
-      }
-
       const newSiteBtn = document.getElementById('newSiteBtn');
-      if(newSiteBtn){
-        newSiteBtn.addEventListener('click', (e)=>{
-          e.preventDefault();
-          alert('New Site Submission: wire this up to your form or route.');
-        });
-      }
-
-      // Footer links trigger same overlay actions
+      if(suggestEditBtn){ suggestEditBtn.addEventListener('click', (e)=>{ e.preventDefault(); alert('Suggest an Edit: wire this to your form.'); }); }
+      if(newSiteBtn){ newSiteBtn.addEventListener('click', (e)=>{ e.preventDefault(); alert('New Site Submission: wire this to your form.'); }); }
       const footNew = document.getElementById('footerNewSite');
       const footCorr = document.getElementById('footerCorrection');
       if(footNew){ footNew.addEventListener('click', (e)=>{ e.preventDefault(); document.getElementById('ourDataPanel').style.display='block'; }); }
@@ -1285,6 +1190,56 @@
     // Pro placeholders
     document.getElementById('proItin').addEventListener('click', ()=> alert('Itinerary Generator is a Pro feature (placeholder).'));
     document.getElementById('proExport').addEventListener('click', ()=> alert('Export to AI is a Pro feature (placeholder).'));
+
+    /* ---------- INIT ---------- */
+    loadData();
+
+    /* ---------- HARDEN MY PLACES OPEN/CLOSE (robust) ---------- */
+    (function(){
+      function $(sel){ return document.querySelector(sel); }
+      function openFavorites(){
+        const panel = $('#favoritesPanel');
+        if(!panel) return;
+        // close other overlays so nothing blocks it
+        const mapPanel = $('#mapPanel');
+        const dataPanel = $('#ourDataPanel');
+        if(mapPanel) mapPanel.style.display = 'none';
+        if(dataPanel) dataPanel.style.display = 'none';
+        window.favoritesOpen = true;
+        if(typeof window.renderFavorites === 'function'){ window.renderFavorites(); }
+        panel.style.display = 'block';
+        panel.setAttribute('aria-hidden','false');
+      }
+      function closeFavorites(){
+        const panel = $('#favoritesPanel');
+        if(!panel) return;
+        panel.style.display = 'none';
+        panel.setAttribute('aria-hidden','true');
+        window.favoritesOpen = false;
+      }
+      // expose for any earlier handlers
+      window.openFavorites = openFavorites;
+      window.closeFavorites = closeFavorites;
+
+      // Bind link reliably (click + keyboard) and avoid double-binding
+      const link = $('#myPlacesLink');
+      if(link && !link.__galliBound){
+        link.__galliBound = true;
+        link.addEventListener('click', function(e){ e.preventDefault(); openFavorites(); });
+        link.addEventListener('keydown', function(e){
+          if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); openFavorites(); }
+        });
+        link.setAttribute('role','button');
+        link.setAttribute('tabindex','0');
+      }
+
+      // Also bind close button defensively
+      const closeBtn = $('#closeFavorites');
+      if(closeBtn && !closeBtn.__galliBound){
+        closeBtn.__galliBound = true;
+        closeBtn.addEventListener('click', function(){ closeFavorites(); });
+      }
+    })();
   </script>
 </body>
 </html>

@@ -15,9 +15,11 @@
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
   <script src="https://unpkg.com/leaflet.browser.print/dist/leaflet.browser.print.min.js"></script>
 
+
   <style>
     :root{
       --bg:#f7f8fa; --panel:#ffffff; --ink:#0f172a; --muted:#6b7280; --ring:#d1d5db;
+      /* unify to brand cyan */
       --brand:#00cfd4; --accent:#00cfd4;
       --radius:18px; --shadow:0 2px 12px rgba(0,0,0,.06);
     }
@@ -110,7 +112,7 @@
     .overlayHeader{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--ring)}
     .btn{border:1px solid var(--ring);background:#fff;border-radius:999px;padding:8px 12px;font-weight:600;cursor:pointer}
 
-    /* Map overlay layout */
+    /* Map overlay layout: same filter styles on the left */
     .mapLayout{display:grid;grid-template-columns:320px 1fr;gap:16px;height:calc(100vh - 56px)}
     .mapSidebar{padding:14px;border-right:1px solid var(--ring);overflow:auto}
     .mapCanvas{position:relative}
@@ -125,38 +127,23 @@
     .leaflet-popup .fav { pointer-events:auto; }
     .popup-card .img{ height:148px; }
 
-    /* Our Data panel content */
+    /* Our Data panel content (kept) */
     #ourDataPanel{position:fixed;inset:0;background:#fff;display:none;z-index:1000}
     .dataBody{padding:16px;max-width:900px;margin:0 auto;}
     .dataBody p{margin:0 0 12px;color:#334155;line-height:1.45;}
     .actionRow{display:flex;gap:12px;flex-wrap:wrap;margin-top:12px;}
     .actionRow .btn{display:inline-flex;align-items:center;gap:8px;text-decoration:none;}
 
-    /* Footer links */
+    /* Footer links (anti-spam placement for submissions) */
     footer{max-width:1220px;margin:24px auto 40px;padding:0 18px;color:#6b7280;font-size:12px}
     .footer-links{display:flex;gap:12px;flex-wrap:wrap;margin-top:6px}
     .footer-links a{color:#0b3a68;text-decoration:underline; text-underline-offset:3px}
-
-    /* ===== MY PLACES: 50/50 split + scroll ===== */
-    #favoritesPanel{ display:flex; flex-direction:column; }
+    /* ===== MY PLACES v2: clean list + trip toolbar ===== */
     .fav-toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:10px 14px}
-    .fav-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .select{border:1px solid var(--ring);border-radius:10px;padding:6px 10px;background:#fff;font-size:12px}
     .btn.small{padding:6px 10px;font-size:12px}
-    .mini{font-size:12px;color:#6b7280}
-
-    .fav-columns{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:16px;
-      padding:14px;
-      flex:1;
-      min-height:0;
-    }
-    .fav-left, .fav-right{ min-height:0; }
-    .fav-left{ overflow:auto; }
-    .fav-right .mapBox{ height:100%; }
-    #favoritesMap{ height:100%; min-height:360px; }
-
+    .fav-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    
     .favlist{display:flex;flex-direction:column;gap:10px}
     .fav-item{display:grid;grid-template-columns:84px 1fr auto;gap:12px;align-items:center;border:1px solid var(--ring);border-radius:14px;background:#fff;box-shadow:var(--shadow);padding:8px}
     .fav-thumb{width:84px;height:64px;border-radius:10px;object-fit:cover;border:1px solid var(--ring)}
@@ -164,14 +151,59 @@
     .fav-meta{font-size:12px;color:#6b7280;display:flex;gap:8px;flex-wrap:wrap}
     .fav-acts{display:flex;gap:8px}
     .fav-acts .x{border:1px solid var(--ring);background:#fff;border-radius:999px;padding:6px 10px;font-size:12px;cursor:pointer}
+    .fav-acts .danger{border-color:#fecaca;color:#b91c1c;background:#fff0f0}
+    
+    .itin-box{margin-top:14px;border:1px dashed var(--ring);border-radius:12px;padding:12px;background:#f8fafc}
+    .itin-box textarea{width:100%;min-height:140px;border:1px solid var(--ring);border-radius:12px;padding:10px;font-family:inherit}
+    .mini{font-size:12px;color:#6b7280}
 
-    .fav-picker{ margin-top:16px; }
-    .fav-picker > summary{ cursor:pointer; font-weight:600; color:#0b3a68; }
-
-    @media (max-width: 900px){
-      .fav-columns{ grid-template-columns:1fr; }
-      .fav-right{ height:50vh; }
+        /* ===== MY PLACES: persistent split layout ===== */
+    .favBody{
+      height:calc(100vh - 56px); /* header height approx */
+      overflow:auto;             /* single, smooth scroller for the overlay */
+      padding:16px;
     }
+    .favLayout{
+      display:grid;
+      grid-template-columns:1fr 520px; /* list left, map right */
+      gap:18px;
+      align-items:start;
+    }
+    .favLeft{ display:flex; flex-direction:column; gap:12px; }
+    .favScroll{ display:block; }
+    
+    .favRight{ align-self:start; }
+    .favMapSticky{
+      position:sticky;
+      top:12px; /* keeps the map in view while left side scrolls */
+    }
+    
+    /* Map frame inside MY PLACES */
+    #favoritesMap{
+      width:100%;
+      height:calc(100vh - 140px);
+      min-height:320px;
+      border:1px solid var(--ring);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+    }
+    
+    /* Legend sits on the map */
+    #favoritesLegend{
+      position:absolute;
+      bottom:16px; right:16px;
+      background:#fff; border:1px solid var(--ring);
+      border-radius:12px; box-shadow:var(--shadow);
+      padding:8px 10px; font-size:12px;
+    }
+    
+    @media (max-width:1100px){
+      .favLayout{ grid-template-columns:1fr; }
+      .favMapSticky{ position:relative; top:auto; }
+      #favoritesMap{ height:50vh; }
+    }
+
+
   </style>
 </head>
 <body>
@@ -180,8 +212,9 @@
       <div class="brand"><div class="logo"></div> GALLIVANT</div>
       <div class="top"><input id="cityInput" class="search" placeholder="CITY" aria-label="City" /></div>
       <nav class="links">
-        <a class="pill" href="#" id="myPlacesLink">MY PLACES</a>
-        <a class="pill" href="#" id="ourDataLink">OUR DATA</a>
+        <a class="pill" href="#" id="myPlacesLink" role="button" tabindex="0"
+   onclick="openFavorites(); return false;">MY PLACES</a>
+        <a class="pill" href="#">NEW SITE SUBMISSION</a>
         <a class="pill" href="#">CONNECT</a>
       </nav>
     </header>
@@ -195,6 +228,10 @@
     <div class="layout">
       <aside class="sidebar">
         <button class="view-map" id="viewMap"><span class="icon">🌐</span><strong>View in map</strong></button>
+
+
+
+        <!-- existing filters panel (kept intact) -->
         <div class="panel filters" id="filtersPanelMain">
           <div class="group">
             <h3>Site Type</h3>
@@ -212,6 +249,7 @@
       </aside>
 
       <main>
+        <!-- Added: toolbar with Sort control (non-destructive) -->
         <div class="toolbar">
           <label for="sortSelect" class="muted">Sort:</label>
           <select id="sortSelect" class="select" aria-label="Sort results">
@@ -221,6 +259,7 @@
             <option value="theme">Theme</option>
           </select>
         </div>
+
         <section id="cards" class="grid" aria-live="polite"></section>
       </main>
     </div>
@@ -237,6 +276,7 @@
     </div>
 
     <div class="mapLayout">
+      <!-- Same filters in map (kept) -->
       <aside class="mapSidebar">
         <div class="panel filters" id="filtersPanelMap">
           <div class="group">
@@ -262,54 +302,67 @@
   </section>
 
   <!-- My Places -->
-  <section id="favoritesPanel" aria-hidden="true" role="dialog" aria-label="My Places">
-    <div class="overlayHeader">
-      <strong>My Places</strong>
-      <div class="fav-actions">
-        <button id="btnExportPDF" class="btn small">Export Map as PDF</button>
-        <button id="btnGenerateItin" class="btn small">Generate Draft Itinerary</button>
-        <button id="btnImportFavs" class="btn small">Add All Favorites to Trip</button>
-        <button id="clearFavorites" class="btn small">Clear all</button>
-        <button id="closeFavorites" class="btn small">Back to list</button>
-      </div>
+<!-- My Places -->
+<section id="favoritesPanel" aria-hidden="true" role="dialog" aria-label="My Places">
+  <div class="overlayHeader">
+    <strong>My Places</strong>
+    <div class="fav-actions">
+      <!-- removed: View in Map (persistent now) -->
+      <button id="btnExportPDF" class="btn small">Export Map as PDF</button>
+      <button id="btnGenerateItin" class="btn small">Generate Draft Itinerary</button>
+      <button id="btnImportFavs" class="btn small">Add All Favorites to Trip</button>
+      <button id="clearFavorites" class="btn small">Clear all</button>
+      <button id="closeFavorites" class="btn small">Back to list</button>
     </div>
+  </div>
 
-    <!-- Trip toolbar -->
-    <div class="fav-toolbar">
-      <span class="mini">Trip:</span>
-      <select id="tripSelect" class="select" aria-label="Select trip"></select>
-      <button id="tripAdd" class="btn small">New</button>
-      <button id="tripRename" class="btn small">Rename</button>
-      <button id="tripDelete" class="btn small">Delete</button>
-    </div>
+  <!-- NEW: body with two-column layout -->
+  <div class="favBody">
+    <div class="favLayout">
+      <!-- LEFT: trip toolbar + lists + itinerary -->
+      <div class="favLeft">
+        <div class="fav-toolbar">
+          <span class="mini">Trip:</span>
+          <select id="tripSelect" class="select" aria-label="Select trip"></select>
+          <button id="tripAdd" class="btn small">New</button>
+          <button id="tripRename" class="btn small">Rename</button>
+          <button id="tripDelete" class="btn small danger">Delete</button>
+          <span class="mini" style="margin-left:auto">Hidden:
+            <a href="#" id="toggleHidden" class="mini">Show</a>
+          </span>
+        </div>
 
-    <!-- Two-column split: cards (left) | map (right) -->
-    <div class="fav-columns">
-      <div class="fav-left">
-        <div id="favoritesList" class="favlist" aria-live="polite"></div>
+        <div class="favScroll">
+          <div id="favoritesList" class="favlist" aria-live="polite"></div>
 
-        <!-- Simple picker to add from Favorites into this trip -->
-        <details id="favoritesPicker" class="fav-picker">
-          <summary>Add places from your Favorites</summary>
-          <div id="favoritesPool" class="favlist"></div>
-        </details>
+          <!-- Hidden drawer -->
+          <div id="hiddenDrawer" style="display:none;margin-top:14px">
+            <div class="mini" style="margin-bottom:8px">Hidden items (click restore ⤴):</div>
+            <div id="hiddenList" class="favlist"></div>
+          </div>
 
-        <!-- Draft itinerary output -->
-        <div id="itinBox" class="itin-box" style="display:none">
-          <div class="mini" style="margin-bottom:6px">Draft itinerary (editable):</div>
-          <textarea id="itinText" placeholder="Your itinerary will appear here…"></textarea>
+          <!-- Draft itinerary output -->
+          <div id="itinBox" class="itin-box" style="display:none">
+            <div class="mini" style="margin-bottom:6px">Draft itinerary (editable):</div>
+            <textarea id="itinText" placeholder="Your itinerary will appear here…"></textarea>
+          </div>
         </div>
       </div>
 
-      <div class="fav-right">
-        <div class="mapBox">
+      <!-- RIGHT: sticky persistent map -->
+      <aside class="favRight">
+        <div class="favMapSticky">
           <div id="favoritesMap"></div>
+          <div class="legend" id="favoritesLegend"></div>
         </div>
-      </div>
+      </aside>
     </div>
-  </section>
+  </div>
+</section>
 
-  <!-- Our Data -->
+
+
+  <!-- Our Data (ADDED earlier, preserved) -->
   <section id="ourDataPanel" aria-hidden="true" role="dialog" aria-label="About our data">
     <div class="overlayHeader">
       <strong>Our Data</strong>
@@ -326,7 +379,7 @@
     </div>
   </section>
 
-  <!-- Card template -->
+  <!-- Card template (kept) -->
   <template id="cardTemplate">
     <article class="card">
       <span class="badge"></span>
@@ -341,6 +394,7 @@
           <div class="more-body">
             <div class="icons"></div>
             <p class="desc"></p>
+            <!-- stats table injected here -->
           </div>
         </details>
       </div>
@@ -356,7 +410,7 @@
   </footer>
 
   <script>
-    /* ---------- Label maps ---------- */
+    /* ---------------- Label Maps (kept) ---------------- */
     const CATEGORY_LABELS = {
       generalhistory: 'General History', localhistory: 'Local History', indigenous: 'Indigenous History',
       militaryhistory: 'Military History', civilrights: 'Civil Rights', industrialhistory: 'Industrial History',
@@ -364,18 +418,20 @@
       naturalhistory: 'Natural History', technologyandtransportation: 'Science & Technology', historichomes: 'Historic Homes',
       foodanddrink: 'Food & Drink', other: 'Other'
     };
+
     const PERIOD_LABELS = {
       prehistoric:'Prehistoric', colonial:'18th Century', eighteenthcentury:'18th Century', nineteenthcentury:'19th Century',
       twentiethcentury:'20th Century', industrialrevolution:'Industrial Era', modernhistory:'Modern History',
       indigenous:'Indigenous', other:'Other'
     };
+
     const SITETYPE_LABELS = {
       museums:'Museum', museum:'Museum', landmark:'Landmark', historichome:'Historical Home', historichomes:'Historical Home',
       archaeological:'Archaeological', archeological:'Archaeological', burial:'Burial', religious:'Religious', political:'Political',
-      industrial:'Industrial', other:'Outdoor'
+      industrial:'Industrial', other:'Outdoor' // fallback
     };
 
-    /* ---------- State ---------- */
+    /* ---------------- Global State (kept + additions) ---------------- */
     const state = {
       rawSites: [],
       rawTours: [],
@@ -385,11 +441,23 @@
       city: '',
       geoloc: null,
       filters: { siteTypes:new Set(), periods:new Set(), tags:new Set() },
-      sort: localStorage.getItem('traipse:sort') || 'best',
-      trips: JSON.parse(localStorage.getItem('traipse:trips') || 'null') || { activeId:'default', lists:{ default:{ name:'My Trip', items:[] } } }
+      sort: localStorage.getItem('traipse:sort') || 'best'
     };
-    function saveTrips(){ localStorage.setItem('traipse:trips', JSON.stringify(state.trips)); }
+    // === Trip Creator state ===
+      state.trips = JSON.parse(localStorage.getItem('traipse:trips')||'null');
+      if(!state.trips){
+        state.trips = { activeId: 'default', lists: { default: { name: 'My Trip', items: [] } } };
+        localStorage.setItem('traipse:trips', JSON.stringify(state.trips));
+      }
+      state.hidden = state.hidden || new Set(JSON.parse(localStorage.getItem('traipse:hidden')||'[]'));
+      state.notes  = state.notes  || JSON.parse(localStorage.getItem('traipse:notes')||'{}');
+      
+      function saveTrips(){ localStorage.setItem('traipse:trips', JSON.stringify(state.trips)); }
+      function saveHidden(){ localStorage.setItem('traipse:hidden', JSON.stringify(Array.from(state.hidden))); }
+      function saveNotes(){ localStorage.setItem('traipse:notes', JSON.stringify(state.notes)); }
 
+
+    // More Filters (kept)
     const MORE_FILTERS = {
       spanishtranslations: 'Spanish translations',
       paymentmethod: 'Cash/Credit',
@@ -405,125 +473,36 @@
       adaaccessibility: 'ADA accessibility'
     };
 
-    /* ---------- Helpers ---------- */
-    const resolveImage = p => !p ? '' : /^https?:\/\//i.test(p) ? p : (p.startsWith('./')||p.startsWith('images/') ? p : `images/${p}`);
+    /* ---------------- Helpers (kept + additions) ---------------- */
+    const resolveImage = (p)=>{
+      if(!p) return '';
+      if(/^https?:\/\//i.test(p)) return p;
+      return p.startsWith('./') || p.startsWith('images/') ? p : `images/${p}`;
+    };
+
+    function haversine(a, b){
+      const toRad = d => d*Math.PI/180;
+      const R=6371; // km
+      const dLat = toRad(b.lat-a.lat), dLng = toRad(b.lng-a.lng);
+      const s = Math.sin(dLat/2)**2 + Math.cos(toRad(a.lat))*Math.cos(toRad(b.lat))*Math.sin(dLng/2)**2;
+      return 2*R*Math.asin(Math.sqrt(s));
+    }
     const kmToMiles = km => km*0.621371;
     const formatMiles = m => !isFinite(m) ? '' : (m<0.2? `${(m*5280).toFixed(0)} ft away` : (m<10? `${m.toFixed(1)} mi away` : `${Math.round(m)} mi away`));
-    function haversine(a, b){ const toRad=d=>d*Math.PI/180, R=6371, dLat=toRad(b.lat-a.lat), dLng=toRad(b.lng-a.lng); const s=Math.sin(dLat/2)**2+Math.cos(toRad(a.lat))*Math.cos(toRad(b.lat))*Math.sin(dLng/2)**2; return 2*R*Math.asin(Math.sqrt(s)); }
-    function distanceFromUser(it){
-      if(!state.geoloc) return Infinity;
-      const pos = state.geoloc;
-      let target=null;
-      if(it.type==='Tour'){ if(it.center) target=it.center; }
-      else{ const {lat,lng}=it.raw||{}; if(typeof lat==='number'&&typeof lng==='number') target={lat,lng}; }
-      if(!target) return Infinity;
-      return kmToMiles(haversine({lat:pos.lat,lng:pos.lng}, target));
-    }
+
+    // parse a numeric-ish cost for sorting (Free=0, $=1, $$=2, $$$=3), fallbacks if numeric present
     function costRank(it){
       const c = (it.costText || it.raw?.Cost || '').toString().trim().toLowerCase();
       if(!c) return 999;
       if(c.includes('free') || c==='$0' || c==='0') return 0;
-      const d = c.match(/\${1,4}/); if(d) return d[0].length;
-      const n = parseFloat(c.replace(/[^0-9.]/g,'')); return isNaN(n)?999:n;
+      const dollarMatch = c.match(/\${1,4}/);
+      if(dollarMatch) return dollarMatch[0].length;
+      const num = parseFloat(c.replace(/[^0-9.]/g,''));
+      if(!isNaN(num)) return num; // numeric price if available
+      return 999;
     }
 
-    /* ---------- Normalizers ---------- */
-    function normalizeSite(raw){
-      const periods = (raw.timeperiod||[]).map(p => PERIOD_LABELS[p]||p);
-      const siteTypeSlug = (raw.sitetype||'').toLowerCase();
-      const siteType = SITETYPE_LABELS[siteTypeSlug] || (raw.type==='outdoor' ? 'Outdoor' : SITETYPE_LABELS.other);
-      return {
-        id: raw.id || (raw.name||'').toLowerCase().replace(/[^a-z0-9]+/g,'-'),
-        name: raw.name,
-        type: 'Site',
-        image: raw.image,
-        website: raw.website && raw.website!=='notavailable' ? raw.website : '',
-        categories: (raw.thematiccategory||[]).map(c => CATEGORY_LABELS[c]||c),
-        siteType,
-        periods,
-        description: raw.description||'',
-        costText: raw.dollaramount && !['0','$0','-'].includes(String(raw.dollaramount).trim()) ? String(raw.dollaramount) : (raw.cost==='free'?'Free': (raw.cost==='paid'?'Paid':'')),
-        durationText: raw.estimatedtime || '',
-        city: (raw.city||'').toLowerCase(),
-        raw
-      };
-    }
-    function normalizeTour(raw){
-      let center=null;
-      if(Array.isArray(raw.route) && raw.route.length){
-        const lat = raw.route.reduce((a,b)=>a+b.lat,0)/raw.route.length;
-        const lng = raw.route.reduce((a,b)=>a+b.lng,0)/raw.route.length;
-        center = {lat,lng};
-      }else if(Array.isArray(raw.sites) && raw.sites.length){
-        center = {lat: raw.sites[0].lat, lng: raw.sites[0].lng};
-      }
-      return {
-        id: raw.tour_id || (raw.tour_name||'').toLowerCase().replace(/[^a-z0-9]+/g,'-'),
-        name: raw.tour_name,
-        type: 'Tour',
-        image: raw.image,
-        website: '',
-        categories: [CATEGORY_LABELS[raw.thematiccategory]||raw.thematiccategory||'General'],
-        siteType: 'Tour',
-        periods: [],
-        description: `${raw.duration||''} • ${raw.Cost||''}`.trim(),
-        durationText: raw.duration || '',
-        color: '#e11d48',
-        center,
-        raw
-      };
-    }
-
-    /* ---------- Filters UI ---------- */
-    function addCheckbox(wrap, bucket, value, label){
-      const id = `${bucket}-${value.replace(/[^a-z0-9]+/gi,'-')}-${wrap.id}`;
-      const el = document.createElement('label');
-      el.innerHTML = `<input type="checkbox" id="${id}"> <span>${label}</span>`;
-      const input = el.querySelector('input');
-      input.addEventListener('change', ()=>{
-        const set = state.filters[bucket];
-        if(input.checked) set.add(value); else set.delete(value);
-        const source = wrap.id.endsWith('Map') ? 'map' : 'main';
-        syncFilterUIs(source);
-        render();
-      });
-      wrap.appendChild(el);
-    }
-    function buildFilters(target){
-      const items = state.items;
-      const siteTypes = Array.from(new Set(items.map(i=>i.siteType).filter(Boolean))).filter(t=>t!=='Tour').sort();
-      const periodsSet = new Set(); items.forEach(i=> (i.periods||[]).forEach(p=>periodsSet.add(p)));
-      const periods = Array.from(periodsSet).sort();
-      const siteWrap = document.getElementById(`siteTypeFilters${target}`);
-      const perWrap  = document.getElementById(`periodFilters${target}`);
-      const moreWrap = document.getElementById(`moreFilters${target}`);
-      siteWrap.innerHTML = perWrap.innerHTML = moreWrap.innerHTML = '';
-      siteTypes.forEach(label=>addCheckbox(siteWrap,'siteTypes',label,label));
-      periods.forEach(p=>addCheckbox(perWrap,'periods',p,p));
-      Object.entries(MORE_FILTERS).forEach(([k,v])=>addCheckbox(moreWrap,'tags',k,v));
-    }
-    function syncFilterUIs(source){
-      const main = document.getElementById('filtersPanelMain');
-      const mapP = document.getElementById('filtersPanelMap');
-      const getCheckedLabels = panel => {
-        const s = new Set();
-        panel.querySelectorAll('input[type="checkbox"]').forEach(cb=>{
-          const label = cb.nextElementSibling?.textContent?.trim();
-          if(cb.checked && label) s.add(label);
-        });
-        return s;
-      };
-      const setByLabels = (panel, selected) => {
-        panel.querySelectorAll('input[type="checkbox"]').forEach(cb=>{
-          const label = cb.nextElementSibling?.textContent?.trim();
-          cb.checked = selected.has(label);
-        });
-      };
-      if(source==='map'){ setByLabels(main, getCheckedLabels(mapP)); }
-      else{ setByLabels(mapP, getCheckedLabels(main)); }
-    }
-
-    /* ---------- Cards ---------- */
+    /* ---------------- Determine tag matches (kept) ---------------- */
     function hasTag(it, key){
       const r = it.raw||{};
       switch(key){
@@ -542,26 +521,164 @@
         default: return !!r[key];
       }
     }
+
     function scoreMatches(it){
       let score = 0;
       if(state.filters.siteTypes.size && state.filters.siteTypes.has(it.siteType)) score++;
-      if(state.filters.periods.size){ (it.periods||[]).forEach(p=>{ if(state.filters.periods.has(p)) score++; }); }
-      if(state.filters.tags.size){ for(const key of state.filters.tags){ if(hasTag(it,key)) score++; } }
+      if(state.filters.periods.size){
+        (it.periods||[]).forEach(p=>{ if(state.filters.periods.has(p)) score++; });
+      }
+      if(state.filters.tags.size){
+        for(const key of state.filters.tags){ if(hasTag(it,key)) score++; }
+      }
       return score;
     }
-    function costBadgeHTML(it){
-      const c = (it.costText || it.raw?.Cost || '').toString().trim();
-      if(!c) return '';
-      const free = /free|\$?0\b/i.test(c);
-      return `<span class="cost-badge ${free?'free':''}">${free?'FREE':c}</span>`;
+
+    function distanceFromUser(it){
+      if(!state.geoloc) return Infinity;
+      const pos = state.geoloc;
+      let target = null;
+      if(it.type==='Tour'){
+        if(it.center){ target = it.center; }
+      }else{
+        const {lat,lng}=it.raw||{}; if(typeof lat==='number'&&typeof lng==='number'){ target={lat,lng}; }
+      }
+      if(!target) return Infinity;
+      return kmToMiles(haversine({lat:pos.lat,lng:pos.lng}, target));
     }
+
+    /* ---------------- Normalization (kept) ---------------- */
+    function normalizeSite(raw){
+      const periods = (raw.timeperiod||[]).map(p => PERIOD_LABELS[p]||p);
+      const siteTypeSlug = (raw.sitetype||'').toLowerCase();
+      const siteType = SITETYPE_LABELS[siteTypeSlug] || (raw.type==='outdoor' ? 'Outdoor' : (SITETYPE_LABELS.other));
+      return {
+        id: raw.id || (raw.name||'').toLowerCase().replace(/[^a-z0-9]+/g,'-'),
+        name: raw.name,
+        type: 'Site',
+        image: raw.image,
+        website: raw.website && raw.website!=='notavailable' ? raw.website : '',
+        categories: (raw.thematiccategory||[]).map(c => CATEGORY_LABELS[c]||c),
+        siteType,
+        periods,
+        description: raw.description||'',
+        costText: raw.dollaramount && !['0','$0','-'].includes(String(raw.dollaramount).trim()) ? String(raw.dollaramount) : (raw.cost==='free'?'Free': (raw.cost==='paid'?'Paid':'')),
+        durationText: raw.estimatedtime || '',
+        city: (raw.city||'').toLowerCase(),
+        raw
+      };
+    }
+
+    function normalizeTour(raw){
+      let center=null;
+      if(Array.isArray(raw.route) && raw.route.length){
+        const lat = raw.route.reduce((a,b)=>a+b.lat,0)/raw.route.length;
+        const lng = raw.route.reduce((a,b)=>a+b.lng,0)/raw.route.length;
+        center = {lat,lng};
+      }else if(Array.isArray(raw.sites) && raw.sites.length){
+        center = {lat: raw.sites[0].lat, lng: raw.sites[0].lng};
+      }
+
+      return {
+        id: raw.tour_id || (raw.tour_name||'').toLowerCase().replace(/[^a-z0-9]+/g,'-'),
+        name: raw.tour_name,
+        type: 'Tour',
+        image: raw.image,
+        website: '',
+        categories: [CATEGORY_LABELS[raw.thematiccategory]||raw.thematiccategory||'General'],
+        siteType: 'Tour',
+        periods: [],
+        description: `${raw.duration||''} • ${raw.Cost||''}`.trim(),
+        durationText: raw.duration || '',
+        color: '#e11d48',
+        center,
+        raw
+      };
+    }
+
+    /* ---------------- Filters UI (kept) ---------------- */
+    function addCheckbox(wrap, bucket, value, label){
+      const id = `${bucket}-${value.replace(/[^a-z0-9]+/gi,'-')}-${wrap.id}`;
+      const el = document.createElement('label');
+      el.innerHTML = `<input type="checkbox" id="${id}"> <span>${label}</span>`;
+      const input = el.querySelector('input');
+      input.addEventListener('change', ()=>{
+        const set = state.filters[bucket];
+        if(input.checked) set.add(value); else set.delete(value);
+
+        const source = wrap.id.endsWith('Map') ? 'map' : 'main';
+        syncFilterUIs(source);
+        render();
+      });
+      wrap.appendChild(el);
+    }
+
+    function buildFilters(target){
+      const items = state.items;
+      const siteTypes = Array.from(new Set(items.map(i=>i.siteType).filter(Boolean))).filter(t=>t!=='Tour').sort();
+      const periodsSet = new Set();
+      items.forEach(i=> (i.periods||[]).forEach(p=>periodsSet.add(p)));
+      const periods = Array.from(periodsSet).sort();
+
+      const siteWrap = document.getElementById(`siteTypeFilters${target}`);
+      const perWrap  = document.getElementById(`periodFilters${target}`);
+      const moreWrap = document.getElementById(`moreFilters${target}`);
+      siteWrap.innerHTML = perWrap.innerHTML = moreWrap.innerHTML = '';
+
+      siteTypes.forEach(label=>addCheckbox(siteWrap,'siteTypes',label,label));
+      periods.forEach(p=>addCheckbox(perWrap,'periods',p,p));
+      Object.entries(MORE_FILTERS).forEach(([k,v])=>addCheckbox(moreWrap,'tags',k,v));
+    }
+
+    function syncFilterUIs(source){
+      const main = document.getElementById('filtersPanelMain');
+      const mapP = document.getElementById('filtersPanelMap');
+
+      const getCheckedWithLabels = (panel) => {
+        const res = new Set();
+        panel.querySelectorAll('input[type="checkbox"]').forEach(cb=>{
+          const label = cb.nextElementSibling?.textContent?.trim();
+          if(cb.checked && label) res.add(label);
+        });
+        return res;
+      };
+      const setToByLabels = (panel, selected) => {
+        panel.querySelectorAll('input[type="checkbox"]').forEach(cb=>{
+          const label = cb.nextElementSibling?.textContent?.trim();
+          cb.checked = selected.has(label);
+        });
+      };
+
+      if(source==='map'){
+        setToByLabels(main, getCheckedWithLabels(mapP));
+      }else{
+        setToByLabels(mapP, getCheckedWithLabels(main));
+      }
+    }
+
+    /* ---------------- Chips / Cards (extended) ---------------- */
+    function filterChips(it){
+      const chips=[];
+      if(state.filters.siteTypes.size && state.filters.siteTypes.has(it.siteType)) chips.push(it.siteType);
+      if(state.filters.periods.size){ (it.periods||[]).forEach(p=>{ if(state.filters.periods.has(p)) chips.push(p); }); }
+      if(state.filters.tags.size){
+        Object.entries(MORE_FILTERS).forEach(([k,label])=>{
+          if(state.filters.tags.has(k) && hasTag(it,k)) chips.push(label);
+        });
+      }
+      return chips;
+    }
+
+    // Build the Stats table HTML for an item (kept)
     function buildStatsTableHTML(it){
       const r = it.raw||{};
       const yesNo = v => v===undefined || v===null ? '—' : (v ? 'Yes' : 'No');
+
       const foodOnsite = !!(r.diningonsite || r.diningonsite2);
       const transitOk = (r.transit||'').toLowerCase()==='underhalfamilefromtransit';
       const payMethod = (r.paymentmethod||'').toLowerCase()==='both' ? 'Cash & credit' :
                         (r.paymentmethod||'') ? String(r.paymentmethod) : '—';
+
       const rowsSite = [
         ['Hours', r.hours||'—'],
         ['Cost', it.costText || '—'],
@@ -577,6 +694,7 @@
         ['Public access', yesNo(r.publicaccess)],
         ['Payment method', payMethod]
       ];
+
       const rowsTour = [
         ['Duration', it.durationText || '—'],
         ['# of sites', r.number_of_sites || '—'],
@@ -585,15 +703,70 @@
         ['Seasonal', yesNo(r.seasonal)],
         ['Group type', r.group_type || '—']
       ];
+
       const rows = it.type==='Tour' ? rowsTour : rowsSite;
       const tr = rows.map(([k,v])=>`<tr><th>${k}</th><td>${v}</td></tr>`).join('');
       return `<table class="stats" aria-label="Details"><tbody>${tr}</tbody></table>`;
     }
+
+    function costBadgeHTML(it){
+      const c = (it.costText || it.raw?.Cost || '').toString().trim();
+      if(!c) return '';
+      const free = /free|\$?0\b/i.test(c);
+      return `<span class="cost-badge ${free?'free':''}">${free?'FREE':c}</span>`;
+    }
+
+    function cardHTML(it, score, distMiles, asPopup=false){
+      const chips = filterChips(it);
+      const chipHtml = chips.map(c=>`<span class="chip hit">${c}</span>`).join('');
+      const metaBits=[];
+      // cost badge visible up front (requested); keep existing meta intact too
+      const costBadge = costBadgeHTML(it);
+      if(costBadge) metaBits.push(costBadge);
+      if(it.categories?.length){ metaBits.push(it.categories.join(', ')); }
+      if(it.periods?.length){ metaBits.push(it.periods[0]); }
+      const distanceText = formatMiles(distMiles);
+      if(distanceText) metaBits.push(distanceText);
+      const img = resolveImage(it.image) || 'images/default.jpg';
+
+      const links = [];
+      if(it.website){ links.push(`<a href="${it.website}" target="_blank" rel="noopener">🌐 <span>Website</span></a>`); }
+      if(it.type==='Tour' && it.raw?.external_links){
+        for(const [name,url] of Object.entries(it.raw.external_links)){ links.push(`<a href="${url}" target="_blank" rel="noopener">🔗 <span>${name}</span></a>`); }
+      }
+      const openCard = `<a href="#card-${it.id}" onclick="document.getElementById('closeMap').click(); setTimeout(()=>{document.getElementById('card-${it.id}')?.scrollIntoView({behavior:'smooth',block:'start'});},150); return false;">Open card</a>`;
+
+      const stats = buildStatsTableHTML(it);
+
+      return `
+        <article class="card ${asPopup?'popup-card':''}" id="card-${it.id}">
+          <span class="badge">${it.type||'Site'}</span>
+          <button class="fav${state.favorites.has(it.id)?' active':''}" aria-label="Save" data-id="${it.id}">
+            <svg viewBox="0 0 24 24"><path d="M12 21s-7-4.35-7-10a4 4 0 0 1 7-2 4 4 0 0 1 7 2c0 5.65-7 10-7 10z"/></svg>
+          </button>
+          <img class="img" src="${img}" alt="${it.name} image" onerror="this.src='images/default.jpg'"/>
+          <div class="inner">
+            <h3 class="title">${it.name}</h3>
+            <div class="meta">${metaBits.join(' • ')}</div>
+            <div class="chipbar">${chipHtml}</div>
+            <details class="more">
+              <summary><span>More Info</span></summary>
+              <div class="more-body">
+                <div class="icons">${[...links, openCard].join(' ')}</div>
+                <p class="desc">${it.description||''}</p>
+                ${stats}
+              </div>
+            </details>
+          </div>
+        </article>`;
+    }
+
     function buildCardNode(it, score, distMiles){
       const tpl = document.getElementById('cardTemplate');
       const node = tpl.content.cloneNode(true);
       const root = node.querySelector('.card');
       root.id = 'card-'+it.id;
+
       node.querySelector('.badge').textContent = it.type || 'Site';
 
       const fav = node.querySelector('.fav');
@@ -602,12 +775,14 @@
       fav.addEventListener('click', (e)=>{ e.stopPropagation(); toggleFavorite(it.id); });
 
       const img = node.querySelector('.img');
-      img.src = resolveImage(it.image) || 'images/default.jpg';
+      const requested = resolveImage(it.image);
+      img.src = requested || 'images/default.jpg';
       img.alt = `${it.name} image`;
       img.onerror = ()=>{ img.src = 'images/default.jpg'; };
 
       node.querySelector('.title').textContent = it.name;
 
+      // meta row + cost badge
       const metaBits=[];
       const costBadge = costBadgeHTML(it);
       if(costBadge) metaBits.push(costBadge);
@@ -617,22 +792,21 @@
       if(distanceText) metaBits.push(distanceText);
       node.querySelector('.meta').innerHTML = metaBits.join(' • ');
 
+      // chips with hit class if they came from active filters
       const chipbar = node.querySelector('.chipbar');
-      const chips = [];
-      if(state.filters.siteTypes.size && state.filters.siteTypes.has(it.siteType)) chips.push(it.siteType);
-      if(state.filters.periods.size){ (it.periods||[]).forEach(p=>{ if(state.filters.periods.has(p)) chips.push(p); }); }
-      if(state.filters.tags.size){
-        Object.entries(MORE_FILTERS).forEach(([k,label])=>{
-          if(state.filters.tags.has(k) && hasTag(it,k)) chips.push(label);
-        });
-      }
+      const chips = filterChips(it);
       chips.forEach(c=>{ const s=document.createElement('span'); s.className='chip hit'; s.textContent=c; chipbar.appendChild(s); });
 
       const icons = node.querySelector('.icons');
       const links=[];
       if(it.website){ links.push(`<a href="${it.website}" target="_blank" rel="noopener">🌐 <span>Website</span></a>`); }
-      icons.innerHTML = links.join(' ') || '';
+      if(it.type==='Tour' && it.raw?.external_links){
+        for(const [name,url] of Object.entries(it.raw.external_links)){ links.push(`<a href="${url}" target="_blank" rel="noopener">🔗 <span>${name}</span></a>`); }
+      }
+      icons.innerHTML = links.join(' ');
+      node.querySelector('.desc').textContent = it.description||'';
 
+      // stats
       const moreBody = root.querySelector('.more-body');
       const statsDiv = document.createElement('div');
       statsDiv.innerHTML = buildStatsTableHTML(it);
@@ -641,347 +815,326 @@
       return node;
     }
 
-    /* ---------- Favorites & trips ---------- */
-    function itemById(id){ return state.items.find(x=>x.id===id); }
-    function toggleFavorite(id){
-      const adding = !state.favorites.has(id);
-      if(adding) state.favorites.add(id); else state.favorites.delete(id);
-      localStorage.setItem('traipse:favorites', JSON.stringify(Array.from(state.favorites)));
-      document.querySelectorAll(`.fav[data-id="${id}"]`).forEach(b=>b.classList.toggle('active', state.favorites.has(id)));
-      // also add to current trip when saving
-      if (adding) {
-        const list = state.trips.lists[state.trips.activeId];
-        if (list && !list.items.includes(id)) { list.items.push(id); saveTrips(); }
-      }
-      if (favoritesOpen) { renderFavorites(); renderFavoritesMap(); }
-    }
-
-    function ensureTripSelect(){
-      const sel = document.getElementById('tripSelect');
-      if (!sel) return;
-      if (!state.trips || !state.trips.lists) {
-        state.trips = { activeId:'default', lists:{ default:{ name:'My Trip', items:[] } } };
-        saveTrips();
-      }
-      sel.innerHTML = '';
-      Object.entries(state.trips.lists).forEach(([id, list])=>{
-        const opt = document.createElement('option');
-        opt.value = id; opt.textContent = list?.name || 'My Trip';
-        if(id === state.trips.activeId) opt.selected = true;
-        sel.appendChild(opt);
-      });
-      sel.onchange = ()=>{
-        state.trips.activeId = sel.value;
-        saveTrips();
-        renderFavorites();
-        renderFavoritesMap();
-      };
-    }
-
-    function newTrip(){
-      const name = prompt('Trip name?','New Trip'); if(!name) return;
-      const id = name.toLowerCase().replace(/[^a-z0-9]+/g,'-')+'-'+Date.now().toString(36);
-      state.trips.lists[id] = { name, items: [] };
-      state.trips.activeId = id; saveTrips(); ensureTripSelect(); renderFavorites(); renderFavoritesMap();
-    }
-    function renameTrip(){
-      const id = state.trips.activeId; const cur = state.trips.lists[id]; if(!cur) return;
-      const name = prompt('Rename trip:', cur.name); if(!name) return;
-      cur.name = name; saveTrips(); ensureTripSelect();
-    }
-    function deleteTrip(){
-      const id = state.trips.activeId;
-      if(id==='default'){ alert('Cannot delete default trip.'); return; }
-      if(!confirm('Delete this trip? Items remain in your Favorites.')) return;
-      delete state.trips.lists[id]; state.trips.activeId = 'default'; saveTrips(); ensureTripSelect(); renderFavorites(); renderFavoritesMap();
-    }
-    function addIdsToActiveTrip(ids){
-      const list = state.trips.lists[state.trips.activeId]; if(!list) return 0;
-      let added = 0;
-      ids.forEach(id=>{
-        if(!list.items.includes(id)){ list.items.push(id); added++; }
-        if(!state.favorites.has(id)) state.favorites.add(id);
-      });
-      localStorage.setItem('traipse:favorites', JSON.stringify(Array.from(state.favorites)));
-      saveTrips();
-      return added;
-    }
-    function removeFromTrip(id){
-      const list = state.trips.lists[state.trips.activeId]; if(!list) return;
-      list.items = list.items.filter(x=>x!==id);
-      saveTrips();
-    }
-
-    /* ---------- My Places UI ---------- */
-    let favoritesOpen = false;
-    let favoritesMap, favoritesMapLayer;
-
-    function ensureFavoritesMap(){
-      if (favoritesMap) return;
-      favoritesMap = L.map('favoritesMap', { scrollWheelZoom:true });
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution:'&copy; OpenStreetMap contributors' }).addTo(favoritesMap);
-      favoritesMapLayer = L.layerGroup().addTo(favoritesMap);
-      if (L.control && L.control.browserPrint) {
-        L.control.browserPrint({ position:'topleft', title:'Print map' }).addTo(favoritesMap);
-      }
-    }
-    const TYPE_COLORS = {
-      'Museum':'#00cfd4','Landmark':'#00cfd4','Historical Home':'#00cfd4','Archaeological':'#00cfd4',
-      'Religious':'#00cfd4','Industrial':'#00cfd4','Outdoor':'#00cfd4','Burial':'#00cfd4','Political':'#00cfd4'
-    };
-    function siteIconFor(type){
-      const color = TYPE_COLORS[type] || '#00cfd4';
-      return L.divIcon({
-        className:'circle-icon',
-        html:`<div style="width:18px;height:18px;border-radius:50%;background:${color};border:2px solid #fff;box-shadow:0 0 0 2px rgba(0,0,0,.12)"></div>`,
-        iconSize:[22,22], iconAnchor:[11,11]
-      });
-    }
-    function tripItemIds(){
-      const t = state.trips?.lists?.[state.trips?.activeId];
-      return Array.isArray(t?.items) ? t.items.slice() : [];
-    }
-    function tripItems(){
-      return tripItemIds().map(id=>itemById(id)).filter(Boolean);
-    }
-    function renderFavoritesMap(){
-      if (!favoritesMap || !favoritesMapLayer) return;
-      favoritesMapLayer.clearLayers();
-      const items = tripItems();
-      const bounds = [];
-      items.forEach(it => {
-        const r = it.raw || {};
-        const { lat, lng } = r;
-        if (typeof lat === 'number' && typeof lng === 'number'){
-          const m = L.marker([lat, lng], { icon: siteIconFor(it.siteType) }).addTo(favoritesMapLayer);
-          const html = `
-            <article class="card popup-card">
-              <span class="badge">${it.type||'Site'}</span>
-              <button class="fav${state.favorites.has(it.id)?' active':''}" data-id="${it.id}" aria-label="Save">
-                <svg viewBox="0 0 24 24"><path d="M12 21s-7-4.35-7-10a4 4 0 0 1 7-2 4 4 0 0 1 7 2c0 5.65-7 10-7 10z"/></svg>
-              </button>
-              <img class="img" src="${resolveImage(it.image)||'images/default.jpg'}" onerror="this.src='images/default.jpg'" alt="">
-              <div class="inner">
-                <h3 class="title">${it.name}</h3>
-                <div class="meta">${(it.categories||[]).join(', ') || ''}</div>
-              </div>
-            </article>`;
-          m.bindPopup(html);
-          bounds.push([lat, lng]);
+    /* ---------------- Favorites (kept) ---------------- */
+      function toggleFavorite(id){
+        const adding = !state.favorites.has(id);
+        if(adding) state.favorites.add(id); else state.favorites.delete(id);
+        localStorage.setItem('traipse:favorites', JSON.stringify(Array.from(state.favorites)));
+        document.querySelectorAll(`.fav[data-id="${id}"]`).forEach(b=>b.classList.toggle('active', state.favorites.has(id)));
+      
+        // Auto-add to active trip when saving
+        if(adding){
+          const list = state.trips.lists[state.trips.activeId];
+          if(list && !list.items.includes(id)) { list.items.push(id); saveTrips(); }
         }
-      });
-      if (bounds.length){
-        favoritesMap.fitBounds(bounds, { padding:[30,30] });
-      } else {
-        favoritesMap.setView([39.7392,-104.9903], 11);
-      }
-      setTimeout(() => favoritesMap.invalidateSize(), 60);
-    }
-
-    function renderFavorites(){
-      ensureTripSelect();
-      const listEl = document.getElementById('favoritesList');
-      const poolEl = document.getElementById('favoritesPool');
-
-      // Items IN the selected trip
-      const inTrip = tripItems();
-      listEl.innerHTML = '';
-      if (!inTrip.length){
-        listEl.innerHTML = '<p class="mini">No places in this trip yet. Save places (heart icon) from the main list, or use “Add All Favorites to Trip”, or pick from Favorites below.</p>';
-      } else {
-        inTrip.forEach(it=>{
-          const row = document.createElement('div');
-          row.className = 'fav-item';
-          const img = (it.image ? it.image : 'images/default.jpg');
-          row.innerHTML = `
-            <img class="fav-thumb" src="${img}" onerror="this.src='images/default.jpg'" alt="">
-            <div>
-              <div class="fav-title">${it.name}</div>
-              <div class="fav-meta">
-                ${(it.type||'Site')} • ${(it.categories||[]).join(', ') || '—'}
-                ${it.durationText? ' • ⏱ '+it.durationText : ''}
-                ${it.costText? ' • '+it.costText : ''}
-              </div>
-            </div>
-            <div class="fav-acts">
-              <button class="x" data-act="remove" data-id="${it.id}">Remove from Trip</button>
-            </div>
-          `;
-          listEl.appendChild(row);
-        });
+        if(favoritesOpen) renderFavorites();
       }
 
-      // Pool = Favorites NOT yet in this trip
-      const idsInTrip = new Set(tripItemIds());
-      const poolIds = Array.from(state.favorites).filter(id => !idsInTrip.has(id));
-      const picker = document.getElementById('favoritesPicker');
-      poolEl.innerHTML = '';
-      if (!poolIds.length){
-        if (picker) picker.open = false;
-      } else {
-        if (picker && !picker.hasAttribute('open')) picker.open = true;
-        poolIds
-          .map(id=>itemById(id))
-          .filter(Boolean)
-          .forEach(it=>{
-            const row = document.createElement('div');
-            row.className = 'fav-item';
-            const img = (it.image ? it.image : 'images/default.jpg');
-            row.innerHTML = `
-              <img class="fav-thumb" src="${img}" onerror="this.src='images/default.jpg'" alt="">
-              <div>
-                <div class="fav-title">${it.name}</div>
-                <div class="fav-meta">
-                  ${(it.type||'Site')} • ${(it.categories||[]).join(', ') || '—'}
-                  ${it.durationText? ' • ⏱ '+it.durationText : ''}
-                  ${it.costText? ' • '+it.costText : ''}
+
+        function renderFavorites(){
+          ensurePersistence();
+          ensureTripSelect();
+        
+          const listEl = document.getElementById('favoritesList');
+          const hiddenEl = document.getElementById('hiddenList');
+        
+          const active = state.trips.lists[state.trips.activeId];
+          // Trip shows its own items; if empty, fall back to all favorites
+          const ids = (active?.items?.length ? active.items : Array.from(state.favorites));
+        
+          const items = ids
+            .map(id=>itemById(id))
+            .filter(Boolean);
+        
+          const visible = items.filter(it=>!state.hidden.has(it.id))
+            .map(it => ({it,score:scoreMatches(it),dist:distanceFromUser(it)}))
+            .sort((a,b)=> b.score-a.score || a.dist-b.dist);
+        
+          listEl.innerHTML = '';
+          if(!visible.length){
+            listEl.innerHTML = '<p class="mini">No saved places yet. Tap the heart on any card or use “Add All Favorites to Trip”.</p>';
+          } else {
+            visible.forEach(({it,dist})=>{
+              const row = document.createElement('div');
+              row.className = 'fav-item';
+              const img = (it.image ? it.image : 'images/default.jpg');
+              row.innerHTML = `
+                <img class="fav-thumb" src="${img}" onerror="this.src='images/default.jpg'" alt="">
+                <div>
+                  <div class="fav-title">${it.name}</div>
+                  <div class="fav-meta">
+                    ${(it.type||'Site')} • ${(it.categories||[]).join(', ') || '—'}
+                    ${it.durationText? ' • ⏱ '+it.durationText : ''}
+                    ${it.costText? ' • '+it.costText : ''}
+                    ${isFinite(dist)&&dist!==Infinity? ' • '+(dist<0.2? (dist*5280).toFixed(0)+' ft' : dist.toFixed(1)+' mi'):''}
+                  </div>
                 </div>
-              </div>
-              <div class="fav-acts">
-                <button class="x" data-act="add" data-id="${it.id}">Add to Trip</button>
-              </div>
-            `;
-            poolEl.appendChild(row);
-          });
+                <div class="fav-acts">
+                  <button class="x" data-act="hide" data-id="${it.id}">🙈 Hide</button>
+                  <button class="x" data-act="remove" data-id="${it.id}">❌ Remove</button>
+                </div>
+              `;
+              listEl.appendChild(row);
+            });
+          }
+        
+          // Hidden list
+          const hidden = items.filter(it=>state.hidden.has(it.id));
+          hiddenEl.innerHTML = '';
+          if(hidden.length){
+            document.getElementById('hiddenDrawer').style.display='block';
+            hidden.forEach(it=>{
+              const row = document.createElement('div');
+              row.className = 'fav-item';
+              row.innerHTML = `
+                <img class="fav-thumb" src="${it.image||'images/default.jpg'}" onerror="this.src='images/default.jpg'" alt="">
+                <div><div class="fav-title">${it.name}</div><div class="mini">Hidden</div></div>
+                <div class="fav-acts"><button class="x" data-act="restore" data-id="${it.id}">⤴ Restore</button></div>
+              `;
+              hiddenEl.appendChild(row);
+            });
+          } else {
+            document.getElementById('hiddenDrawer').style.display='none';
+          }
+        
+          // Delegated actions
+          listEl.querySelectorAll('[data-act="remove"]').forEach(b=> b.onclick = ()=> removeFromTrip(b.dataset.id));
+          listEl.querySelectorAll('[data-act="hide"]').forEach(b=> b.onclick = ()=> hideItem(b.dataset.id));
+          hiddenEl.querySelectorAll('[data-act="restore"]').forEach(b=> b.onclick = ()=> restoreItem(b.dataset.id));
+        }
+
+              /* ========== FAVORITES MAP (saved-only) ========== */
+              /* ===== FAVORITES MAP: persistent, saved-only ===== */
+              let favoritesMap, favoritesMapLayer;
+              
+              function ensureFavoritesMap(){
+                if (favoritesMap) return;
+              
+                const node = document.getElementById('favoritesMap');
+                if (!node) return;
+              
+                favoritesMap = L.map('favoritesMap', { scrollWheelZoom:true });
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                  attribution:'&copy; OpenStreetMap contributors'
+                }).addTo(favoritesMap);
+              
+                favoritesMapLayer = L.layerGroup().addTo(favoritesMap);
+              
+                // Print control (already included via leaflet.browser.print)
+                if (L.control && L.control.browserPrint) {
+                  L.control.browserPrint({ position:'topleft', title:'Print map' }).addTo(favoritesMap);
+                }
+              
+                buildFavoritesLegend();
+              
+                // help the map size itself the first time
+                setTimeout(()=> favoritesMap.invalidateSize(), 120);
+              }
+              
+              function buildFavoritesLegend(){
+                const legend = document.getElementById('favoritesLegend');
+                if(!legend) return;
+                legend.innerHTML = '<strong>Legend</strong>';
+                Object.entries(TYPE_COLORS).forEach(([label,color])=>{
+                  const row = document.createElement('div');
+                  row.className='legend-row';
+                  row.innerHTML = `<span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:${color};border:2px solid #fff;box-shadow:0 0 0 2px rgba(0,0,0,.12)"></span> <span>${label}</span>`;
+                  legend.appendChild(row);
+                });
+              }
+              
+              function savedItemsForActiveTrip(){
+                const active = state.trips?.lists?.[state.trips?.activeId];
+                const ids = (active?.items?.length ? active.items : Array.from(state.favorites));
+                return ids
+                  .map(id => itemById(id))
+                  .filter(Boolean)
+                  .filter(it => !state.hidden?.has?.(it.id));
+              }
+              
+              function renderFavoritesMap(){
+                if (!favoritesMap || !favoritesMapLayer) return;
+              
+                favoritesMapLayer.clearLayers();
+                const items = savedItemsForActiveTrip();
+              
+                const bounds = [];
+                items.forEach(it => {
+                  const r = it.raw || {};
+                  const { lat, lng } = r;
+                  if (typeof lat === 'number' && typeof lng === 'number'){
+                    const m = L.marker([lat, lng], { icon: siteIconFor(it.siteType) }).addTo(favoritesMapLayer);
+                    // reuse card popup
+                    m.bindPopup(cardHTML(it, scoreMatches(it), distanceFromUser(it), true));
+                    bounds.push([lat, lng]);
+                  }
+                });
+              
+                if (bounds.length){
+                  favoritesMap.fitBounds(bounds, { padding:[30,30] });
+                } else {
+                  favoritesMap.setView([39.7392,-104.9903], 11); // sensible default
+                }
+              
+                setTimeout(() => favoritesMap.invalidateSize(), 60);
+              }
+
+          
+
+
+      function ensurePersistence(){
+        // Make sure favorites is a Set
+        if (!(state.favorites instanceof Set)) {
+          try {
+            state.favorites = new Set(JSON.parse(localStorage.getItem('traipse:favorites') || '[]'));
+          } catch {
+            state.favorites = new Set();
+            localStorage.setItem('traipse:favorites','[]');
+          }
+        }
+      
+        // Make sure trips object exists with a default list
+        if (!state.trips || typeof state.trips !== 'object' ||
+            !state.trips.lists || typeof state.trips.lists !== 'object') {
+          state.trips = { activeId: 'default', lists: { default: { name: 'My Trip', items: [] } } };
+          saveTrips?.();
+        }
+        if (!state.trips.activeId || !state.trips.lists[state.trips.activeId]) {
+          state.trips.activeId = 'default';
+          if (!state.trips.lists.default) state.trips.lists.default = { name: 'My Trip', items: [] };
+          saveTrips?.();
+        }
       }
 
-      // Wire actions
-      listEl.querySelectorAll('[data-act="remove"]').forEach(b=>{
-        b.onclick = ()=>{ removeFromTrip(b.dataset.id); renderFavorites(); renderFavoritesMap(); };
+      let favoritesOpen=false;
+    
+
+function openFavorites(){
+  // Close other overlays so nothing sits above My Places
+  const mapP  = document.getElementById('mapPanel');
+  const dataP = document.getElementById('ourDataPanel');
+  if(mapP)  { mapP.style.display = 'none'; mapP.setAttribute('aria-hidden','true'); }
+  if(dataP) { dataP.style.display = 'none'; dataP.setAttribute('aria-hidden','true'); }
+
+  favoritesOpen = true;
+  ensurePersistence();
+  try { renderFavorites(); } catch(_) {}
+
+  const p = document.getElementById('favoritesPanel');
+  if(p){
+    p.style.display = 'block';
+    p.setAttribute('aria-hidden','false');
+  }
+
+  // NEW: ensure map exists & render its points
+  ensureFavoritesMap();
+  renderFavoritesMap();
+}
+
+
+      function closeFavorites(){
+        favoritesOpen = false;
+        const p = document.getElementById('favoritesPanel');
+        if(p){
+          p.style.display = 'none';
+          p.setAttribute('aria-hidden','true');
+        }
+      }
+      
+      // Primary listeners (will work when JS binds normally)
+      (function(){
+        const link = document.getElementById('myPlacesLink');
+        if(link && !link.__bound){
+          link.__bound = true;
+          link.addEventListener('click', (e)=>{ e.preventDefault(); openFavorites(); });
+          link.addEventListener('keydown', (e)=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); openFavorites(); }});
+        }
+      })();
+      document.getElementById('closeFavorites').addEventListener('click', closeFavorites);
+      document.getElementById('clearFavorites').addEventListener('click', ()=>{
+        state.favorites.clear();
+        localStorage.setItem('traipse:favorites','[]');
+        try { renderFavorites(); } catch(_) {}
+        document.querySelectorAll('.fav').forEach(b=>b.classList.remove('active'));
       });
-      poolEl.querySelectorAll('[data-act="add"]').forEach(b=>{
-        b.onclick = ()=>{ addIdsToActiveTrip([b.dataset.id]); renderFavorites(); renderFavoritesMap(); };
-      });
-    }
 
-    function openFavorites(e){
-      if(e){ e.preventDefault(); }
-      const mapP  = document.getElementById('mapPanel');
-      const dataP = document.getElementById('ourDataPanel');
-      if(mapP){ mapP.style.display='none'; mapP.setAttribute('aria-hidden','true'); }
-      if(dataP){ dataP.style.display='none'; dataP.setAttribute('aria-hidden','true'); }
 
-      favoritesOpen = true;
-      ensureFavoritesMap();
-      renderFavorites();
 
-      const p = document.getElementById('favoritesPanel');
-      if(p){
-        p.style.display = 'block';
-        p.setAttribute('aria-hidden','false');
-        setTimeout(()=>{ favoritesMap.invalidateSize(); renderFavoritesMap(); }, 60);
-      }
-    }
-    function closeFavorites(){
-      favoritesOpen = false;
-      const p = document.getElementById('favoritesPanel');
-      if(p){
-        p.style.display = 'none';
-        p.setAttribute('aria-hidden','true');
-      }
-    }
-    document.getElementById('myPlacesLink').addEventListener('click', openFavorites);
-    document.getElementById('closeFavorites').addEventListener('click', closeFavorites);
-    document.getElementById('clearFavorites').addEventListener('click', ()=>{
-      state.favorites.clear();
-      localStorage.setItem('traipse:favorites','[]');
-      try { renderFavorites(); renderFavoritesMap(); } catch(_) {}
-      document.querySelectorAll('.fav').forEach(b=>b.classList.remove('active'));
-    });
-    document.getElementById('btnImportFavs').addEventListener('click', ()=>{
-      const ids = Array.from(state.favorites);
-      const added = addIdsToActiveTrip(ids);
-      alert(`Added ${added||0} item(s) to "${state.trips.lists[state.trips.activeId].name}".`);
-      renderFavorites();
-      renderFavoritesMap();
-    });
-    document.getElementById('btnGenerateItin').addEventListener('click', ()=>{
-      const box = document.getElementById('itinBox');
-      const txt = document.getElementById('itinText');
-      box.style.display = 'block';
-      txt.value = generateItineraryText();
-    });
-    document.getElementById('btnExportPDF').addEventListener('click', ()=>{
-      ensureFavoritesMap();
-      L.browserPrint({ mode: 'Landscape', title: 'My Places Map' }).print(favoritesMap);
-    });
-
-    // Trip toolbar wires
-    document.getElementById('tripAdd').addEventListener('click', newTrip);
-    document.getElementById('tripRename').addEventListener('click', renameTrip);
-    document.getElementById('tripDelete').addEventListener('click', deleteTrip);
-    ensureTripSelect();
-
-    function generateItineraryText(){
-      const items = tripItems();
-      if (!items.length) return 'No places in this trip yet.';
-      return items.map((it, i)=>{
-        const bits = [ `${i+1}. ${it.name}` ];
-        if (it.durationText) bits.push(`⏱ ${it.durationText}`);
-        if (it.costText)     bits.push(`Cost: ${it.costText}`);
-        if (it.categories?.length) bits.push(it.categories.join(', '));
-        return bits.join(' • ');
-      }).join('\n');
-    }
-
-    /* ---------- Main list render ---------- */
+    /* ---------------- Sorting & Main render (extended) ---------------- */
     function passesTab(it){
       if(state.tab==='site') return it.type==='Site';
       if(state.tab==='tour') return it.type==='Tour';
       return true;
     }
+
     function cityPass(it){
       if(!state.city) return true;
       const c = (it.city||'').toLowerCase();
       return c.includes(state.city);
     }
-    function sortItems(rows){
-      const mode = state.sort;
-      if(mode==='closest') return rows.sort((a,b)=> (a.dist - b.dist) || (b.score - a.score));
-      if(mode==='cheapest')return rows.sort((a,b)=> (a.cost - b.cost) || (b.score - a.score));
-      if(mode==='theme')  return rows.sort((a,b)=> (String(a.it.categories?.[0]||'').localeCompare(String(b.it.categories?.[0]||''))) || a.it.name.localeCompare(b.it.name));
-      return rows.sort((a,b)=> (b.score - a.score) || (a.dist - b.dist)); // best
-    }
-    function renderCards(){
-      const rows = [];
-      for(const it of state.items){
-        if(!passesTab(it)) continue;
-        if(!cityPass(it)) continue;
-        if (state.filters.siteTypes.size && !state.filters.siteTypes.has(it.siteType)) continue;
-        if (state.filters.periods.size){
-          const p = it.periods || [];
-          if (!p.some(x => state.filters.periods.has(x))) continue;
-        }
-        if (state.filters.tags.size){
-          let ok = true; for(const key of state.filters.tags){ if(!hasTag(it,key)){ ok=false; break; } }
-          if(!ok) continue;
-        }
-        const score = scoreMatches(it);
-        const dist  = distanceFromUser(it);
-        const cost  = costRank(it);
-        rows.push({it, score, dist, cost});
+
+    function sortItems(arr){
+      const sortMode = state.sort;
+      if(sortMode==='closest'){
+        return arr.sort((a,b)=> a.dist-b.dist || b.score-a.score);
       }
-      const grid = document.getElementById('cards');
-      grid.innerHTML = '';
-      sortItems(rows).forEach(({it,score,dist})=> grid.appendChild(buildCardNode(it,score,dist)));
+      if(sortMode==='cheapest'){
+        return arr.sort((a,b)=> costRank(a.it)-costRank(b.it) || b.score-a.score || a.dist-b.dist);
+      }
+      if(sortMode==='theme'){
+        // very light theme bias: items with categories get a small bump; fallback to best
+        return arr.sort((a,b)=>{
+          const at=(a.it.categories?.length||0), bt=(b.it.categories?.length||0);
+          if(bt!==at) return bt-at;
+          return b.score-a.score || a.dist-b.dist;
+        });
+      }
+      // default: best (match count then distance)
+      return arr.sort((a,b)=> b.score-a.score || a.dist-b.dist);
     }
-    function render(){ renderCards(); }
 
-    // Sort + tabs + city input
-    document.getElementById('sortSelect').addEventListener('change', (e)=>{
-      state.sort = e.target.value; localStorage.setItem('traipse:sort', state.sort); render();
-    });
-    document.querySelectorAll('.tabs .tab').forEach(btn=>{
-      btn.addEventListener('click', ()=>{
-        document.querySelectorAll('.tabs .tab').forEach(b=>b.classList.remove('active'));
-        btn.classList.add('active'); state.tab = btn.dataset.tab; render();
-      });
-    });
+    function renderCards(){
+      const host = document.getElementById('cards');
+      const list = state.items
+        .filter(passesTab)
+        .filter(cityPass)
+        .map(it=>({ it, score:scoreMatches(it), dist:distanceFromUser(it) }));
+
+      host.innerHTML='';
+      if(!list.length){ host.innerHTML='<p style="color:#6b7280;padding:8px">No results.</p>'; return; }
+
+      const sorted = sortItems(list);
+      sorted.forEach(({it,score,dist})=> host.appendChild(buildCardNode(it,score,dist)));
+    }
+
+    function render(){ renderCards(); if(mapOpen) renderMapPoints(); }
+
+    // Tabs (kept)
+    document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>{
+      document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      state.tab = btn.dataset.tab;
+      render();
+    }));
+
+    // City input (kept)
     document.getElementById('cityInput').addEventListener('input', e=>{
-      state.city = (e.target.value||'').trim().toLowerCase(); render();
+      state.city = (e.target.value||'').trim().toLowerCase();
+      render();
     });
 
-    /* ---------- Load data ---------- */
+    // Sort control (added)
+    const sortSelect = document.getElementById('sortSelect');
+    if(sortSelect){
+      sortSelect.value = state.sort;
+      sortSelect.addEventListener('change', ()=>{
+        state.sort = sortSelect.value;
+        localStorage.setItem('traipse:sort', state.sort);
+        render();
+      });
+    }
+
+    /* ---------------- Load data + filters (kept) ---------------- */
     async function loadData(){
       try{
         const [siteRes,tourRes] = await Promise.all([
@@ -1003,109 +1156,360 @@
         syncFilterUIs('main');
 
         render();
-
-        if(navigator.geolocation){
-          navigator.geolocation.getCurrentPosition(
-            pos => { state.geoloc={lat:pos.coords.latitude, lng:pos.coords.longitude}; render(); },
-            ()=>{},
-            { enableHighAccuracy:true, timeout:7000, maximumAge:120000 }
-          );
-        }
+        locateUser();
       }catch(e){
+        document.getElementById('cards').innerHTML = '<p style="color:#6b7280">Failed to load data files.</p>';
         console.error(e);
-        document.getElementById('cards').innerHTML = '<p style="color:#6b7280;padding:8px">Could not load data.</p>';
       }
     }
-    loadData();
 
-    /* ---------- Map overlay ---------- */
-    let mainMap, mainLayer;
-    function ensureMainMap(){
-      if (mainMap) return;
-      mainMap = L.map('map', { scrollWheelZoom:true });
-      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution:'&copy; OpenStreetMap contributors'
-      }).addTo(mainMap);
-      mainLayer = L.layerGroup().addTo(mainMap);
+    /* ---------------- Geolocation (kept) ---------------- */
+    function locateUser(){
+      if(!navigator.geolocation) return;
+      navigator.geolocation.getCurrentPosition(
+        pos => { state.geoloc={lat:pos.coords.latitude, lng:pos.coords.longitude}; render(); },
+        () => {}, { enableHighAccuracy:true, timeout:7000, maximumAge:120000 }
+      );
     }
-    function latlngOf(it){
-      const r = it.raw || {};
-      if (it.type==='Tour' && it.center) return [it.center.lat, it.center.lng];
-      if (typeof r.lat==='number' && typeof r.lng==='number') return [r.lat, r.lng];
-      return null;
-    }
-    function renderMap(showAll=false){
-      ensureMainMap();
-      mainLayer.clearLayers();
-      const items = showAll ? state.items : state.items.filter(it=>{
-        if(!passesTab(it)) return false;
-        if(!cityPass(it)) return false;
-        if (state.filters.siteTypes.size && !state.filters.siteTypes.has(it.siteType)) return false;
-        if (state.filters.periods.size){
-          const p = it.periods || [];
-          if (!p.some(x => state.filters.periods.has(x))) return false;
+
+    /* ---------------- Map ---------------- */
+    let mapOpen=false, map, siteLayer, tourLayer;
+
+    const TYPE_COLORS = {
+      'Museum':'#00cfd4','Landmark':'#00cfd4','Historical Home':'#00cfd4','Archaeological':'#00cfd4',
+      'Religious':'#00cfd4','Industrial':'#00cfd4','Outdoor':'#00cfd4','Burial':'#00cfd4','Political':'#00cfd4'
+    };
+
+    function ensureMap(){
+      if(map) return;
+      map = L.map('map',{scrollWheelZoom:true});
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{ attribution:'&copy; OpenStreetMap contributors' }).addTo(map);
+      siteLayer = L.layerGroup().addTo(map);
+      tourLayer = L.layerGroup().addTo(map);
+      buildLegend();
+
+      map.on('popupopen', (e)=>{
+        const btn = e.popup?.getElement()?.querySelector('.fav[data-id]');
+        if(btn){
+          btn.addEventListener('click',(ev)=>{ ev.stopPropagation(); toggleFavorite(btn.getAttribute('data-id')); });
         }
-        if (state.filters.tags.size){
-          for (const key of state.filters.tags){ if (!hasTag(it,key)) return false; }
-        }
-        return true;
       });
-      const bounds = [];
-      items.forEach(it=>{
-        const ll = latlngOf(it);
-        if(!ll) return;
-        const m = L.marker(ll, { icon: siteIconFor(it.siteType) }).addTo(mainLayer);
-        const html = `
-          <article class="card popup-card">
-            <span class="badge">${it.type||'Site'}</span>
-            <button class="fav${state.favorites.has(it.id)?' active':''}" data-id="${it.id}" aria-label="Save">
-              <svg viewBox="0 0 24 24"><path d="M12 21s-7-4.35-7-10a4 4 0 0 1 7-2 4 4 0 0 1 7 2c0 5.65-7 10-7 10z"/></svg>
-            </button>
-            <img class="img" src="${resolveImage(it.image)||'images/default.jpg'}" onerror="this.src='images/default.jpg'" alt="">
-            <div class="inner">
-              <h3 class="title">${it.name}</h3>
-              <div class="meta">${(it.categories||[]).join(', ') || ''}</div>
-            </div>
-          </article>`;
-        m.bindPopup(html);
-        bounds.push(ll);
-      });
-      if(bounds.length) mainMap.fitBounds(bounds, { padding:[30,30] });
-      else mainMap.setView([39.7392,-104.9903], 11);
-      setTimeout(()=> mainMap.invalidateSize(), 60);
     }
+
+    function buildLegend(){
+      const legend = document.getElementById('mapLegend');
+      legend.innerHTML = '<strong>Legend</strong>';
+      Object.entries(TYPE_COLORS).forEach(([label,color])=>{
+        const row = document.createElement('div');
+        row.className='legend-row';
+        row.innerHTML = `<span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:${color};border:2px solid #fff;box-shadow:0 0 0 2px rgba(0,0,0,.12)"></span> <span>${label}</span>`;
+        legend.appendChild(row);
+      });
+      const row = document.createElement('div');
+      row.className='legend-row';
+      row.innerHTML = `<span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:#facc15;opacity:.55;border:1px solid #eab308;"></span> <span>Tour area (size = matches)</span>`;
+      legend.appendChild(row);
+    }
+
+    function siteIconFor(type){
+      const color = TYPE_COLORS[type] || '#00cfd4';
+      return L.divIcon({
+        className:'circle-icon',
+        html:`<div style="width:18px;height:18px;border-radius:50%;background:${color};border:2px solid #fff;box-shadow:0 0 0 2px rgba(0,0,0,.12)"></div>`,
+        iconSize:[22,22], iconAnchor:[11,11]
+      });
+    }
+
+    function renderMapPoints(){
+      if(!map) return;
+      siteLayer.clearLayers();
+      tourLayer.clearLayers();
+
+      const sites = state.items.filter(it=>it.type==='Site' && passesTab(it)).filter(cityPass);
+      const tours = state.items.filter(it=>it.type==='Tour' && passesTab(it));
+
+      const bounds=[];
+
+      // Sites: colored circle markers (unified cyan)
+      sites.forEach(it=>{
+        const {lat,lng} = it.raw||{};
+        if(typeof lat==='number' && typeof lng==='number'){
+          const m = L.marker([lat,lng],{icon:siteIconFor(it.siteType)}).addTo(siteLayer);
+          const html = cardHTML(it, scoreMatches(it), distanceFromUser(it), true);
+          m.bindPopup(html);
+          bounds.push([lat,lng]);
+        }
+      });
+
+      // Tours: muted yellow halo
+      tours.forEach(it=>{
+        if(it.center){
+          const s = scoreMatches(it);
+          const radius = 250 + 200 * s; // meters (more matches => bigger circle)
+          const circle = L.circle(it.center, {
+            color:'#eab308',       // stroke (amber-500)
+            fillColor:'#facc15',   // fill (amber-400)
+            fillOpacity:0.35,
+            weight:1,
+            radius
+          }).addTo(tourLayer);
+          const html = cardHTML(it, s, distanceFromUser(it), true);
+          circle.bindPopup(html);
+          bounds.push([it.center.lat, it.center.lng]);
+        }
+      });
+
+      if(bounds.length){ map.fitBounds(bounds,{padding:[30,30]}); }
+      else{ map.setView([39.7392,-104.9903], 11); }
+
+      setTimeout(()=>map.invalidateSize(), 60);
+    }
+
     document.getElementById('viewMap').addEventListener('click', ()=>{
-      const p = document.getElementById('mapPanel');
-      p.style.display='block'; p.setAttribute('aria-hidden','false');
+      ensureMap();
+      document.getElementById('mapPanel').style.display='block';
+      mapOpen=true;
       syncFilterUIs('main');
-      renderMap(false);
+      renderMapPoints();
     });
     document.getElementById('closeMap').addEventListener('click', ()=>{
-      const p = document.getElementById('mapPanel');
-      p.style.display='none'; p.setAttribute('aria-hidden','true');
+      document.getElementById('mapPanel').style.display='none';
+      mapOpen=false;
     });
-    document.getElementById('mapShowAll').addEventListener('click', ()=> renderMap(true));
+    document.getElementById('mapShowAll').addEventListener('click', ()=>{
+      if(!map) return;
+      const backup = {
+        siteTypes:new Set(state.filters.siteTypes),
+        periods:new Set(state.filters.periods),
+        tags:new Set(state.filters.tags)
+      };
+      state.filters.siteTypes.clear(); state.filters.periods.clear(); state.filters.tags.clear();
+      syncFilterUIs('main'); renderMapPoints();
+      state.filters.siteTypes=backup.siteTypes; state.filters.periods=backup.periods; state.filters.tags=backup.tags;
+      syncFilterUIs('main');
+    });
 
-    /* ---------- Our Data overlay ---------- */
-    document.getElementById('ourDataLink').addEventListener('click', (e)=>{
-      e.preventDefault();
-      const panel = document.getElementById('ourDataPanel');
-      panel.style.display='block'; panel.setAttribute('aria-hidden','false');
-    });
-    document.getElementById('closeOurData').addEventListener('click', ()=>{
-      const panel = document.getElementById('ourDataPanel');
-      panel.style.display='none'; panel.setAttribute('aria-hidden','true');
-    });
-    document.getElementById('suggestEditBtn').addEventListener('click', (e)=>{ e.preventDefault(); alert('Wire this to your Suggest Edit form.'); });
-    document.getElementById('newSiteBtn').addEventListener('click', (e)=>{ e.preventDefault(); alert('Wire this to your New Site form.'); });
-    document.getElementById('footerNewSite').addEventListener('click', (e)=>{ e.preventDefault(); document.getElementById('ourDataPanel').style.display='block'; });
-    document.getElementById('footerCorrection').addEventListener('click', (e)=>{ e.preventDefault(); document.getElementById('ourDataPanel').style.display='block'; });
+    /* ---------------- Init (kept) ---------------- */
+    document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>{
+      document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      state.tab = btn.dataset.tab;
+      render();
+    }));
 
-    /* ---------- Heart clicks from Leaflet popups ---------- */
-    document.addEventListener('click', (e)=>{
-      const btn = e.target.closest('.leaflet-popup .fav');
-      if (btn && btn.dataset.id) toggleFavorite(btn.dataset.id);
+    document.getElementById('cityInput').addEventListener('input', e=>{
+      state.city = (e.target.value||'').trim().toLowerCase();
+      render();
     });
+
+    loadData();
+
+    /* ---------- OUR DATA PANEL: rename nav link, wire up overlay (kept) ---------- */
+    (function(){
+      const navPills = document.querySelectorAll('nav.links .pill');
+      if(navPills && navPills[1]){
+        const ourDataLink = navPills[1];
+        ourDataLink.textContent = 'OUR DATA';
+        ourDataLink.id = 'ourDataLink';
+        ourDataLink.setAttribute('aria-haspopup', 'dialog');
+        ourDataLink.addEventListener('click', (e)=>{
+          e.preventDefault();
+          const panel = document.getElementById('ourDataPanel');
+          if(panel){ panel.style.display = 'block'; panel.setAttribute('aria-hidden','false'); }
+        });
+      }
+
+      const closeOurData = document.getElementById('closeOurData');
+      if(closeOurData){
+        closeOurData.addEventListener('click', ()=>{
+          const panel = document.getElementById('ourDataPanel');
+          if(panel){ panel.style.display='none'; panel.setAttribute('aria-hidden','true'); }
+        });
+      }
+
+      const suggestEditBtn = document.getElementById('suggestEditBtn');
+      if(suggestEditBtn){
+        suggestEditBtn.addEventListener('click', (e)=>{
+          e.preventDefault();
+          alert('Suggest an Edit: wire this up to your form or route.');
+        });
+      }
+
+      const newSiteBtn = document.getElementById('newSiteBtn');
+      if(newSiteBtn){
+        newSiteBtn.addEventListener('click', (e)=>{
+          e.preventDefault();
+          alert('New Site Submission: wire this up to your form or route.');
+        });
+      }
+
+      // Footer links trigger same overlay actions (anti-spam placement)
+      const footNew = document.getElementById('footerNewSite');
+      const footCorr = document.getElementById('footerCorrection');
+      if(footNew){ footNew.addEventListener('click', (e)=>{ e.preventDefault(); document.getElementById('ourDataPanel').style.display='block'; }); }
+      if(footCorr){ footCorr.addEventListener('click', (e)=>{ e.preventDefault(); document.getElementById('ourDataPanel').style.display='block'; }); }
+    })();
+          // === Trip Creator helpers ===
+      function itemById(id){ return state.items.find(x=>x.id===id); }
+      
+      function ensureTripSelect(){
+        const sel = document.getElementById('tripSelect'); 
+        if (!sel) return;
+      
+        ensurePersistence();  // guard against partial state
+      
+        sel.innerHTML = '';
+        const lists = state.trips?.lists || {};
+        const entries = Object.entries(lists);
+        if (!entries.length) {
+          // Inject default if somehow missing
+          state.trips.lists = { default: { name: 'My Trip', items: [] } };
+          state.trips.activeId = 'default';
+          saveTrips?.();
+        }
+      
+        Object.entries(state.trips.lists).forEach(([id, list])=>{
+          const opt = document.createElement('option');
+          opt.value = id;
+          opt.textContent = list?.name || 'My Trip';
+          if(id === state.trips.activeId) opt.selected = true;
+          sel.appendChild(opt);
+        });
+      
+        sel.onchange = ()=>{
+          state.trips.activeId = sel.value; 
+          saveTrips?.(); 
+          renderFavorites();
+      
+          // refresh map if it's visible
+          const box = document.getElementById('favoritesMapBox');
+          if (box && box.style.display !== 'none' && window.favoritesMap){
+            renderFavoritesMap();
+          }
+        };
+      }
+
+
+      
+      function newTrip(){
+        const name = prompt('Trip name?','New Trip'); if(!name) return;
+        const id = name.toLowerCase().replace(/[^a-z0-9]+/g,'-')+'-'+Date.now().toString(36);
+        state.trips.lists[id] = { name, items: [] };
+        state.trips.activeId = id; saveTrips(); ensureTripSelect(); renderFavorites();
+      }
+      function renameTrip(){
+        const id = state.trips.activeId; const cur = state.trips.lists[id]; if(!cur) return;
+        const name = prompt('Rename trip:', cur.name); if(!name) return;
+        cur.name = name; saveTrips(); ensureTripSelect();
+      }
+      function deleteTrip(){
+        const id = state.trips.activeId;
+        if(id==='default'){ alert('Cannot delete default trip.'); return; }
+        if(!confirm('Delete this trip? Items remain in your Favorites.')) return;
+        delete state.trips.lists[id]; state.trips.activeId = 'default'; saveTrips(); ensureTripSelect(); renderFavorites();
+      }
+      
+      // manipulate trip items
+      function addIdsToActiveTrip(ids){
+        const list = state.trips.lists[state.trips.activeId]; if(!list) return;
+        let added = 0;
+        ids.forEach(id => {
+          if(!list.items.includes(id)){ list.items.push(id); added++; }
+          if(!state.favorites.has(id)) state.favorites.add(id);
+        });
+        localStorage.setItem('traipse:favorites', JSON.stringify(Array.from(state.favorites)));
+        saveTrips(); return added;
+      }
+      function removeFromTrip(id){
+        const list = state.trips.lists[state.trips.activeId]; if(!list) return;
+        list.items = list.items.filter(x=>x!==id); saveTrips(); renderFavorites();
+      }
+      function hideItem(id){ state.hidden.add(id); saveHidden(); renderFavorites(); }
+      function restoreItem(id){ state.hidden.delete(id); saveHidden(); renderFavorites(); }
+      
+      // import current Favorites into active trip
+      document.getElementById('btnImportFavs').addEventListener('click', ()=>{
+        const ids = Array.from(state.favorites);
+        const added = addIdsToActiveTrip(ids);
+        alert(`Added ${added||0} item(s) to "${state.trips.lists[state.trips.activeId].name}".`);
+        renderFavorites();
+      });
+      
+      // Trip toolbar wires
+      document.getElementById('tripAdd').addEventListener('click', newTrip);
+      document.getElementById('tripRename').addEventListener('click', renameTrip);
+      document.getElementById('tripDelete').addEventListener('click', deleteTrip);
+      ensureTripSelect();
+      
+      // Hidden drawer toggle
+      document.getElementById('toggleHidden').addEventListener('click', (e)=>{
+        e.preventDefault();
+        const box = document.getElementById('hiddenDrawer');
+        const show = box.style.display==='none';
+        box.style.display = show ? 'block':'none';
+        e.target.textContent = show ? 'Hide':'Show';
+      });
+
+        // === Itinerary Generator (simple draft) ===
+    function generateItineraryText(){
+      const active = state.trips.lists[state.trips.activeId];
+      const ids = (active?.items?.length ? active.items : Array.from(state.favorites));
+      const items = ids.map(id=>itemById(id)).filter(Boolean).filter(it=>!state.hidden.has(it.id));
+      if(!items.length) return 'No items in this trip yet.';
+    
+      // Group lightweight: by type first, then name; add duration/cost if present
+      const lines = [];
+      lines.push(`# ${active.name} — Draft Itinerary`);
+      items.forEach((it, idx)=>{
+        const bits = [];
+        if(it.durationText) bits.push(`⏱ ${it.durationText}`);
+        if(it.costText) bits.push(it.costText);
+        if(it.categories?.length) bits.push(it.categories.join(', '));
+        lines.push(`${idx+1}. ${it.name} — ${[it.type||'Site', ...bits].join(' • ')}`);
+        if(it.website) lines.push(`   - Website: ${it.website}`);
+      });
+      lines.push('');
+      lines.push(`Total stops: ${items.length}`);
+      return lines.join('\n');
+    }
+    
+    document.getElementById('btnGenerateItin').addEventListener('click', ()=>{
+      const box = document.getElementById('itinBox');
+      const txt = document.getElementById('itinText');
+      box.style.display = 'block';
+      txt.value = generateItineraryText();
+    });
+
+// Export to PDF (opens print dialog; choose "Save as PDF")
+document.getElementById('btnExportPDF').addEventListener('click', ()=>{
+  ensureFavoritesMap();
+  L.browserPrint({ mode: 'Landscape', title: 'My Places Map' }).print(favoritesMap);
+});
+
+
+    // Failsafe: ensure openFavorites exists even if earlier code aborted
+    // Failsafe: ensure openFavorites always renders the list
+    window.openFavorites = window.openFavorites || function(){
+      const mapP  = document.getElementById('mapPanel');
+      const dataP = document.getElementById('ourDataPanel');
+      if(mapP)  { mapP.style.display = 'none'; mapP.setAttribute('aria-hidden','true'); }
+      if(dataP) { dataP.style.display = 'none'; dataP.setAttribute('aria-hidden','true'); }
+    
+      // ✅ Make the overlay behave like the main version
+      favoritesOpen = true;
+      try { renderFavorites(); } catch(_) {}
+    
+      const p = document.getElementById('favoritesPanel');
+      if(p){
+        p.style.display = 'block';
+        p.setAttribute('aria-hidden','false');
+      }
+    };
+
+
+
+
+
   </script>
 </body>
 </html>

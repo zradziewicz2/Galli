@@ -769,6 +769,7 @@
 
 
       function renderFavorites(){
+        ensurePersistence();
         ensureTripSelect();
       
         const listEl = document.getElementById('favoritesList');
@@ -839,6 +840,29 @@
         hiddenEl.querySelectorAll('[data-act="restore"]').forEach(b=> b.onclick = ()=> restoreItem(b.dataset.id));
       }
 
+      function ensurePersistence(){
+        // Make sure favorites is a Set
+        if (!(state.favorites instanceof Set)) {
+          try {
+            state.favorites = new Set(JSON.parse(localStorage.getItem('traipse:favorites') || '[]'));
+          } catch {
+            state.favorites = new Set();
+            localStorage.setItem('traipse:favorites','[]');
+          }
+        }
+      
+        // Make sure trips object exists with a default list
+        if (!state.trips || typeof state.trips !== 'object' ||
+            !state.trips.lists || typeof state.trips.lists !== 'object') {
+          state.trips = { activeId: 'default', lists: { default: { name: 'My Trip', items: [] } } };
+          saveTrips?.();
+        }
+        if (!state.trips.activeId || !state.trips.lists[state.trips.activeId]) {
+          state.trips.activeId = 'default';
+          if (!state.trips.lists.default) state.trips.lists.default = { name: 'My Trip', items: [] };
+          saveTrips?.();
+        }
+      }
 
       let favoritesOpen=false;
     
@@ -851,7 +875,8 @@ function openFavorites(){
   if(dataP) { dataP.style.display = 'none'; dataP.setAttribute('aria-hidden','true'); }
 
   favoritesOpen = true;
-  try { renderFavorites(); } catch(_) {} // render if available, but don't block open
+  ensurePersistence();           // ✅ make sure structures exist
+  try { renderFavorites(); } catch(_) {}
   const p = document.getElementById('favoritesPanel');
   if(p){
     p.style.display = 'block';
@@ -1180,14 +1205,36 @@ function openFavorites(){
       function itemById(id){ return state.items.find(x=>x.id===id); }
       
       function ensureTripSelect(){
-        const sel = document.getElementById('tripSelect'); if(!sel) return;
+        const sel = document.getElementById('tripSelect'); 
+        if (!sel) return;
+      
+        ensurePersistence();  // ✅ guard against partial state
+      
         sel.innerHTML = '';
-        Object.entries(state.trips.lists).forEach(([id,list])=>{
-          const opt=document.createElement('option'); opt.value=id; opt.textContent=list.name;
-          if(id===state.trips.activeId) opt.selected=true; sel.appendChild(opt);
+        const lists = state.trips?.lists || {};
+        const entries = Object.entries(lists);
+        if (!entries.length) {
+          // Inject default on the fly if somehow missing
+          state.trips.lists = { default: { name: 'My Trip', items: [] } };
+          state.trips.activeId = 'default';
+          saveTrips?.();
+        }
+      
+        Object.entries(state.trips.lists).forEach(([id, list])=>{
+          const opt = document.createElement('option');
+          opt.value = id;
+          opt.textContent = list?.name || 'My Trip';
+          if(id === state.trips.activeId) opt.selected = true;
+          sel.appendChild(opt);
         });
-        sel.onchange = ()=>{ state.trips.activeId = sel.value; saveTrips(); renderFavorites(); };
+      
+        sel.onchange = ()=>{
+          state.trips.activeId = sel.value; 
+          saveTrips?.(); 
+          renderFavorites();
+        };
       }
+
       
       function newTrip(){
         const name = prompt('Trip name?','New Trip'); if(!name) return;

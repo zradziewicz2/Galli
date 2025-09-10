@@ -431,13 +431,8 @@
         state.trips = { activeId: 'default', lists: { default: { name: 'My Trip', items: [] } } };
         localStorage.setItem('traipse:trips', JSON.stringify(state.trips));
       }
-      state.hidden = state.hidden || new Set(JSON.parse(localStorage.getItem('traipse:hidden')||'[]'));
       state.notes  = state.notes  || JSON.parse(localStorage.getItem('traipse:notes')||'{}');
       
-      function saveTrips(){ localStorage.setItem('traipse:trips', JSON.stringify(state.trips)); }
-      function saveHidden(){ localStorage.setItem('traipse:hidden', JSON.stringify(Array.from(state.hidden))); }
-      function saveNotes(){ localStorage.setItem('traipse:notes', JSON.stringify(state.notes)); }
-
 
     // More Filters (kept)
     const MORE_FILTERS = {
@@ -885,83 +880,6 @@
           hiddenEl.querySelectorAll('[data-act="restore"]').forEach(b=> b.onclick = ()=> restoreItem(b.dataset.id));
         }
 
-              /* ========== FAVORITES MAP (saved-only) ========== */
-              /* ===== FAVORITES MAP: persistent, saved-only ===== */
-              let favoritesMap, favoritesMapLayer;
-              
-              function ensureFavoritesMap(){
-                if (favoritesMap) return;
-              
-                const node = document.getElementById('favoritesMap');
-                if (!node) return;
-              
-                favoritesMap = L.map('favoritesMap', { scrollWheelZoom:true });
-                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                  attribution:'&copy; OpenStreetMap contributors'
-                }).addTo(favoritesMap);
-              
-                favoritesMapLayer = L.layerGroup().addTo(favoritesMap);
-              
-                // Print control (already included via leaflet.browser.print)
-                if (L.control && L.control.browserPrint) {
-                  L.control.browserPrint({ position:'topleft', title:'Print map' }).addTo(favoritesMap);
-                }
-              
-                buildFavoritesLegend();
-              
-                // help the map size itself the first time
-                setTimeout(()=> favoritesMap.invalidateSize(), 120);
-              }
-              
-              function buildFavoritesLegend(){
-                const legend = document.getElementById('favoritesLegend');
-                if(!legend) return;
-                legend.innerHTML = '<strong>Legend</strong>';
-                Object.entries(TYPE_COLORS).forEach(([label,color])=>{
-                  const row = document.createElement('div');
-                  row.className='legend-row';
-                  row.innerHTML = `<span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:${color};border:2px solid #fff;box-shadow:0 0 0 2px rgba(0,0,0,.12)"></span> <span>${label}</span>`;
-                  legend.appendChild(row);
-                });
-              }
-              
-              function savedItemsForActiveTrip(){
-                const active = state.trips?.lists?.[state.trips?.activeId];
-                const ids = (active?.items?.length ? active.items : Array.from(state.favorites));
-                return ids
-                  .map(id => itemById(id))
-                  .filter(Boolean)
-                  .filter(it => !state.hidden?.has?.(it.id));
-              }
-              
-              function renderFavoritesMap(){
-                if (!favoritesMap || !favoritesMapLayer) return;
-              
-                favoritesMapLayer.clearLayers();
-                const items = savedItemsForActiveTrip();
-              
-                const bounds = [];
-                items.forEach(it => {
-                  const r = it.raw || {};
-                  const { lat, lng } = r;
-                  if (typeof lat === 'number' && typeof lng === 'number'){
-                    const m = L.marker([lat, lng], { icon: siteIconFor(it.siteType) }).addTo(favoritesMapLayer);
-                    // reuse card popup
-                    m.bindPopup(cardHTML(it, scoreMatches(it), distanceFromUser(it), true));
-                    bounds.push([lat, lng]);
-                  }
-                });
-              
-                if (bounds.length){
-                  favoritesMap.fitBounds(bounds, { padding:[30,30] });
-                } else {
-                  favoritesMap.setView([39.7392,-104.9903], 11); // sensible default
-                }
-              
-                setTimeout(() => favoritesMap.invalidateSize(), 60);
-              }
-
-          
 
 
 /* ===== MY PLACES: 50/50 split + trip-only filtering + simpler actions ===== */
@@ -1208,25 +1126,6 @@ document.getElementById('btnExportPDF').addEventListener('click', ()=>{
   L.browserPrint({ mode: 'Landscape', title: 'My Places Map' }).print(favoritesMap);
 });
 
-
-
-    // Failsafe: ensure openFavorites exists even if earlier code aborted
-    // Failsafe: ensure openFavorites always renders the list
-    window.openFavorites = window.openFavorites || function(){
-      const mapP  = document.getElementById('mapPanel');
-      const dataP = document.getElementById('ourDataPanel');
-      if(mapP)  { mapP.style.display = 'none'; mapP.setAttribute('aria-hidden','true'); }
-      if(dataP) { dataP.style.display = 'none'; dataP.setAttribute('aria-hidden','true'); }
-    
-      // ✅ Make the overlay behave like the main version
-      favoritesOpen = true;
-      try { renderFavorites(); } catch(_) {}
-    
-      const p = document.getElementById('favoritesPanel');
-      if(p){
-        p.style.display = 'block';
-        p.setAttribute('aria-hidden','false');
-      }
     };
 
 

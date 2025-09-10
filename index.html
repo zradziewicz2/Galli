@@ -1234,6 +1234,118 @@ if (_origLoadData){
   else document.addEventListener('DOMContentLoaded', ()=>{ try { render(); } catch(_) {} });
 }
 
+    async function loadData(){
+  try{
+    const [siteRes,tourRes] = await Promise.all([
+      fetch('locations.json?v='+Date.now()),
+      fetch('tours.json?v='+Date.now())
+    ]);
+    const sites = await siteRes.json();
+    const tours = await tourRes.json();
+
+    state.rawSites = Array.isArray(sites)?sites: (sites.locations||[]);
+    state.rawTours = Array.isArray(tours)?tours: (tours.tours||[]);
+
+    const siteItems = state.rawSites.map(normalizeSite);
+    const tourItems = state.rawTours.map(normalizeTour);
+    state.items = [...siteItems, ...tourItems];
+
+    buildFilters('Main');
+    buildFilters('Map');
+    syncFilterUIs('main');
+
+    if(navigator.geolocation){
+      navigator.geolocation.getCurrentPosition(
+        pos => { state.geoloc={lat:pos.coords.latitude, lng:pos.coords.longitude}; render(); },
+        ()=>{ render(); },
+        { enableHighAccuracy:true, timeout:7000, maximumAge:120000 }
+      );
+    } else {
+      render();
+    }
+  }catch(e){ console.error(e); render(); }
+}
+
+/* 2) Map overlay: init + render + event wiring */
+let mainMap, mainLayer;
+function ensureMainMap(){
+  if (mainMap) return;
+  mainMap = L.map('map', { scrollWheelZoom:true });
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution:'&copy; OpenStreetMap contributors'
+  }).addTo(mainMap);
+  mainLayer = L.layerGroup().addTo(mainMap);
+}
+
+function filteredItems(){
+  const tab = state.tab || 'all';
+  return state.items.filter(it=>{
+    if (tab==='site' && it.type!=='Site') return false;
+    if (tab==='tour' && it.type!=='Tour') return false;
+    if (state.filters.siteTypes.size && !state.filters.siteTypes.has(it.siteType)) return false;
+    if (state.filters.periods.size){
+      const p = it.periods || [];
+      if (!p.some(x => state.filters.periods.has(x))) return false;
+    }
+    if (state.filters.tags.size){
+      for (const key of state.filters.tags){ if (!hasTag(it,key)) return false; }
+    }
+    return true;
+  });
+}
+function latlngOf(it){
+  const r = it.raw || {};
+  if (it.type==='Tour' && it.center) return [it.center.lat, it.center.lng];
+  if (typeof r.lat==='number' && typeof r.lng==='number') return [r.lat, r.lng];
+  return null;
+}
+function renderMap(showAll=false){
+  ensureMainMap();
+  mainLayer.clearLayers();
+
+  const items = showAll ? state.items : filteredItems();
+  const bounds = [];
+  items.forEach(it=>{
+    const ll = latlngOf(it);
+    if(!ll) return;
+    const m = L.marker(ll, { icon: siteIconFor(it.siteType) }).addTo(mainLayer);
+    m.bindPopup(cardHTML(it, scoreMatches(it), distanceFromUser(it), true));
+    bounds.push(ll);
+  });
+
+  if(bounds.length) mainMap.fitBounds(bounds, { padding:[30,30] });
+  else mainMap.setView([39.7392,-104.9903], 11);
+
+  setTimeout(()=> mainMap.invalidateSize(), 60);
+}
+
+// Open/close map + “Show all”
+document.getElementById('viewMap')?.addEventListener('click', ()=>{
+  const p = document.getElementById('mapPanel');
+  p.style.display='block'; p.setAttribute('aria-hidden','false');
+  syncFilterUIs('main');
+  renderMap(false);
+});
+document.getElementById('closeMap')?.addEventListener('click', ()=>{
+  const p = document.getElementById('mapPanel');
+  p.style.display='none'; p.setAttribute('aria-hidden','true');
+});
+document.getElementById('mapShowAll')?.addEventListener('click', ()=> renderMap(true));
+
+// Keep the map in sync with filters when the overlay is open
+['filtersPanelMain','filtersPanelMap'].forEach(id=>{
+  document.getElementById(id)?.addEventListener('change', ()=>{
+    const vis = document.getElementById('mapPanel')?.style.display;
+    if (vis && vis !== 'none') renderMap(false);
+  });
+});
+
+/* 3) Enable heart toggling inside Leaflet popups */
+document.addEventListener('click', (e)=>{
+  const btn = e.target.closest('.leaflet-popup .fav');
+  if (btn && btn.dataset.id) toggleFavorite(btn.dataset.id);
+});
+
   </script>
 </body>
 </html>

@@ -1284,17 +1284,24 @@ function openFavorites(){
       if(show){ alert('Map of saved places is a placeholder here. Hook up your Leaflet render later.'); }
     });
     // Failsafe: ensure openFavorites exists even if earlier code aborted
-      window.openFavorites = window.openFavorites || function(){
-        const mapP  = document.getElementById('mapPanel');
-        const dataP = document.getElementById('ourDataPanel');
-        if(mapP)  { mapP.style.display = 'none'; mapP.setAttribute('aria-hidden','true'); }
-        if(dataP) { dataP.style.display = 'none'; dataP.setAttribute('aria-hidden','true'); }
-        const p = document.getElementById('favoritesPanel');
-        if(p){
-          p.style.display = 'block';
-          p.setAttribute('aria-hidden','false');
-        }
-      };
+    // Failsafe: ensure openFavorites always renders the list
+    window.openFavorites = window.openFavorites || function(){
+      const mapP  = document.getElementById('mapPanel');
+      const dataP = document.getElementById('ourDataPanel');
+      if(mapP)  { mapP.style.display = 'none'; mapP.setAttribute('aria-hidden','true'); }
+      if(dataP) { dataP.style.display = 'none'; dataP.setAttribute('aria-hidden','true'); }
+    
+      // ✅ Make the overlay behave like the main version
+      favoritesOpen = true;
+      try { renderFavorites(); } catch(_) {}
+    
+      const p = document.getElementById('favoritesPanel');
+      if(p){
+        p.style.display = 'block';
+        p.setAttribute('aria-hidden','false');
+      }
+    };
+
 
 
 

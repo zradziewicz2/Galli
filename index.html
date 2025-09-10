@@ -157,6 +157,53 @@
     .itin-box textarea{width:100%;min-height:140px;border:1px solid var(--ring);border-radius:12px;padding:10px;font-family:inherit}
     .mini{font-size:12px;color:#6b7280}
 
+        /* ===== MY PLACES: persistent split layout ===== */
+    .favBody{
+      height:calc(100vh - 56px); /* header height approx */
+      overflow:auto;             /* single, smooth scroller for the overlay */
+      padding:16px;
+    }
+    .favLayout{
+      display:grid;
+      grid-template-columns:1fr 520px; /* list left, map right */
+      gap:18px;
+      align-items:start;
+    }
+    .favLeft{ display:flex; flex-direction:column; gap:12px; }
+    .favScroll{ display:block; }
+    
+    .favRight{ align-self:start; }
+    .favMapSticky{
+      position:sticky;
+      top:12px; /* keeps the map in view while left side scrolls */
+    }
+    
+    /* Map frame inside MY PLACES */
+    #favoritesMap{
+      width:100%;
+      height:calc(100vh - 140px);
+      min-height:320px;
+      border:1px solid var(--ring);
+      border-radius:var(--radius);
+      box-shadow:var(--shadow);
+    }
+    
+    /* Legend sits on the map */
+    #favoritesLegend{
+      position:absolute;
+      bottom:16px; right:16px;
+      background:#fff; border:1px solid var(--ring);
+      border-radius:12px; box-shadow:var(--shadow);
+      padding:8px 10px; font-size:12px;
+    }
+    
+    @media (max-width:1100px){
+      .favLayout{ grid-template-columns:1fr; }
+      .favMapSticky{ position:relative; top:auto; }
+      #favoritesMap{ height:50vh; }
+    }
+
+
   </style>
 </head>
 <body>
@@ -260,49 +307,59 @@
   <div class="overlayHeader">
     <strong>My Places</strong>
     <div class="fav-actions">
-      <button id="favoritesToggleMap" class="btn small">View in Map</button>
+      <!-- removed: View in Map (persistent now) -->
       <button id="btnExportPDF" class="btn small">Export Map as PDF</button>
       <button id="btnGenerateItin" class="btn small">Generate Draft Itinerary</button>
       <button id="btnImportFavs" class="btn small">Add All Favorites to Trip</button>
       <button id="clearFavorites" class="btn small">Clear all</button>
       <button id="closeFavorites" class="btn small">Back to list</button>
     </div>
-
   </div>
 
-  <!-- Trip Creator toolbar -->
-  <div class="fav-toolbar">
-    <span class="mini">Trip:</span>
-    <select id="tripSelect" class="select" aria-label="Select trip"></select>
-    <button id="tripAdd" class="btn small">New</button>
-    <button id="tripRename" class="btn small">Rename</button>
-    <button id="tripDelete" class="btn small danger">Delete</button>
-    <span class="mini" style="margin-left:auto">Hidden:
-      <a href="#" id="toggleHidden" class="mini">Show</a>
-    </span>
-  </div>
+  <!-- NEW: body with two-column layout -->
+  <div class="favBody">
+    <div class="favLayout">
+      <!-- LEFT: trip toolbar + lists + itinerary -->
+      <div class="favLeft">
+        <div class="fav-toolbar">
+          <span class="mini">Trip:</span>
+          <select id="tripSelect" class="select" aria-label="Select trip"></select>
+          <button id="tripAdd" class="btn small">New</button>
+          <button id="tripRename" class="btn small">Rename</button>
+          <button id="tripDelete" class="btn small danger">Delete</button>
+          <span class="mini" style="margin-left:auto">Hidden:
+            <a href="#" id="toggleHidden" class="mini">Show</a>
+          </span>
+        </div>
 
-  <!-- Optional: map of saved items in this trip -->
-  <div id="favoritesMapBox" class="mapBox" style="display:none">
-    <div id="favoritesMap" style="height:100%"></div>
-  </div>
+        <div class="favScroll">
+          <div id="favoritesList" class="favlist" aria-live="polite"></div>
 
-  <div style="padding:16px">
-    <div id="favoritesList" class="favlist" aria-live="polite"></div>
+          <!-- Hidden drawer -->
+          <div id="hiddenDrawer" style="display:none;margin-top:14px">
+            <div class="mini" style="margin-bottom:8px">Hidden items (click restore ⤴):</div>
+            <div id="hiddenList" class="favlist"></div>
+          </div>
 
-    <!-- Hidden drawer -->
-    <div id="hiddenDrawer" style="display:none;margin-top:14px">
-      <div class="mini" style="margin-bottom:8px">Hidden items (click restore ⤴):</div>
-      <div id="hiddenList" class="favlist"></div>
-    </div>
+          <!-- Draft itinerary output -->
+          <div id="itinBox" class="itin-box" style="display:none">
+            <div class="mini" style="margin-bottom:6px">Draft itinerary (editable):</div>
+            <textarea id="itinText" placeholder="Your itinerary will appear here…"></textarea>
+          </div>
+        </div>
+      </div>
 
-    <!-- Draft itinerary output -->
-    <div id="itinBox" class="itin-box" style="display:none">
-      <div class="mini" style="margin-bottom:6px">Draft itinerary (editable):</div>
-      <textarea id="itinText" placeholder="Your itinerary will appear here…"></textarea>
+      <!-- RIGHT: sticky persistent map -->
+      <aside class="favRight">
+        <div class="favMapSticky">
+          <div id="favoritesMap"></div>
+          <div class="legend" id="favoritesLegend"></div>
+        </div>
+      </aside>
     </div>
   </div>
 </section>
+
 
 
   <!-- Our Data (ADDED earlier, preserved) -->
@@ -847,66 +904,81 @@
         }
 
               /* ========== FAVORITES MAP (saved-only) ========== */
-          let favoritesMap, favoritesMapLayer;
-          
-          function ensureFavoritesMap(){
-            if (favoritesMap) return;
-          
-            const box = document.getElementById('favoritesMapBox');
-            const node = document.getElementById('favoritesMap');
-            if (!box || !node) return;
-          
-            // give the box a sensible height
-            box.style.height = '60vh';
-          
-            favoritesMap = L.map('favoritesMap', { scrollWheelZoom:true });
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-              attribution:'&copy; OpenStreetMap contributors'
-            }).addTo(favoritesMap);
-          
-            favoritesMapLayer = L.layerGroup().addTo(favoritesMap);
-          
-            // Optional on-map print button
-            if (L.control && L.control.browserPrint) {
-              L.control.browserPrint({ position:'topleft', title:'Print map' }).addTo(favoritesMap);
-            }
-          }
-          
-          function savedItemsForActiveTrip(){
-            const active = state.trips?.lists?.[state.trips?.activeId];
-            const ids = (active?.items?.length ? active.items : Array.from(state.favorites));
-            return ids
-              .map(id => itemById(id))
-              .filter(Boolean)
-              .filter(it => !state.hidden?.has?.(it.id));
-          }
-          
-          function renderFavoritesMap(){
-            if (!favoritesMap || !favoritesMapLayer) return;
-          
-            favoritesMapLayer.clearLayers();
-            const items = savedItemsForActiveTrip();
-          
-            const bounds = [];
-            items.forEach(it => {
-              const r = it.raw || {};
-              const { lat, lng } = r;
-              if (typeof lat === 'number' && typeof lng === 'number'){
-                const m = L.marker([lat, lng], { icon: siteIconFor(it.siteType) }).addTo(favoritesMapLayer);
-                // reuse card popup
-                m.bindPopup(cardHTML(it, scoreMatches(it), distanceFromUser(it), true));
-                bounds.push([lat, lng]);
+              /* ===== FAVORITES MAP: persistent, saved-only ===== */
+              let favoritesMap, favoritesMapLayer;
+              
+              function ensureFavoritesMap(){
+                if (favoritesMap) return;
+              
+                const node = document.getElementById('favoritesMap');
+                if (!node) return;
+              
+                favoritesMap = L.map('favoritesMap', { scrollWheelZoom:true });
+                L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                  attribution:'&copy; OpenStreetMap contributors'
+                }).addTo(favoritesMap);
+              
+                favoritesMapLayer = L.layerGroup().addTo(favoritesMap);
+              
+                // Print control (already included via leaflet.browser.print)
+                if (L.control && L.control.browserPrint) {
+                  L.control.browserPrint({ position:'topleft', title:'Print map' }).addTo(favoritesMap);
+                }
+              
+                buildFavoritesLegend();
+              
+                // help the map size itself the first time
+                setTimeout(()=> favoritesMap.invalidateSize(), 120);
               }
-            });
-          
-            if (bounds.length){
-              favoritesMap.fitBounds(bounds, { padding:[30,30] });
-            } else {
-              favoritesMap.setView([39.7392,-104.9903], 11); // fallback
-            }
-          
-            setTimeout(() => favoritesMap.invalidateSize(), 60);
-          }
+              
+              function buildFavoritesLegend(){
+                const legend = document.getElementById('favoritesLegend');
+                if(!legend) return;
+                legend.innerHTML = '<strong>Legend</strong>';
+                Object.entries(TYPE_COLORS).forEach(([label,color])=>{
+                  const row = document.createElement('div');
+                  row.className='legend-row';
+                  row.innerHTML = `<span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:${color};border:2px solid #fff;box-shadow:0 0 0 2px rgba(0,0,0,.12)"></span> <span>${label}</span>`;
+                  legend.appendChild(row);
+                });
+              }
+              
+              function savedItemsForActiveTrip(){
+                const active = state.trips?.lists?.[state.trips?.activeId];
+                const ids = (active?.items?.length ? active.items : Array.from(state.favorites));
+                return ids
+                  .map(id => itemById(id))
+                  .filter(Boolean)
+                  .filter(it => !state.hidden?.has?.(it.id));
+              }
+              
+              function renderFavoritesMap(){
+                if (!favoritesMap || !favoritesMapLayer) return;
+              
+                favoritesMapLayer.clearLayers();
+                const items = savedItemsForActiveTrip();
+              
+                const bounds = [];
+                items.forEach(it => {
+                  const r = it.raw || {};
+                  const { lat, lng } = r;
+                  if (typeof lat === 'number' && typeof lng === 'number'){
+                    const m = L.marker([lat, lng], { icon: siteIconFor(it.siteType) }).addTo(favoritesMapLayer);
+                    // reuse card popup
+                    m.bindPopup(cardHTML(it, scoreMatches(it), distanceFromUser(it), true));
+                    bounds.push([lat, lng]);
+                  }
+                });
+              
+                if (bounds.length){
+                  favoritesMap.fitBounds(bounds, { padding:[30,30] });
+                } else {
+                  favoritesMap.setView([39.7392,-104.9903], 11); // sensible default
+                }
+              
+                setTimeout(() => favoritesMap.invalidateSize(), 60);
+              }
+
           
 
 
@@ -945,14 +1017,20 @@ function openFavorites(){
   if(dataP) { dataP.style.display = 'none'; dataP.setAttribute('aria-hidden','true'); }
 
   favoritesOpen = true;
-  ensurePersistence();           // ✅ make sure structures exist
+  ensurePersistence();
   try { renderFavorites(); } catch(_) {}
+
   const p = document.getElementById('favoritesPanel');
   if(p){
     p.style.display = 'block';
     p.setAttribute('aria-hidden','false');
   }
+
+  // NEW: ensure map exists & render its points
+  ensureFavoritesMap();
+  renderFavoritesMap();
 }
+
 
       function closeFavorites(){
         favoritesOpen = false;
@@ -1401,22 +1479,13 @@ function openFavorites(){
       box.style.display = 'block';
       txt.value = generateItineraryText();
     });
-// Toggle the saved-only map
-// Toggle the saved-only map
-document.getElementById('favoritesToggleMap').addEventListener('click', ()=>{
-  const box = document.getElementById('favoritesMapBox');
-  const show = box.style.display === 'none';
-  box.style.display = show ? 'block' : 'none';
-  if (show){
-    ensureFavoritesMap();
-    renderFavoritesMap();
-  }
-});
+
 // Export to PDF (opens print dialog; choose "Save as PDF")
 document.getElementById('btnExportPDF').addEventListener('click', ()=>{
   ensureFavoritesMap();
   L.browserPrint({ mode: 'Landscape', title: 'My Places Map' }).print(favoritesMap);
 });
+
 
     // Failsafe: ensure openFavorites exists even if earlier code aborted
     // Failsafe: ensure openFavorites always renders the list

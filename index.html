@@ -163,7 +163,8 @@
       <div class="brand"><div class="logo"></div> GALLIVANT</div>
       <div class="top"><input id="cityInput" class="search" placeholder="CITY" aria-label="City" /></div>
       <nav class="links">
-        <a class="pill" href="#" id="myPlacesLink">MY PLACES</a>
+        <a class="pill" href="#" id="myPlacesLink" role="button" tabindex="0"
+   onclick="openFavorites(); return false;">MY PLACES</a>
         <a class="pill" href="#">NEW SITE SUBMISSION</a>
         <a class="pill" href="#">CONNECT</a>
       </nav>
@@ -841,28 +842,50 @@
 
       let favoritesOpen=false;
       
-      function openFavorites(){
-        favoritesOpen = true;
-        renderFavorites(); // renders trip list below
-        const p = document.getElementById('favoritesPanel');
-        p.style.display='block';
-        p.setAttribute('aria-hidden','false');
-      }
+let favoritesOpen = false;
+
+function openFavorites(){
+  // Close other overlays so nothing sits above My Places
+  const mapP  = document.getElementById('mapPanel');
+  const dataP = document.getElementById('ourDataPanel');
+  if(mapP)  { mapP.style.display = 'none'; mapP.setAttribute('aria-hidden','true'); }
+  if(dataP) { dataP.style.display = 'none'; dataP.setAttribute('aria-hidden','true'); }
+
+  favoritesOpen = true;
+  try { renderFavorites(); } catch(_) {} // render if available, but don't block open
+  const p = document.getElementById('favoritesPanel');
+  if(p){
+    p.style.display = 'block';
+    p.setAttribute('aria-hidden','false');
+  }
+}
+
       function closeFavorites(){
         favoritesOpen = false;
         const p = document.getElementById('favoritesPanel');
-        p.style.display='none';
-        p.setAttribute('aria-hidden','true');
+        if(p){
+          p.style.display = 'none';
+          p.setAttribute('aria-hidden','true');
+        }
       }
       
-      document.getElementById('myPlacesLink').addEventListener('click', (e)=>{ e.preventDefault(); openFavorites(); });
+      // Primary listeners (will work when JS binds normally)
+      (function(){
+        const link = document.getElementById('myPlacesLink');
+        if(link && !link.__bound){
+          link.__bound = true;
+          link.addEventListener('click', (e)=>{ e.preventDefault(); openFavorites(); });
+          link.addEventListener('keydown', (e)=>{ if(e.key==='Enter'||e.key===' '){ e.preventDefault(); openFavorites(); }});
+        }
+      })();
       document.getElementById('closeFavorites').addEventListener('click', closeFavorites);
       document.getElementById('clearFavorites').addEventListener('click', ()=>{
         state.favorites.clear();
         localStorage.setItem('traipse:favorites','[]');
-        renderFavorites();
+        try { renderFavorites(); } catch(_) {}
         document.querySelectorAll('.fav').forEach(b=>b.classList.remove('active'));
       });
+
 
 
     /* ---------------- Sorting & Main render (extended) ---------------- */
@@ -1261,6 +1284,19 @@
       box.style.display = show ? 'block':'none';
       if(show){ alert('Map of saved places is a placeholder here. Hook up your Leaflet render later.'); }
     });
+    // Failsafe: ensure openFavorites exists even if earlier code aborted
+      window.openFavorites = window.openFavorites || function(){
+        const mapP  = document.getElementById('mapPanel');
+        const dataP = document.getElementById('ourDataPanel');
+        if(mapP)  { mapP.style.display = 'none'; mapP.setAttribute('aria-hidden','true'); }
+        if(dataP) { dataP.style.display = 'none'; dataP.setAttribute('aria-hidden','true'); }
+        const p = document.getElementById('favoritesPanel');
+        if(p){
+          p.style.display = 'block';
+          p.setAttribute('aria-hidden','false');
+        }
+      };
+
 
 
 

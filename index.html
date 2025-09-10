@@ -291,6 +291,8 @@
     </div>
   </section>
 
+  
+
   <!-- My Places -->
 <!-- My Places -->
 <section id="favoritesPanel" aria-hidden="true" role="dialog" aria-label="My Places">
@@ -791,94 +793,65 @@
 
       return node;
     }
+// ===== Needed helpers for My Places =====
+// Marker color map + icon factory
+const TYPE_COLORS = {
+  'Museum':'#00cfd4','Landmark':'#00cfd4','Historical Home':'#00cfd4','Archaeological':'#00cfd4',
+  'Religious':'#00cfd4','Industrial':'#00cfd4','Outdoor':'#00cfd4','Burial':'#00cfd4','Political':'#00cfd4'
+};
+function siteIconFor(type){
+  const color = TYPE_COLORS[type] || '#00cfd4';
+  return L.divIcon({
+    className:'circle-icon',
+    html:`<div style="width:18px;height:18px;border-radius:50%;background:${color};border:2px solid #fff;box-shadow:0 0 0 2px rgba(0,0,0,.12)"></div>`,
+    iconSize:[22,22], iconAnchor:[11,11]
+  });
+}
 
-    /* ---------------- Favorites (kept) ---------------- */
-      function toggleFavorite(id){
-        const adding = !state.favorites.has(id);
-        if(adding) state.favorites.add(id); else state.favorites.delete(id);
-        localStorage.setItem('traipse:favorites', JSON.stringify(Array.from(state.favorites)));
-        document.querySelectorAll(`.fav[data-id="${id}"]`).forEach(b=>b.classList.toggle('active', state.favorites.has(id)));
-      
-        // Auto-add to active trip when saving
-        if(adding){
-          const list = state.trips.lists[state.trips.activeId];
-          if(list && !list.items.includes(id)) { list.items.push(id); saveTrips(); }
-        }
-        if(favoritesOpen) renderFavorites();
-      }
+// Trip + favorites helpers
+function saveTrips(){ localStorage.setItem('traipse:trips', JSON.stringify(state.trips)); }
+function itemById(id){ return state.items.find(x=>x.id===id); }
 
+function addIdsToActiveTrip(ids){
+  const list = state.trips.lists[state.trips.activeId]; if(!list) return 0;
+  let added = 0;
+  ids.forEach(id=>{
+    if(!list.items.includes(id)){ list.items.push(id); added++; }
+    if(!state.favorites.has(id)) state.favorites.add(id);
+  });
+  localStorage.setItem('traipse:favorites', JSON.stringify(Array.from(state.favorites)));
+  saveTrips();
+  return added;
+}
+function removeFromTrip(id){
+  const list = state.trips.lists[state.trips.activeId]; if(!list) return;
+  list.items = list.items.filter(x=>x!==id);
+  saveTrips();
+}
 
-        function renderFavorites(){
-          ensurePersistence();
-          ensureTripSelect();
-        
-          const listEl = document.getElementById('favoritesList');
-          const hiddenEl = document.getElementById('hiddenList');
-        
-          const active = state.trips.lists[state.trips.activeId];
-          // Trip shows its own items; if empty, fall back to all favorites
-          const ids = (active?.items?.length ? active.items : Array.from(state.favorites));
-        
-          const items = ids
-            .map(id=>itemById(id))
-            .filter(Boolean);
-        
-          const visible = items.filter(it=>!state.hidden.has(it.id))
-            .map(it => ({it,score:scoreMatches(it),dist:distanceFromUser(it)}))
-            .sort((a,b)=> b.score-a.score || a.dist-b.dist);
-        
-          listEl.innerHTML = '';
-          if(!visible.length){
-            listEl.innerHTML = '<p class="mini">No saved places yet. Tap the heart on any card or use “Add All Favorites to Trip”.</p>';
-          } else {
-            visible.forEach(({it,dist})=>{
-              const row = document.createElement('div');
-              row.className = 'fav-item';
-              const img = (it.image ? it.image : 'images/default.jpg');
-              row.innerHTML = `
-                <img class="fav-thumb" src="${img}" onerror="this.src='images/default.jpg'" alt="">
-                <div>
-                  <div class="fav-title">${it.name}</div>
-                  <div class="fav-meta">
-                    ${(it.type||'Site')} • ${(it.categories||[]).join(', ') || '—'}
-                    ${it.durationText? ' • ⏱ '+it.durationText : ''}
-                    ${it.costText? ' • '+it.costText : ''}
-                    ${isFinite(dist)&&dist!==Infinity? ' • '+(dist<0.2? (dist*5280).toFixed(0)+' ft' : dist.toFixed(1)+' mi'):''}
-                  </div>
-                </div>
-                <div class="fav-acts">
-                  <button class="x" data-act="hide" data-id="${it.id}">🙈 Hide</button>
-                  <button class="x" data-act="remove" data-id="${it.id}">❌ Remove</button>
-                </div>
-              `;
-              listEl.appendChild(row);
-            });
-          }
-        
-          // Hidden list
-          const hidden = items.filter(it=>state.hidden.has(it.id));
-          hiddenEl.innerHTML = '';
-          if(hidden.length){
-            document.getElementById('hiddenDrawer').style.display='block';
-            hidden.forEach(it=>{
-              const row = document.createElement('div');
-              row.className = 'fav-item';
-              row.innerHTML = `
-                <img class="fav-thumb" src="${it.image||'images/default.jpg'}" onerror="this.src='images/default.jpg'" alt="">
-                <div><div class="fav-title">${it.name}</div><div class="mini">Hidden</div></div>
-                <div class="fav-acts"><button class="x" data-act="restore" data-id="${it.id}">⤴ Restore</button></div>
-              `;
-              hiddenEl.appendChild(row);
-            });
-          } else {
-            document.getElementById('hiddenDrawer').style.display='none';
-          }
-        
-          // Delegated actions
-          listEl.querySelectorAll('[data-act="remove"]').forEach(b=> b.onclick = ()=> removeFromTrip(b.dataset.id));
-          listEl.querySelectorAll('[data-act="hide"]').forEach(b=> b.onclick = ()=> hideItem(b.dataset.id));
-          hiddenEl.querySelectorAll('[data-act="restore"]').forEach(b=> b.onclick = ()=> restoreItem(b.dataset.id));
-        }
+// Optional: wire the Trip toolbar buttons since you render them
+function newTrip(){
+  const name = prompt('Trip name?','New Trip'); if(!name) return;
+  const id = name.toLowerCase().replace(/[^a-z0-9]+/g,'-')+'-'+Date.now().toString(36);
+  state.trips.lists[id] = { name, items: [] };
+  state.trips.activeId = id; saveTrips();
+  ensureTripSelect(); // this re-renders list + map via onchange handler
+}
+function renameTrip(){
+  const id = state.trips.activeId; const cur = state.trips.lists[id]; if(!cur) return;
+  const name = prompt('Rename trip:', cur.name); if(!name) return;
+  cur.name = name; saveTrips(); ensureTripSelect();
+}
+function deleteTrip(){
+  const id = state.trips.activeId;
+  if(id==='default'){ alert('Cannot delete default trip.'); return; }
+  if(!confirm('Delete this trip? Items remain in your Favorites.')) return;
+  delete state.trips.lists[id]; state.trips.activeId = 'default'; saveTrips(); ensureTripSelect();
+}
+// Hook the buttons
+document.getElementById('tripAdd')?.addEventListener('click', newTrip);
+document.getElementById('tripRename')?.addEventListener('click', renameTrip);
+document.getElementById('tripDelete')?.addEventListener('click', deleteTrip);
 
 
 
@@ -1092,6 +1065,38 @@ function closeFavorites(){
     p.setAttribute('aria-hidden','true');
   }
 }
+async function loadData(){
+  try{
+    const [siteRes,tourRes] = await Promise.all([
+      fetch('locations.json?v='+Date.now()),
+      fetch('tours.json?v='+Date.now())
+    ]);
+    const sites = await siteRes.json();
+    const tours = await tourRes.json();
+
+    state.rawSites = Array.isArray(sites)?sites: (sites.locations||[]);
+    state.rawTours = Array.isArray(tours)?tours: (tours.tours||[]);
+
+    const siteItems = state.rawSites.map(normalizeSite);
+    const tourItems = state.rawTours.map(normalizeTour);
+    state.items = [...siteItems, ...tourItems];
+
+    // Build main filters (your UI calls these)
+    buildFilters('Main');
+    buildFilters('Map');
+    syncFilterUIs('main');
+
+    // Optional: locate user for distance text
+    if(navigator.geolocation){
+      navigator.geolocation.getCurrentPosition(
+        pos => { state.geoloc={lat:pos.coords.latitude, lng:pos.coords.longitude}; },
+        ()=>{},
+        { enableHighAccuracy:true, timeout:7000, maximumAge:120000 }
+      );
+    }
+  }catch(e){ console.error(e); }
+}
+loadData();
 
 document.getElementById('closeFavorites').addEventListener('click', closeFavorites);
 
@@ -1126,11 +1131,108 @@ document.getElementById('btnExportPDF').addEventListener('click', ()=>{
   L.browserPrint({ mode: 'Landscape', title: 'My Places Map' }).print(favoritesMap);
 });
 
-    };
+function toggleFavorite(id){
+  const adding = !state.favorites.has(id);
+  if (adding) state.favorites.add(id); else state.favorites.delete(id);
+  localStorage.setItem('traipse:favorites', JSON.stringify(Array.from(state.favorites)));
+  document.querySelectorAll(`.fav[data-id="${id}"]`).forEach(b=>b.classList.toggle('active', state.favorites.has(id)));
 
+  // also add to current trip when saving
+  if (adding) {
+    const list = state.trips.lists[state.trips.activeId];
+    if (list && !list.items.includes(id)) { list.items.push(id); saveTrips(); }
+  }
+  if (favoritesOpen) { try { renderFavorites(); renderFavoritesMap(); } catch(_){} }
+}
 
+// --- main list renderer (ALL / SITES / TOURS + filters + sorting) ---
+function render(){
+  const tab = state.tab || document.querySelector('.tabs .tab.active')?.dataset.tab || 'all';
+  const rows = [];
 
+  for (const it of state.items){
+    if (tab==='site' && it.type!=='Site') continue;
+    if (tab==='tour' && it.type!=='Tour') continue;
 
+    // filter buckets
+    if (state.filters.siteTypes.size && !state.filters.siteTypes.has(it.siteType)) continue;
+    if (state.filters.periods.size){
+      const p = it.periods || [];
+      if (!p.some(x => state.filters.periods.has(x))) continue;
+    }
+    if (state.filters.tags.size){
+      let ok = true;
+      for (const key of state.filters.tags){ if (!hasTag(it,key)) { ok=false; break; } }
+      if (!ok) continue;
+    }
+
+    const score = scoreMatches(it);
+    const dist  = distanceFromUser(it);
+    const cost  = costRank(it);
+    rows.push({it, score, dist, cost});
+  }
+
+  // sorting
+  const sortMode = state.sort || 'best';
+  if (sortMode==='closest'){
+    rows.sort((a,b)=> (a.dist - b.dist) || (b.score - a.score));
+  } else if (sortMode==='cheapest'){
+    rows.sort((a,b)=> (a.cost - b.cost) || (b.score - a.score));
+  } else if (sortMode==='theme'){
+    rows.sort((a,b)=> (String(a.it.categories?.[0]||'').localeCompare(String(b.it.categories?.[0]||''))) || a.it.name.localeCompare(b.it.name));
+  } else { // best
+    rows.sort((a,b)=> (b.score - a.score) || (a.dist - b.dist));
+  }
+
+  const grid = document.getElementById('cards');
+  if (!grid) return;
+  grid.innerHTML = '';
+  const frag = document.createDocumentFragment();
+  rows.forEach(({it, score, dist}) => frag.appendChild(buildCardNode(it, score, dist)));
+  grid.appendChild(frag);
+}
+
+// sort + tabs wiring
+document.getElementById('sortSelect')?.addEventListener('change', (e)=>{
+  state.sort = e.target.value;
+  localStorage.setItem('traipse:sort', state.sort);
+  render();
+});
+document.querySelectorAll('.tabs .tab').forEach(btn=>{
+  btn.addEventListener('click', ()=>{
+    document.querySelectorAll('.tabs .tab').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    state.tab = btn.dataset.tab;
+    render();
+  });
+});
+
+// --- simple itinerary text generator for My Places ---
+function generateItineraryText(){
+  const items = (typeof tripItems==='function') ? tripItems() : [];
+  if (!items.length) return 'No places in this trip yet.';
+  return items.map((it, i)=>{
+    const bits = [ `${i+1}. ${it.name}` ];
+    if (it.durationText) bits.push(`⏱ ${it.durationText}`);
+    if (it.costText)     bits.push(`Cost: ${it.costText}`);
+    if (it.categories?.length) bits.push(it.categories.join(', '));
+    return bits.join(' • ');
+  }).join('\n');
+}
+
+// call render once data loads
+const _origLoadData = (typeof loadData==='function') ? loadData : null;
+if (_origLoadData){
+  // wrap to render after data arrives
+  window.loadData = async function(){
+    await _origLoadData();
+    try { render(); } catch(_) {}
+  };
+} else {
+  // if you remove loadData later, at least try rendering on DOM ready
+  if (document.readyState !== 'loading') { try { render(); } catch(_) {} }
+  else document.addEventListener('DOMContentLoaded', ()=>{ try { render(); } catch(_) {} });
+}
 
   </script>
 </body>

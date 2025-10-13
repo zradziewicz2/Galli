@@ -670,19 +670,24 @@
       return chips;
     }
 
-    // Build the Stats table HTML for an item (kept)
+    // Build the Stats table HTML for an item (with inline info icon for Cost)
     function buildStatsTableHTML(it){
-      const r = it.raw||{};
+      const r = it.raw || {};
       const yesNo = v => v===undefined || v===null ? '—' : (v ? 'Yes' : 'No');
-
+    
       const foodOnsite = !!(r.diningonsite || r.diningonsite2);
       const transitOk = (r.transit||'').toLowerCase()==='underhalfamilefromtransit';
       const payMethod = (r.paymentmethod||'').toLowerCase()==='both' ? 'Cash & credit' :
                         (r.paymentmethod||'') ? String(r.paymentmethod) : '—';
-
+    
+      // build inline info icon if costDescription exists
+      const costIcon = it.costDescription
+        ? ` <a href="#" class="info-cost" data-id="${it.id}" style="margin-left:6px;text-decoration:none;font-weight:bold;border:1px solid #999;border-radius:50%;padding:0 5px;font-size:0.8em;">i</a>`
+        : '';
+    
       const rowsSite = [
         ['Hours', r.hours||'—'],
-        ['Cost', it.costText || '—'],
+        ['Cost', (it.costText || '—') + costIcon],
         ['Duration', it.durationText || '—'],
         ['Pet-friendly', yesNo(r.dogfriendly)],
         ['Family-friendly', yesNo(r.family_friendly)],
@@ -695,20 +700,25 @@
         ['Public access', yesNo(r.publicaccess)],
         ['Payment method', payMethod]
       ];
-
+    
       const rowsTour = [
         ['Duration', it.durationText || '—'],
         ['# of sites', r.number_of_sites || '—'],
-        ['Cost', r.Cost || r.cost_range?.join(' - ') || '—'],
+        ['Cost', (r.Cost || r.cost_range?.join(' - ') || '—') + costIcon],
         ['Reservation required', yesNo(r.reservation_required)],
         ['Seasonal', yesNo(r.seasonal)],
         ['Group type', r.group_type || '—']
       ];
-
+    
       const rows = it.type==='Tour' ? rowsTour : rowsSite;
       const tr = rows.map(([k,v])=>`<tr><th>${k}</th><td>${v}</td></tr>`).join('');
-      return `<table class="stats" aria-label="Details"><tbody>${tr}</tbody></table>`;
+      const tableHTML = `<table class="stats" aria-label="Details"><tbody>${tr}</tbody></table>`;
+      const descHTML = it.costDescription
+        ? `<p class="costdesc" data-for="${it.id}" style="display:none;margin-top:4px;">${it.costDescription}</p>`
+        : '';
+      return tableHTML + descHTML;
     }
+
 
     function costBadgeHTML(it){
       const c = (it.costText || it.raw?.Cost || '').toString().trim();

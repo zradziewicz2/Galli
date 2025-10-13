@@ -563,6 +563,7 @@
         periods,
         description: raw.description||'',
         costText: raw.dollaramount && !['0','$0','-'].includes(String(raw.dollaramount).trim()) ? String(raw.dollaramount) : (raw.cost==='free'?'Free': (raw.cost==='paid'?'Paid':'')),
+        costDescription: raw.cost_description || '',
         durationText: raw.estimatedtime || '',
         city: (raw.city||'').toLowerCase(),
         raw
@@ -729,36 +730,44 @@
       if(distanceText) metaBits.push(distanceText);
       const img = resolveImage(it.image) || 'images/default.jpg';
 
-      const links = [];
-      if(it.website){ links.push(`<a href="${it.website}" target="_blank" rel="noopener">🌐 <span>Website</span></a>`); }
-      if(it.type==='Tour' && it.raw?.external_links){
-        for(const [name,url] of Object.entries(it.raw.external_links)){ links.push(`<a href="${url}" target="_blank" rel="noopener">🔗 <span>${name}</span></a>`); }
-      }
-      const openCard = `<a href="#card-${it.id}" onclick="document.getElementById('closeMap').click(); setTimeout(()=>{document.getElementById('card-${it.id}')?.scrollIntoView({behavior:'smooth',block:'start'});},150); return false;">Open card</a>`;
+const links = [];
+if(it.website){
+  links.push(`<a href="${it.website}" target="_blank" rel="noopener">🌐 <span>Website</span></a>`);
+}
+if(it.type==='Tour' && it.raw?.external_links){
+  for(const [name,url] of Object.entries(it.raw.external_links)){
+    links.push(`<a href="${url}" target="_blank" rel="noopener">🔗 <span>${name}</span></a>`);
+  }
+}
+// NEW: “i” icon only if costDescription exists
+if(it.costDescription){
+  links.push(`<a href="#" class="info-cost" data-id="${it.id}">ℹ️ <span>Cost details</span></a>`);
+}
 
-      const stats = buildStatsTableHTML(it);
+const openCard = `<a href="#card-${it.id}" onclick="document.getElementById('closeMap').click(); setTimeout(()=>{document.getElementById('card-${it.id}')?.scrollIntoView({behavior:'smooth',block:'start'});},150); return false;">Open card</a>`;
+const stats = buildStatsTableHTML(it);
+return `<article class="card ${asPopup?'popup-card':''}" id="card-${it.id}">
+  <span class="badge">${it.type||'Site'}</span>
+  <button class="fav${state.favorites.has(it.id)?' active':''}" aria-label="Save" data-id="${it.id}">
+    <svg viewBox="0 0 24 24"><path d="M12 21s-7-4.35-7-10a4 4 0 0 1 7-2 4 4 0 0 1 7 2c0 5.65-7 10-7 10z"/></svg>
+  </button>
+  <img class="img" src="${img}" alt="${it.name} image" onerror="this.src='images/default.jpg'"/>
+  <div class="inner">
+    <h3 class="title">${it.name}</h3>
+    <div class="meta">${metaBits.join(' • ')}</div>
+    <div class="chipbar">${chipHtml}</div>
+    <details class="more">
+      <summary><span>More Info</span></summary>
+      <div class="more-body">
+        <div class="icons">${[...links, openCard].join(' ')}</div>
+        <p class="desc">${it.description||''}</p>
+        ${it.costDescription ? `<p class="costdesc" data-for="${it.id}" style="display:none">${it.costDescription}</p>` : ``}
+        ${stats}
+      </div>
+    </details>
+  </div>
+</article>`;
 
-      return `
-        <article class="card ${asPopup?'popup-card':''}" id="card-${it.id}">
-          <span class="badge">${it.type||'Site'}</span>
-          <button class="fav${state.favorites.has(it.id)?' active':''}" aria-label="Save" data-id="${it.id}">
-            <svg viewBox="0 0 24 24"><path d="M12 21s-7-4.35-7-10a4 4 0 0 1 7-2 4 4 0 0 1 7 2c0 5.65-7 10-7 10z"/></svg>
-          </button>
-          <img class="img" src="${img}" alt="${it.name} image" onerror="this.src='images/default.jpg'"/>
-          <div class="inner">
-            <h3 class="title">${it.name}</h3>
-            <div class="meta">${metaBits.join(' • ')}</div>
-            <div class="chipbar">${chipHtml}</div>
-            <details class="more">
-              <summary><span>More Info</span></summary>
-              <div class="more-body">
-                <div class="icons">${[...links, openCard].join(' ')}</div>
-                <p class="desc">${it.description||''}</p>
-                ${stats}
-              </div>
-            </details>
-          </div>
-        </article>`;
     }
 
     function buildCardNode(it, score, distMiles){
@@ -797,22 +806,41 @@
       const chips = filterChips(it);
       chips.forEach(c=>{ const s=document.createElement('span'); s.className='chip hit'; s.textContent=c; chipbar.appendChild(s); });
 
-      const icons = node.querySelector('.icons');
-      const links=[];
-      if(it.website){ links.push(`<a href="${it.website}" target="_blank" rel="noopener">🌐 <span>Website</span></a>`); }
-      if(it.type==='Tour' && it.raw?.external_links){
-        for(const [name,url] of Object.entries(it.raw.external_links)){ links.push(`<a href="${url}" target="_blank" rel="noopener">🔗 <span>${name}</span></a>`); }
-      }
-      icons.innerHTML = links.join(' ');
-      node.querySelector('.desc').textContent = it.description||'';
-
-      // stats
-      const moreBody = root.querySelector('.more-body');
-      const statsDiv = document.createElement('div');
-      statsDiv.innerHTML = buildStatsTableHTML(it);
-      moreBody.appendChild(statsDiv.firstElementChild);
-
-      return node;
+const icons = node.querySelector('.icons');
+const links=[];
+if(it.website){
+  links.push(`<a href="${it.website}" target="_blank" rel="noopener">🌐 <span>Website</span></a>`);
+}
+if(it.type==='Tour' && it.raw?.external_links){
+  for(const [name,url] of Object.entries(it.raw.external_links)){
+    links.push(`<a href="${url}" target="_blank" rel="noopener">🔗 <span>${name}</span></a>`);
+  }
+    }
+    // NEW: “i” icon only if costDescription exists
+    if(it.costDescription){
+      links.push(`<a href="#" class="info-cost" data-id="${it.id}">ℹ️ <span>Cost details</span></a>`);
+    }
+    icons.innerHTML = links.join(' ');
+    
+    node.querySelector('.desc').textContent = it.description||'';
+    
+    // NEW: hidden cost description paragraph (shown when ℹ️ clicked)
+    if(it.costDescription){
+      const p = document.createElement('p');
+      p.className = 'costdesc';
+      p.setAttribute('data-for', it.id);
+      p.style.display = 'none';
+      p.textContent = it.costDescription;
+      root.querySelector('.more-body').appendChild(p);
+    }
+    
+    // stats
+    const moreBody = root.querySelector('.more-body');
+    const statsDiv = document.createElement('div');
+    statsDiv.innerHTML = buildStatsTableHTML(it);
+    moreBody.appendChild(statsDiv.firstElementChild);
+    return node;
+    ;
     }
 
     /* ---------------- Favorites (kept) ---------------- */
@@ -1275,6 +1303,18 @@ function openFavorites(){
     document.getElementById('closeMap').addEventListener('click', ()=>{
       document.getElementById('mapPanel').style.display='none';
       mapOpen=false;
+    });
+    document.addEventListener('click', (e)=>{
+      const a = e.target.closest('.info-cost');
+      if(!a) return;
+      e.preventDefault();
+      const id = a.getAttribute('data-id');
+      // Find the nearest .more-body, then the matching paragraph
+      const scope = a.closest('.more-body') || document;
+      const p = scope.querySelector(`.costdesc[data-for="${id}"]`);
+      if(p){
+        p.style.display = (p.style.display === 'none' || !p.style.display) ? 'block' : 'none';
+      }
     });
     document.getElementById('mapShowAll').addEventListener('click', ()=>{
       if(!map) return;

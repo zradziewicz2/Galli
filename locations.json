@@ -35,7 +35,7 @@
     "address": "123 Main Street, Denver CO",
     "subsites": [
       {
-        "name": "Dinosaur Trail",
+        "name": "Guided Bus Tour (English)",
         "description": "250+ fossil tracks…",
         "costText": "$12 adult • $10 youth",
         "costDescription": "EBT discounts available; kids <3 free",
@@ -43,13 +43,55 @@
         "website": "https://dinoridge.org/visit-dinosaur-ridge/dinosaur-trail/"
       },
       {
-        "name": "Triceratops Trail",
+        "name": "Guided Bus Tour (Spanish)",
         "description": "1.5-mile gravel trail with vertical sandstone walls…",
         "costText": "Free trail • $ optional guided",
         "durationText": "60–90 min",
         "website": "https://dinoridge.org/visit-dinosaur-ridge/triceratops-trail/"
-      }
+      },
+      {
+        "name": "Private Guided Tour",
+        "description": "1.5-mile gravel trail with vertical sandstone walls…",
+        "costText": "Free trail • $ optional guided",
+        "durationText": "60–90 min",
+        "website": "https://dinoridge.org/visit-dinosaur-ridge/triceratops-trail/"
+      },
+      {
+        "name": "Guided Walking Tour",
+        "description": "1.5-mile gravel trail with vertical sandstone walls…",
+        "costText": "Free trail • $ optional guided",
+        "durationText": "60–90 min",
+        "website": "https://dinoridge.org/visit-dinosaur-ridge/triceratops-trail/"
+      },
+      {
+        "name": "Walk with a Geologist (Dinosaur Ridge Trail)",
+        "description": "1.5-mile gravel trail with vertical sandstone walls…",
+        "costText": "Free trail • $ optional guided",
+        "durationText": "60–90 min",
+        "website": "https://dinoridge.org/visit-dinosaur-ridge/triceratops-trail/"
+      },
+      {
+        "name": "Self-Guided Walk",
+        "description": "1.5-mile gravel trail with vertical sandstone walls…",
+        "costText": "Free trail • $ optional guided",
+        "durationText": "60–90 min",
+        "website": "https://dinoridge.org/visit-dinosaur-ridge/triceratops-trail/"
+      },
+      {
+        "name": "Main Visitor Center",
+        "description": "1.5-mile gravel trail with vertical sandstone walls…",
+        "costText": "Free trail • $ optional guided",
+        "durationText": "60–90 min",
+        "website": "https://dinoridge.org/visit-dinosaur-ridge/triceratops-trail/"
+      },
+      {
+        "name": "Exhibit Hall",
+        "description": "1.5-mile gravel trail with vertical sandstone walls…",
+        "costText": "Free trail • $ optional guided",
+        "durationText": "60–90 min",
+        "website": "https://dinoridge.org/visit-dinosaur-ridge/triceratops-trail/" }
     ]
+
   },
   {
     "name": "Molly Brown House Museum",

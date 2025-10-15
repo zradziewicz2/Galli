@@ -913,11 +913,15 @@ function subsiteBarHTML(it){
 
       node.querySelector('.title').textContent = it.name;
             // If multi-site, render the subsite selector just under the title
-// If multi-site, render the subsite selector just under the title
+// If multi-site, render the subsite selector above "More Info"
 const inner = root.querySelector('.inner');
+const chipbarEl = inner.querySelector('.chipbar');
+const moreEl = inner.querySelector('.more');
 if (it.subsites && it.subsites.length) {
-  inner.insertAdjacentHTML('afterbegin', subsiteBarHTML(it)); // bar + desc once
+  // put the pills right before the <details class="more"> section
+  moreEl.insertAdjacentHTML('beforebegin', subsiteBarHTML(it));
 }
+
 
 
 
@@ -974,7 +978,9 @@ if(it.type==='Tour' && it.raw?.external_links){
     const footer = document.createElement('div');
     footer.className = 'compare-footer';
     footer.innerHTML = `<button class="display-btn" data-id="${it.id}" aria-expanded="false">Display</button><div class="compare-slot"></div>`;
-    root.querySelector('.inner').appendChild(footer);
+    const moreEl2 = root.querySelector('.more');
+    moreEl2.insertAdjacentElement('afterend', footer);
+
 
     return node;
     ;
@@ -1459,6 +1465,7 @@ function openFavorites(){
 
 // Handle subsite selection and display options
 // Subsite multi-select + keep "active" for stats/meta
+// Subsite multi-select + keep "active" for stats/meta
 document.addEventListener('click', (e) => {
   const pill = e.target.closest('.subsite-pill[data-role="subsite"]');
   if (!pill) return;
@@ -1466,29 +1473,32 @@ document.addEventListener('click', (e) => {
   const id  = pill.getAttribute('data-id');
   const idx = parseInt(pill.getAttribute('data-index'), 10) || 0;
   const item = state.items.find(x => x.id === id);
-  if (!item) return;
+  if (!item || !item.subsites) return;
 
-  // 1) Toggle multi-select set
+  // --- MULTI-SELECT TOGGLE ---
   item.selectedSubsites = item.selectedSubsites || new Set();
-  const clickedName = item.subsites?.[idx]?.name || '';
-  if (clickedName) {
-    if (item.selectedSubsites.has(clickedName)) item.selectedSubsites.delete(clickedName);
-    else item.selectedSubsites.add(clickedName);
+  const clicked = item.subsites[idx];
+  const name = clicked?.name || '';
+  if (name) {
+    if (item.selectedSubsites.has(name)) item.selectedSubsites.delete(name);
+    else item.selectedSubsites.add(name);
   }
 
-  // 2) Also set "active" for single-selection behaviors (meta/stats)
+  // --- SINGLE "ACTIVE" to drive cost/meta/stats ---
   item.activeSubsiteIndex = idx;
 
-  // 3) Find card
-  const card  = document.getElementById('card-' + id);
+  // --- FIND CARD ---
+  const card = document.getElementById('card-' + id);
   if (!card) return;
 
-  // 4) Rebuild subsite bar (reflects .active & .chosen) + stats
+  // --- REBUILD BAR (reflects .active + .chosen) ---
   const inner = card.querySelector('.inner');
+  const moreEl = inner.querySelector('.more');
   const oldBar = inner.querySelector('.subsite-bar')?.parentElement || inner.querySelector('.subsite-bar');
   const barHTML = subsiteBarHTML(item);
-  if (oldBar) oldBar.outerHTML = barHTML; else inner.insertAdjacentHTML('afterbegin', barHTML);
+  if (oldBar) oldBar.outerHTML = barHTML; else moreEl.insertAdjacentHTML('beforebegin', barHTML);
 
+  // --- REBUILD STATS TABLE ---
   const moreBody = card.querySelector('.more-body');
   if (moreBody) {
     const oldTable = moreBody.querySelector('.stats')?.parentElement || moreBody.querySelector('.stats');
@@ -1496,7 +1506,7 @@ document.addEventListener('click', (e) => {
     if (oldTable) oldTable.outerHTML = newHTML; else moreBody.insertAdjacentHTML('beforeend', newHTML);
   }
 
-  // 5) Refresh meta row cost badge to match active subsite
+  // --- REFRESH META (cost badge) ---
   const s2 = activeSubsite(item);
   const meta = card.querySelector('.meta');
   if (meta) {
@@ -1510,16 +1520,18 @@ document.addEventListener('click', (e) => {
     meta.innerHTML = metaBits.join(' • ');
   }
 
-  // 6) Show/hide "Display" button at the bottom of the card
+  // --- DISPLAY BUTTON visibility + count ---
   const btn = card.querySelector('.display-btn');
+  const slot = card.querySelector('.compare-slot');
+  const n = item.selectedSubsites.size;
   if (btn) {
-    const n = item.selectedSubsites.size;
     btn.classList.toggle('show', n > 0);
     btn.textContent = n > 1 ? `Display (${n})` : 'Display';
-    btn.dataset.id = id;
+    if (n === 0 && slot) slot.innerHTML = ''; // auto-clear table if nothing chosen
   }
 });
-    // Build/refresh the comparison table when "Display" is clicked
+
+// Build/refresh the comparison table when "Display" is clicked
 document.addEventListener('click', (e) => {
   const btn = e.target.closest('.display-btn');
   if (!btn) return;
@@ -1541,7 +1553,7 @@ document.addEventListener('click', (e) => {
   `).join('');
 
   const table = `
-    <table class="subsite-compare">
+    <table class="subsite-compare" aria-label="Selected options">
       <thead><tr><th>Option</th><th>Cost</th><th>Duration</th></tr></thead>
       <tbody>${rows || '<tr><td colspan="3">No options selected.</td></tr>'}</tbody>
     </table>
@@ -1552,6 +1564,7 @@ document.addEventListener('click', (e) => {
 
   btn.setAttribute('aria-expanded','true');
 });
+
 
 
 

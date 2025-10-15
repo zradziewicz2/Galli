@@ -879,16 +879,34 @@ return `<article class="card ${asPopup?'popup-card':''}" id="card-${it.id}">
 
 function subsiteBarHTML(it){
   if(!it.subsites || !it.subsites.length) return '';
-  const selected = it.selectedSubsites || new Set();
+
+  // ensure the Set exists (for multi-select)
+  if (!it.selectedSubsites || !(it.selectedSubsites instanceof Set)) {
+    it.selectedSubsites = new Set();
+  }
+
+  // show up to 6 pills; mark active (drives stats/meta) and chosen (toggled selections)
   const pills = it.subsites.slice(0, 6).map((s, i) => {
-    const chosen = selected.has(s.name) ? 'chosen' : '';
-    const isActive = i===it.activeSubsiteIndex ? 'active' : '';
-    return `<button class="subsite-pill ${isActive} ${chosen}" data-role="subsite" data-id="${it.id}" data-index="${i}">${s.name}</button>`;
+    const isActive  = i === (it.activeSubsiteIndex|0);
+    const isChosen  = it.selectedSubsites.has(s.name);
+    return `
+      <button type="button"
+        class="subsite-pill ${isActive?'active':''} ${isChosen?'chosen':''}"
+        data-role="subsite"
+        data-id="${it.id}"
+        data-index="${i}"
+        aria-pressed="${isChosen ? 'true' : 'false'}"
+        title="${s.description ? s.description.replace(/"/g,'&quot;') : s.name}">
+        ${s.name}
+      </button>`;
   }).join('');
+
   const s = activeSubsite(it);
   const desc = s?.description ? `<div class="subsite-desc">${s.description}</div>` : '';
   return `<div class="subsite-bar">${pills}</div>${desc}`;
 }
+
+
 
 
 

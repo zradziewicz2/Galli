@@ -1,4 +1,5 @@
-  {
+[
+{
     "name": "Dinosaur Ridge",
     "id": "site123",
     "lat": 39.6766,
@@ -119,7 +120,7 @@
     "adaaccessibility": true,
     "dogfriendly": true,
     "address": "123 Main Street, Denver CO"
-  }
+  },
     {
         "name": "Colorado State Capitol",
         "id": "site126",

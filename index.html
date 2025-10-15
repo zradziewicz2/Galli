@@ -173,6 +173,53 @@
       overflow:auto;             /* single, smooth scroller for the overlay */
       padding:16px;
     }
+    .subsite-bar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin: 6px 0;
+      }
+      
+      .subsite-pill {
+        font-size: 11px;
+        padding: 4px 8px;
+        border-radius: 12px;
+        background: #f0f0f0;
+        cursor: pointer;
+        border: 1px solid var(--ring, #ccc);
+        transition: all 0.2s ease;
+      }
+      
+      .subsite-pill.active {
+        background: #d1f5ee;
+        border-color: #00bfa6;
+        color: #007a66;
+        font-weight: 600;
+      }
+      
+      .display-options-btn {
+        margin-top: 6px;
+        font-size: 12px;
+        padding: 5px 10px;
+        border-radius: 6px;
+        border: 1px solid #00bfa6;
+        background: #e6fffd;
+        cursor: pointer;
+      }
+      
+      .subsite-compare {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 8px;
+        font-size: 12px;
+      }
+      
+      .subsite-compare th, .subsite-compare td {
+        border: 1px solid #ccc;
+        padding: 4px 6px;
+        text-align: left;
+      }
+
     .favLayout{
       display:grid;
       grid-template-columns:1fr 520px; /* list left, map right */
@@ -1387,55 +1434,81 @@ function openFavorites(){
       }
     });
 
+// Handle subsite selection and display options
 document.addEventListener('click', (e) => {
-  // Only handle clicks on subsite pills
   const pill = e.target.closest('.subsite-pill[data-role="subsite"]');
   if (!pill) return;
 
   const id = pill.getAttribute('data-id');
-  const idx = parseInt(pill.getAttribute('data-index'), 10) || 0;
+  const idx = parseInt(pill.getAttribute('data-index'), 10);
   const item = state.items.find(x => x.id === id);
   if (!item) return;
 
-  // Set active subsite
-  item.activeSubsiteIndex = idx;
+  // Track selected subsites in a Set
+  item.selectedSubsites = item.selectedSubsites || new Set();
+  const name = pill.textContent.trim();
 
-  // Find the card
+  // Toggle on/off
+  if (item.selectedSubsites.has(name)) {
+    item.selectedSubsites.delete(name);
+    pill.classList.remove('active');
+  } else {
+    item.selectedSubsites.add(name);
+    pill.classList.add('active');
+  }
+
+  // Find card container
   const card = document.getElementById('card-' + id);
   if (!card) return;
 
-  // Rebuild subsite bar (pills + desc)
-  const inner = card.querySelector('.inner');
-  const oldBar = inner.querySelector('.subsite-bar')?.parentElement || inner.querySelector('.subsite-bar');
-  const barHTML = subsiteBarHTML(item);
-  if (oldBar) oldBar.outerHTML = barHTML;
-  else inner.insertAdjacentHTML('afterbegin', barHTML);
-
-  // Rebuild stats (Cost/Duration first)
-  const moreBody = card.querySelector('.more-body');
-  if (moreBody) {
-    const oldTable = moreBody.querySelector('.stats')?.parentElement || moreBody.querySelector('.stats');
-    const newHTML = buildStatsTableHTML(item);
-    if (oldTable) oldTable.outerHTML = newHTML;
-    else moreBody.insertAdjacentHTML('beforeend', newHTML);
+  // Show or hide the "Display Options" button
+  let displayBtn = card.querySelector('.display-options-btn');
+  if (item.selectedSubsites.size > 0) {
+    if (!displayBtn) {
+      const btnHTML = `<button class="display-options-btn">Display Options</button>`;
+      const moreInfo = card.querySelector('.more-info') || card.querySelector('.more-link');
+      if (moreInfo) moreInfo.insertAdjacentHTML('beforebegin', btnHTML);
+    }
+  } else if (displayBtn) {
+    displayBtn.remove();
+    const existingTable = card.querySelector('.subsite-compare');
+    if (existingTable) existingTable.remove();
   }
+});
 
-  // Refresh meta row cost badge to match the active subsite
-  const s2 = activeSubsite(item);
-  const meta = card.querySelector('.meta');
-  if (meta) {
-    const metaBits = [];
-    const newBadge = costBadgeHTML({ costText: s2?.costText || item.costText, raw: item.raw });
-    if (newBadge) metaBits.push(newBadge);
-    if (item.categories?.length) metaBits.push(item.categories.join(', '));
-    if (item.periods?.length) metaBits.push(item.periods[0]);
+// When "Display Options" is clicked, show a comparison table
+document.addEventListener('click', (e) => {
+  if (!e.target.classList.contains('display-options-btn')) return;
 
-    // preserve existing distance text if present (e.g., "2.3 mi away" or "600 ft away")
-    const distMatch = meta.textContent.match(/(?:\d+(?:\.\d+)?\smi away|\d+\sft away)/);
-    if (distMatch?.[0]) metaBits.push(distMatch[0]);
+  const card = e.target.closest('.card');
+  if (!card) return;
+  const id = card.id.replace('card-', '');
+  const item = state.items.find(x => x.id === id);
+  if (!item || !item.subsites) return;
 
-    meta.innerHTML = metaBits.join(' • ');
-  }
+  const selectedNames = Array.from(item.selectedSubsites || []);
+  const selected = item.subsites.filter(s => selectedNames.includes(s.name));
+
+  // Build comparison table
+  let tableHTML = `
+    <table class="subsite-compare">
+      <thead><tr><th>Option</th><th>Cost</th><th>Duration</th></tr></thead>
+      <tbody>
+        ${selected.map(s => `
+          <tr>
+            <td>${s.name}</td>
+            <td>${s.costText || '-'}</td>
+            <td>${s.durationText || '-'}</td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>
+  `;
+
+  // Replace or insert table
+  const oldTable = card.querySelector('.subsite-compare');
+  if (oldTable) oldTable.outerHTML = tableHTML;
+  else e.target.insertAdjacentHTML('afterend', tableHTML);
 });
 
     document.getElementById('mapShowAll').addEventListener('click', ()=>{

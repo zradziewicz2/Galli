@@ -85,6 +85,16 @@
     /* Cost badge */
     .cost-badge{display:inline-flex;align-items:center;gap:4px;border:1px solid var(--ring);padding:0 6px;border-radius:8px;font-weight:700}
     .cost-badge.free{color:#059669;border-color:#bbf7d0;background:#ecfdf5}
+    
+    /* ===== Subsite selector ===== */
+    .subsite-bar{display:flex;gap:8px;align-items:center;margin:8px 0 10px}
+    .subsite-pill{
+      border:1px solid var(--ring); background:#e6fffd; /* brand tint */
+      padding:6px 10px; border-radius:999px; font-weight:700; font-size:12px; cursor:pointer;
+    }
+    .subsite-pill.active{outline:2px solid var(--brand); background:#fff}
+    .subsite-etc{border:1px dashed var(--ring); background:#fff}
+    .subsite-desc{font-size:12px;color:#374151;margin:6px 0 0}
 
     /* More Info */
     .more{margin-top:6px}
@@ -552,6 +562,17 @@
       const periods = (raw.timeperiod||[]).map(p => PERIOD_LABELS[p]||p);
       const siteTypeSlug = (raw.sitetype||'').toLowerCase();
       const siteType = SITETYPE_LABELS[siteTypeSlug] || (raw.type==='outdoor' ? 'Outdoor' : (SITETYPE_LABELS.other));
+    
+      // NEW: subsites normalization (optional)
+      const subsites = Array.isArray(raw.subsites) ? raw.subsites.map(s => ({
+        name: s.name || '',
+        description: s.description || '',
+        costText: s.costText || '',               // preferred for cards
+        costDescription: s.costDescription || '',
+        durationText: s.durationText || '',
+        website: s.website || ''
+      })) : [];
+    
       return {
         id: raw.id || (raw.name||'').toLowerCase().replace(/[^a-z0-9]+/g,'-'),
         name: raw.name,
@@ -562,13 +583,19 @@
         siteType,
         periods,
         description: raw.description||'',
-        costText: raw.dollaramount && !['0','$0','-'].includes(String(raw.dollaramount).trim()) ? String(raw.dollaramount) : (raw.cost==='free'?'Free': (raw.cost==='paid'?'Paid':'')),
+        // Keep top-level as fallback if no subsites
+        costText: raw.dollaramount && !['0','$0','-'].includes(String(raw.dollaramount).trim())
+          ? String(raw.dollaramount)
+          : (raw.cost==='free'?'Free': (raw.cost==='paid'?'Paid':'')),
         costDescription: raw.cost_description || '',
         durationText: raw.estimatedtime || '',
         city: (raw.city||'').toLowerCase(),
+        subsites,                 // <-- NEW
+        activeSubsiteIndex: 0,    // <-- NEW: default selection
         raw
       };
     }
+
 
     function normalizeTour(raw){
       let center=null;
@@ -671,53 +698,55 @@
     }
 
     // Build the Stats table HTML for an item (with inline info icon for Cost)
-    function buildStatsTableHTML(it){
-      const r = it.raw || {};
-      const yesNo = v => v===undefined || v===null ? '—' : (v ? 'Yes' : 'No');
-    
-      const foodOnsite = !!(r.diningonsite || r.diningonsite2);
-      const transitOk = (r.transit||'').toLowerCase()==='underhalfamilefromtransit';
-      const payMethod = (r.paymentmethod||'').toLowerCase()==='both' ? 'Cash & credit' :
-                        (r.paymentmethod||'') ? String(r.paymentmethod) : '—';
-    
-      // build inline info icon if costDescription exists
-      const costIcon = it.costDescription
-        ? ` <a href="#" class="info-cost" data-id="${it.id}" style="margin-left:6px;text-decoration:none;font-weight:bold;border:1px solid #999;border-radius:50%;padding:0 5px;font-size:0.8em;">i</a>`
-        : '';
-    
-      const rowsSite = [
-        ['Hours', r.hours||'—'],
-        ['Cost', (it.costText || '—') + costIcon],
-        ['Duration', it.durationText || '—'],
-        ['Pet-friendly', yesNo(r.dogfriendly)],
-        ['Family-friendly', yesNo(r.family_friendly)],
-        ['Gift shop', yesNo(r.giftshop)],
-        ['Food & beverage on-site', yesNo(foodOnsite)],
-        ['Accessible by public transit', yesNo(transitOk)],
-        ['ADA accessibility', yesNo(r.adaaccessibility)],
-        ['Luggage storage', yesNo(r.luggagestorage)],
-        ['Spanish translations', yesNo(r.spanishtranslations)],
-        ['Public access', yesNo(r.publicaccess)],
-        ['Payment method', payMethod]
-      ];
-    
-      const rowsTour = [
-        ['Duration', it.durationText || '—'],
-        ['# of sites', r.number_of_sites || '—'],
-        ['Cost', (r.Cost || r.cost_range?.join(' - ') || '—') + costIcon],
-        ['Reservation required', yesNo(r.reservation_required)],
-        ['Seasonal', yesNo(r.seasonal)],
-        ['Group type', r.group_type || '—']
-      ];
-    
-      const rows = it.type==='Tour' ? rowsTour : rowsSite;
-      const tr = rows.map(([k,v])=>`<tr><th>${k}</th><td>${v}</td></tr>`).join('');
-      const tableHTML = `<table class="stats" aria-label="Details"><tbody>${tr}</tbody></table>`;
-      const descHTML = it.costDescription
-        ? `<p class="costdesc" data-for="${it.id}" style="display:none;margin-top:4px;">${it.costDescription}</p>`
-        : '';
-      return tableHTML + descHTML;
-    }
+      function buildStatsTableHTML(it){
+        const r = it.raw || {};
+        const s = activeSubsite(it); // may be null
+      
+        const yesNo = v => v===undefined || v===null ? '—' : (v ? 'Yes' : 'No');
+        const foodOnsite = !!(r.diningonsite || r.diningonsite2);
+        const transitOk = (r.transit||'').toLowerCase()==='underhalfamilefromtransit';
+        const payMethod = (r.paymentmethod||'').toLowerCase()==='both' ? 'Cash & credit' :
+                          (r.paymentmethod||'') ? String(r.paymentmethod) : '—';
+      
+        // Prefer subsite cost/duration; fall back to top-level
+        const costText = (s?.costText || it.costText || '').trim();
+        const durationText = (s?.durationText || it.durationText || '').trim();
+        const costDesc = (s?.costDescription || it.costDescription || '').trim();
+        const costIcon = costDesc ? ` <a href="#" class="info-cost" data-id="${it.id}">i</a>` : '';
+      
+        // Put COST & DURATION first
+        const rowsSite = [
+          ['Cost', (costText || '—') + costIcon],
+          ['Duration', durationText || '—'],
+          ['Hours', r.hours||'—'],
+          ['Pet-friendly', yesNo(r.dogfriendly)],
+          ['Family-friendly', yesNo(r.family_friendly)],
+          ['Gift shop', yesNo(r.giftshop)],
+          ['Food & beverage on-site', yesNo(foodOnsite)],
+          ['Accessible by public transit', yesNo(transitOk)],
+          ['ADA accessibility', yesNo(r.adaaccessibility)],
+          ['Luggage storage', yesNo(r.luggagestorage)],
+          ['Spanish translations', yesNo(r.spanishtranslations)],
+          ['Public access', yesNo(r.publicaccess)],
+          ['Payment method', payMethod]
+        ];
+      
+        const rowsTour = [
+          ['Cost', (r.Cost || r.cost_range?.join(' - ') || costText || '—') + costIcon],
+          ['Duration', durationText || it.durationText || '—'],
+          ['# of sites', r.number_of_sites || '—'],
+          ['Reservation required', yesNo(r.reservation_required)],
+          ['Seasonal', yesNo(r.seasonal)],
+          ['Group type', r.group_type || '—']
+        ];
+      
+        const rows = it.type==='Tour' ? rowsTour : rowsSite;
+        const tr = rows.map(([k,v])=>`<tr><th>${k}</th><td>${v}</td></tr>`).join('');
+        const tableHTML = `<table class="stats" aria-label="Details"><tbody>${tr}</tbody></table>`;
+        const descHTML = costDesc ? `<p class="costdesc" data-for="${it.id}" style="display:none;margin-top:4px;">${costDesc}</p>` : '';
+        return tableHTML + descHTML;
+      }
+
 
 
     function costBadgeHTML(it){
@@ -732,7 +761,9 @@
       const chipHtml = chips.map(c=>`<span class="chip hit">${c}</span>`).join('');
       const metaBits=[];
       // cost badge visible up front (requested); keep existing meta intact too
-      const costBadge = costBadgeHTML(it);
+      const s = activeSubsite(it);
+      const costBadge = costBadgeHTML({ costText: s?.costText || it.costText, raw: it.raw });
+
       if(costBadge) metaBits.push(costBadge);
       if(it.categories?.length){ metaBits.push(it.categories.join(', ')); }
       if(it.periods?.length){ metaBits.push(it.periods[0]); }
@@ -779,6 +810,23 @@ return `<article class="card ${asPopup?'popup-card':''}" id="card-${it.id}">
 </article>`;
 
     }
+    function activeSubsite(it){
+  if(!it.subsites || !it.subsites.length) return null;
+  const idx = Math.min(Math.max(0, it.activeSubsiteIndex|0), it.subsites.length-1);
+  return it.subsites[idx];
+}
+
+function subsiteBarHTML(it){
+  if(!it.subsites || !it.subsites.length) return '';
+  const pills = it.subsites.slice(0, 3).map((s, i) => 
+    `<button class="subsite-pill ${i===it.activeSubsiteIndex?'active':''}" data-role="subsite" data-id="${it.id}" data-index="${i}">${s.name}</button>`
+  ).join('');
+  const etc = it.subsites.length>3 ? `<button class="subsite-pill subsite-etc" title="Show all" data-role="subsite-all" data-id="${it.id}">…</button>` : '';
+  const s = activeSubsite(it);
+  const desc = s?.description ? `<div class="subsite-desc">${s.description}</div>` : '';
+  return `<div class="subsite-bar">${pills}${etc}</div>${desc}`;
+}
+
 
     function buildCardNode(it, score, distMiles){
       const tpl = document.getElementById('cardTemplate');
@@ -800,10 +848,19 @@ return `<article class="card ${asPopup?'popup-card':''}" id="card-${it.id}">
       img.onerror = ()=>{ img.src = 'images/default.jpg'; };
 
       node.querySelector('.title').textContent = it.name;
+            // If multi-site, render the subsite selector just under the title
+// If multi-site, render the subsite selector just under the title
+const inner = root.querySelector('.inner');
+if (it.subsites && it.subsites.length) {
+  inner.insertAdjacentHTML('afterbegin', subsiteBarHTML(it)); // bar + desc once
+}
+
+
 
       // meta row + cost badge
       const metaBits=[];
-      const costBadge = costBadgeHTML(it);
+      const s = activeSubsite(it);
+      const costBadge = costBadgeHTML({ costText: s?.costText || it.costText, raw: it.raw });
       if(costBadge) metaBits.push(costBadge);
       if(it.categories?.length){ metaBits.push(it.categories.join(', ')); }
       if(it.periods?.length){ metaBits.push(it.periods[0]); }
@@ -1064,10 +1121,13 @@ function openFavorites(){
     p.setAttribute('aria-hidden','false');
   }
 
-  // NEW: ensure map exists & render its points
-  ensureFavoritesMap();
-  renderFavoritesMap();
+  // ✅ Only initialize and render map once the panel is visible
+  setTimeout(() => {
+    ensureFavoritesMap();
+    renderFavoritesMap();
+  }, 150);
 }
+
 
 
       function closeFavorites(){
@@ -1326,6 +1386,58 @@ function openFavorites(){
         p.style.display = (p.style.display === 'none' || !p.style.display) ? 'block' : 'none';
       }
     });
+
+document.addEventListener('click', (e) => {
+  // Only handle clicks on subsite pills
+  const pill = e.target.closest('.subsite-pill[data-role="subsite"]');
+  if (!pill) return;
+
+  const id = pill.getAttribute('data-id');
+  const idx = parseInt(pill.getAttribute('data-index'), 10) || 0;
+  const item = state.items.find(x => x.id === id);
+  if (!item) return;
+
+  // Set active subsite
+  item.activeSubsiteIndex = idx;
+
+  // Find the card
+  const card = document.getElementById('card-' + id);
+  if (!card) return;
+
+  // Rebuild subsite bar (pills + desc)
+  const inner = card.querySelector('.inner');
+  const oldBar = inner.querySelector('.subsite-bar')?.parentElement || inner.querySelector('.subsite-bar');
+  const barHTML = subsiteBarHTML(item);
+  if (oldBar) oldBar.outerHTML = barHTML;
+  else inner.insertAdjacentHTML('afterbegin', barHTML);
+
+  // Rebuild stats (Cost/Duration first)
+  const moreBody = card.querySelector('.more-body');
+  if (moreBody) {
+    const oldTable = moreBody.querySelector('.stats')?.parentElement || moreBody.querySelector('.stats');
+    const newHTML = buildStatsTableHTML(item);
+    if (oldTable) oldTable.outerHTML = newHTML;
+    else moreBody.insertAdjacentHTML('beforeend', newHTML);
+  }
+
+  // Refresh meta row cost badge to match the active subsite
+  const s2 = activeSubsite(item);
+  const meta = card.querySelector('.meta');
+  if (meta) {
+    const metaBits = [];
+    const newBadge = costBadgeHTML({ costText: s2?.costText || item.costText, raw: item.raw });
+    if (newBadge) metaBits.push(newBadge);
+    if (item.categories?.length) metaBits.push(item.categories.join(', '));
+    if (item.periods?.length) metaBits.push(item.periods[0]);
+
+    // preserve existing distance text if present (e.g., "2.3 mi away" or "600 ft away")
+    const distMatch = meta.textContent.match(/(?:\d+(?:\.\d+)?\smi away|\d+\sft away)/);
+    if (distMatch?.[0]) metaBits.push(distMatch[0]);
+
+    meta.innerHTML = metaBits.join(' • ');
+  }
+});
+
     document.getElementById('mapShowAll').addEventListener('click', ()=>{
       if(!map) return;
       const backup = {

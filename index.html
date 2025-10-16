@@ -968,13 +968,13 @@ return `<article class="card ${asPopup?'popup-card':''}" id="card-${it.id}">
   return it.subsites[idx];
 }
 
-function subsiteBarHTML(it, open = false){
-  if (!it.subsites || !it.subsites.length) return '';
+function subsiteBarHTML(it, open = false) {
+  if (!it.subsites?.length) return '';
   if (!it.selectedSubsites || !(it.selectedSubsites instanceof Set)) {
     it.selectedSubsites = new Set();
   }
 
-  const pills = it.subsites.slice(0, 8).map((s, i) => {
+  const pills = it.subsites.map((s, i) => {
     const isActive = i === (it.activeSubsiteIndex|0);
     const isChosen = it.selectedSubsites.has(s.name);
     return `
@@ -989,21 +989,19 @@ function subsiteBarHTML(it, open = false){
       </button>`;
   }).join('');
 
-  const count = (it.subsites?.length || 0);
+  const count = it.subsites.length;
   return `
     <div class="subsite-toggle" data-id="${it.id}">
       <span class="subsite-count">${count} subsites ▾</span>
       <div class="subsite-wrapper" style="display:${open ? 'block' : 'none'}">
-      <div class="subsite-bar">${pills}</div>
-      <div class="compare-container">
-        <button class="display-btn" aria-expanded="false" style="display:none">Compare Subsites</button>
-        <div class="compare-slot"></div>
+        <div class="subsite-bar">${pills}</div>
+        <div class="compare-container">
+          <button class="display-btn" aria-expanded="false" style="display:none">Compare Subsites</button>
+          <div class="compare-slot"></div>
+        </div>
       </div>
-
     </div>`;
 }
-
-
     function buildCardNode(it, score, distMiles){
       const tpl = document.getElementById('cardTemplate');
       const node = tpl.content.cloneNode(true);
@@ -1095,7 +1093,6 @@ if(it.type==='Tour' && it.raw?.external_links){
     footer.className = 'compare-footer';
     footer.innerHTML = `
       <button class="display-btn" data-id="${it.id}" aria-expanded="false" style="display:none">Display</button>
-      <div class="compare-slot"></div>
     `;
     const detailsEl = root.querySelector('.more');
     detailsEl.insertAdjacentElement('afterend', footer);

@@ -815,22 +815,31 @@
         const descHTML = costDesc ? `<p class="costdesc" data-for="${it.id}" style="display:none;margin-top:4px;">${costDesc}</p>` : '';
         return tableHTML + descHTML;
       }
-          function compareTableHTML(it){
+function compareTableHTML(it){
   if (!it.selectedSubsites || !(it.selectedSubsites instanceof Set)) return '';
   const chosen = (it.subsites || []).filter(s => it.selectedSubsites.has(s.name));
   if (!chosen.length) return '';
+
   const rows = chosen.map(s => `
     <tr>
-      <td>${s.name}</td>
-      <td>${(s.costText||'—')}</td>
-      <td>${(s.durationText||'—')}</td>
+      <td><strong>${s.name}</strong><br><small>${s.description || ''}</small></td>
+      <td>${s.costText || '—'}</td>
+      <td>${s.durationText || '—'}</td>
     </tr>`).join('');
+
   return `
     <table class="subsite-compare" aria-label="Selected options">
-      <thead><tr><th>Option</th><th>Cost</th><th>Duration</th></tr></thead>
+      <thead>
+        <tr>
+          <th>Option</th>
+          <th>Cost</th>
+          <th>Duration</th>
+        </tr>
+      </thead>
       <tbody>${rows}</tbody>
     </table>`;
 }
+
 
 function updateCompareUI(card, item){
   const btn  = card.querySelector('.display-btn');

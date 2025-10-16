@@ -197,16 +197,6 @@
         font-weight: 600;
       }
       
-      .display-options-btn {
-        margin-top: 6px;
-        font-size: 12px;
-        padding: 5px 10px;
-        border-radius: 6px;
-        border: 1px solid #00bfa6;
-        background: #e6fffd;
-        cursor: pointer;
-      }
-      
       .subsite-compare {
         width: 100%;
         border-collapse: collapse;
@@ -219,6 +209,24 @@
         padding: 4px 6px;
         text-align: left;
       }
+    .subsite-bar{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 10px}
+    .subsite-pill{
+      border:1px solid var(--ring);
+      background:#f3f4f6;
+      padding:4px 8px;
+      border-radius:12px;
+      font-weight:600;
+      font-size:11px;
+      cursor:pointer;
+    }
+    .subsite-pill.active{outline:2px solid var(--brand); background:#fff}
+    .subsite-pill.chosen{background:#e6fffd;border-color:#00cfd4}
+    
+    .compare-footer{margin-top:10px}
+    .display-btn{border:1px solid var(--ring);background:#fff;border-radius:10px;padding:6px 10px;font-size:12px;cursor:pointer}
+    .subsite-compare{width:100%;border-collapse:collapse;margin-top:8px;font-size:12px}
+    .subsite-compare th,.subsite-compare td{border:1px solid #e5e7eb;padding:6px;text-align:left}
+
 
     .favLayout{
       display:grid;
@@ -807,6 +815,34 @@
         const descHTML = costDesc ? `<p class="costdesc" data-for="${it.id}" style="display:none;margin-top:4px;">${costDesc}</p>` : '';
         return tableHTML + descHTML;
       }
+          function compareTableHTML(it){
+  if (!it.selectedSubsites || !(it.selectedSubsites instanceof Set)) return '';
+  const chosen = (it.subsites || []).filter(s => it.selectedSubsites.has(s.name));
+  if (!chosen.length) return '';
+  const rows = chosen.map(s => `
+    <tr>
+      <td>${s.name}</td>
+      <td>${(s.costText||'—')}</td>
+      <td>${(s.durationText||'—')}</td>
+    </tr>`).join('');
+  return `
+    <table class="subsite-compare" aria-label="Selected options">
+      <thead><tr><th>Option</th><th>Cost</th><th>Duration</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+}
+
+function updateCompareUI(card, item){
+  const btn  = card.querySelector('.display-btn');
+  const slot = card.querySelector('.compare-slot');
+  if (!btn || !slot) return;
+
+  const hasAny = item.selectedSubsites && item.selectedSubsites.size > 0;
+  btn.style.display = hasAny ? 'inline-flex' : 'none';
+
+  const open = btn.getAttribute('aria-expanded') === 'true';
+  slot.innerHTML = (open && hasAny) ? compareTableHTML(item) : '';
+}
 
 
 
@@ -836,6 +872,8 @@ const links = [];
 if(it.website){
   links.push(`<a href="${it.website}" target="_blank" rel="noopener">🌐 <span>Website</span></a>`);
 }
+
+
 if(it.type==='Tour' && it.raw?.external_links){
   for(const [name,url] of Object.entries(it.raw.external_links)){
     links.push(`<a href="${url}" target="_blank" rel="noopener">🔗 <span>${name}</span></a>`);
@@ -880,15 +918,13 @@ return `<article class="card ${asPopup?'popup-card':''}" id="card-${it.id}">
 function subsiteBarHTML(it){
   if(!it.subsites || !it.subsites.length) return '';
 
-  // ensure the Set exists (for multi-select)
   if (!it.selectedSubsites || !(it.selectedSubsites instanceof Set)) {
     it.selectedSubsites = new Set();
   }
 
-  // show up to 6 pills; mark active (drives stats/meta) and chosen (toggled selections)
-  const pills = it.subsites.slice(0, 6).map((s, i) => {
-    const isActive  = i === (it.activeSubsiteIndex|0);
-    const isChosen  = it.selectedSubsites.has(s.name);
+  const pills = it.subsites.slice(0, 8).map((s, i) => {
+    const isActive = i === (it.activeSubsiteIndex|0);
+    const isChosen = it.selectedSubsites.has(s.name);
     return `
       <button type="button"
         class="subsite-pill ${isActive?'active':''} ${isChosen?'chosen':''}"
@@ -905,6 +941,7 @@ function subsiteBarHTML(it){
   const desc = s?.description ? `<div class="subsite-desc">${s.description}</div>` : '';
   return `<div class="subsite-bar">${pills}</div>${desc}`;
 }
+
 
 
 
@@ -993,11 +1030,22 @@ if(it.type==='Tour' && it.raw?.external_links){
     statsDiv.innerHTML = buildStatsTableHTML(it);
     moreBody.appendChild(statsDiv.firstElementChild);
     // footer where "Display" button + table will live
+    // Compare footer (Display button + results slot)
     const footer = document.createElement('div');
     footer.className = 'compare-footer';
-    footer.innerHTML = `<button class="display-btn" data-id="${it.id}" aria-expanded="false">Display</button><div class="compare-slot"></div>`;
-    const moreEl2 = root.querySelector('.more');
-    moreEl2.insertAdjacentElement('afterend', footer);
+    footer.innerHTML = `
+      <button class="display-btn" data-id="${it.id}" aria-expanded="false" style="display:none">Display</button>
+      <div class="compare-slot"></div>
+    `;
+    const detailsEl = root.querySelector('.more');
+    detailsEl.insertAdjacentElement('afterend', footer);
+
+    
+    // show/hide the button based on current selection state
+    if (!it.selectedSubsites || !(it.selectedSubsites instanceof Set)) it.selectedSubsites = new Set();
+    const btn = footer.querySelector('.display-btn');
+    btn.style.display = it.selectedSubsites.size ? 'inline-flex' : 'none';
+
 
 
     return node;
@@ -1480,51 +1528,75 @@ function openFavorites(){
         p.style.display = (p.style.display === 'none' || !p.style.display) ? 'block' : 'none';
       }
     });
+    document.addEventListener('click', (e) => {
+  const btn = e.target.closest('.display-btn[data-id]');
+  if (!btn) return;
+
+  const id = btn.getAttribute('data-id');
+  const item = state.items.find(x => x.id === id);
+  if (!item) return;
+
+  // toggle open/closed
+  const open = btn.getAttribute('aria-expanded') === 'true';
+  btn.setAttribute('aria-expanded', open ? 'false' : 'true');
+
+  const card = document.getElementById('card-' + id);
+  if (card) updateCompareUI(card, item);
+});
+
 
 // Handle subsite selection and display options
 // Subsite multi-select + keep "active" for stats/meta
 // Subsite multi-select + keep "active" for stats/meta
 document.addEventListener('click', (e) => {
+  // Only handle clicks on subsite pills
   const pill = e.target.closest('.subsite-pill[data-role="subsite"]');
   if (!pill) return;
 
   const id  = pill.getAttribute('data-id');
   const idx = parseInt(pill.getAttribute('data-index'), 10) || 0;
   const item = state.items.find(x => x.id === id);
-  if (!item || !item.subsites) return;
+  if (!item) return;
 
-  // --- MULTI-SELECT TOGGLE ---
-  item.selectedSubsites = item.selectedSubsites || new Set();
-  const clicked = item.subsites[idx];
-  const name = clicked?.name || '';
-  if (name) {
-    if (item.selectedSubsites.has(name)) item.selectedSubsites.delete(name);
-    else item.selectedSubsites.add(name);
+  // ensure selection Set exists
+  if (!item.selectedSubsites || !(item.selectedSubsites instanceof Set)) {
+    item.selectedSubsites = new Set();
   }
 
-  // --- SINGLE "ACTIVE" to drive cost/meta/stats ---
+  const s = (item.subsites || [])[idx];
+  if (!s) return;
+
+  // toggle chosen (multi-select)
+  if (item.selectedSubsites.has(s.name)) {
+    item.selectedSubsites.delete(s.name);
+  } else {
+    item.selectedSubsites.add(s.name);
+  }
+
+  // also make this the active subsite (drives stats/meta)
   item.activeSubsiteIndex = idx;
 
-  // --- FIND CARD ---
+  // find that card
   const card = document.getElementById('card-' + id);
   if (!card) return;
 
-  // --- REBUILD BAR (reflects .active + .chosen) ---
+  // rebuild subsite bar (pills + desc)
   const inner = card.querySelector('.inner');
-  const moreEl = inner.querySelector('.more');
   const oldBar = inner.querySelector('.subsite-bar')?.parentElement || inner.querySelector('.subsite-bar');
   const barHTML = subsiteBarHTML(item);
-  if (oldBar) oldBar.outerHTML = barHTML; else moreEl.insertAdjacentHTML('beforebegin', barHTML);
+  if (oldBar) oldBar.outerHTML = barHTML;
+  else inner.insertAdjacentHTML('afterbegin', barHTML);
 
-  // --- REBUILD STATS TABLE ---
+  // rebuild stats
   const moreBody = card.querySelector('.more-body');
   if (moreBody) {
     const oldTable = moreBody.querySelector('.stats')?.parentElement || moreBody.querySelector('.stats');
     const newHTML = buildStatsTableHTML(item);
-    if (oldTable) oldTable.outerHTML = newHTML; else moreBody.insertAdjacentHTML('beforeend', newHTML);
+    if (oldTable) oldTable.outerHTML = newHTML;
+    else moreBody.insertAdjacentHTML('beforeend', newHTML);
   }
 
-  // --- REFRESH META (cost badge) ---
+  // refresh meta row badge to match active subsite
   const s2 = activeSubsite(item);
   const meta = card.querySelector('.meta');
   if (meta) {
@@ -1538,88 +1610,10 @@ document.addEventListener('click', (e) => {
     meta.innerHTML = metaBits.join(' • ');
   }
 
-  // --- DISPLAY BUTTON visibility + count ---
-  const btn = card.querySelector('.display-btn');
-  const slot = card.querySelector('.compare-slot');
-  const n = item.selectedSubsites.size;
-  if (btn) {
-    btn.classList.toggle('show', n > 0);
-    btn.textContent = n > 1 ? `Display (${n})` : 'Display';
-    if (n === 0 && slot) slot.innerHTML = ''; // auto-clear table if nothing chosen
-  }
+  // update the Display footer (button visibility + table if open)
+  updateCompareUI(card, item);
 });
 
-// Build/refresh the comparison table when "Display" is clicked
-document.addEventListener('click', (e) => {
-  const btn = e.target.closest('.display-btn');
-  if (!btn) return;
-
-  const card = btn.closest('.card');
-  const id   = btn.dataset.id || card?.id?.replace('card-','');
-  const item = state.items.find(x => x.id === id);
-  if (!card || !item || !item.subsites) return;
-
-  const names = Array.from(item.selectedSubsites || []);
-  const chosen = item.subsites.filter(s => names.includes(s.name));
-
-  const rows = chosen.map(s => `
-    <tr>
-      <td>${s.name}</td>
-      <td>${s.costText || '—'}</td>
-      <td>${s.durationText || '—'}</td>
-    </tr>
-  `).join('');
-
-  const table = `
-    <table class="subsite-compare" aria-label="Selected options">
-      <thead><tr><th>Option</th><th>Cost</th><th>Duration</th></tr></thead>
-      <tbody>${rows || '<tr><td colspan="3">No options selected.</td></tr>'}</tbody>
-    </table>
-  `;
-
-  const slot = card.querySelector('.compare-slot');
-  if (slot) slot.innerHTML = table;
-
-  btn.setAttribute('aria-expanded','true');
-});
-
-
-
-
-// When "Display Options" is clicked, show a comparison table
-document.addEventListener('click', (e) => {
-  if (!e.target.classList.contains('display-options-btn')) return;
-
-  const card = e.target.closest('.card');
-  if (!card) return;
-  const id = card.id.replace('card-', '');
-  const item = state.items.find(x => x.id === id);
-  if (!item || !item.subsites) return;
-
-  const selectedNames = Array.from(item.selectedSubsites || []);
-  const selected = item.subsites.filter(s => selectedNames.includes(s.name));
-
-  // Build comparison table
-  let tableHTML = `
-    <table class="subsite-compare">
-      <thead><tr><th>Option</th><th>Cost</th><th>Duration</th></tr></thead>
-      <tbody>
-        ${selected.map(s => `
-          <tr>
-            <td>${s.name}</td>
-            <td>${s.costText || '-'}</td>
-            <td>${s.durationText || '-'}</td>
-          </tr>
-        `).join('')}
-      </tbody>
-    </table>
-  `;
-
-  // Replace or insert table
-  const oldTable = card.querySelector('.subsite-compare');
-  if (oldTable) oldTable.outerHTML = tableHTML;
-  else e.target.insertAdjacentHTML('afterend', tableHTML);
-});
 
     document.getElementById('mapShowAll').addEventListener('click', ()=>{
       if(!map) return;
@@ -1733,9 +1727,6 @@ document.addEventListener('click', (e) => {
           }
         };
       }
-
-
-      
       function newTrip(){
         const name = prompt('Trip name?','New Trip'); if(!name) return;
         const id = name.toLowerCase().replace(/[^a-z0-9]+/g,'-')+'-'+Date.now().toString(36);
@@ -1831,7 +1822,6 @@ document.getElementById('btnExportPDF').addEventListener('click', ()=>{
   L.browserPrint({ mode: 'Landscape', title: 'My Places Map' }).print(favoritesMap);
 });
 
-
     // Failsafe: ensure openFavorites exists even if earlier code aborted
     // Failsafe: ensure openFavorites always renders the list
     window.openFavorites = window.openFavorites || function(){
@@ -1850,11 +1840,6 @@ document.getElementById('btnExportPDF').addEventListener('click', ()=>{
         p.setAttribute('aria-hidden','false');
       }
     };
-
-
-
-
-
   </script>
 </body>
 </html>

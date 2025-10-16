@@ -1640,26 +1640,6 @@ document.addEventListener('click', (e) => {
   const s2 = activeSubsite(item);
   const meta = card.querySelector('.meta');
   if (meta) {
-    const bits = [];
-    const newBadge = costBadgeHTML({ costText: s2?.costText || item.costText, raw: item.raw });
-    if (newBadge) bits.push(newBadge);
-    if (item.categories?.length) bits.push(item.categories.join(', '));
-    if (item.periods?.length) bits.push(item.periods[0]);
-    const distMatch = meta.textContent.match(/(?:\d+(?:\.\d+)?\smi away|\d+\sft away)/);
-    if (distMatch?.[0]) bits.push(distMatch[0]);
-    meta.innerHTML = bits.join(' • ');
-  }
-
-  // refresh Display footer
-  updateCompareUI(card, item);
-
-
-
-
-  // refresh meta row badge to match active subsite
-  const s2 = activeSubsite(item);
-  const meta = card.querySelector('.meta');
-  if (meta) {
     const metaBits = [];
     const newBadge = costBadgeHTML({ costText: s2?.costText || item.costText, raw: item.raw });
     if (newBadge) metaBits.push(newBadge);

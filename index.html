@@ -950,17 +950,6 @@ function subsiteBarHTML(it){
   return `<div class="subsite-bar">${pills}</div>`;
 }
 
-
-  const s = activeSubsite(it);
-  const desc = s?.description ? `<div class="subsite-desc">${s.description}</div>` : '';
-  return `<div class="subsite-bar">${pills}</div>${desc}`;
-}
-
-
-
-
-
-
     function buildCardNode(it, score, distMiles){
       const tpl = document.getElementById('cardTemplate');
       const node = tpl.content.cloneNode(true);

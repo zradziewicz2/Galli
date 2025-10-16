@@ -112,6 +112,28 @@
     .stats th{font-weight:600;text-align:left;padding:6px 0;width:52%}
     .stats td{padding:6px 0}
     .stats tr+tr th, .stats tr+tr td{border-top:1px dashed #e5e7eb}
+    .subsite-toggle {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--brand);
+      cursor: pointer;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .subsite-toggle .subsite-count {
+      background: #eef9f9;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      color: #007b7b;
+    }
+    
+    .subsite-wrapper {
+      margin-top: 6px;
+    }
 
     /* Toolbar (sorting) */
     .toolbar{display:flex;align-items:center;gap:10px;justify-content:flex-end;margin-bottom:10px}
@@ -975,10 +997,19 @@ function subsiteBarHTML(it){
 const inner = root.querySelector('.inner');
 const chipbarEl = inner.querySelector('.chipbar');
 const moreEl = inner.querySelector('.more');
+// right before or after where "More Info" is inserted in buildCardNode:
 if (it.subsites && it.subsites.length) {
-  // put the pills right before the <details class="more"> section
-  moreEl.insertAdjacentHTML('beforebegin', subsiteBarHTML(it));
+  const subCount = it.subsites.length;
+  const subLabel = `
+    <div class="subsite-toggle" data-id="${it.id}">
+      <span class="subsite-count">${subCount} subsites ▾</span>
+      <div class="subsite-wrapper" style="display:none;">
+        ${subsiteBarHTML(it)}
+      </div>
+    </div>`;
+  node.querySelector('.meta-row')?.insertAdjacentHTML('beforebegin', subLabel);
 }
+
 
 
 
@@ -1531,6 +1562,14 @@ function openFavorites(){
         p.style.display = (p.style.display === 'none' || !p.style.display) ? 'block' : 'none';
       }
     });
+    document.addEventListener('click', (e) => {
+  const toggle = e.target.closest('.subsite-toggle, .subsite-count');
+  if (!toggle) return;
+  const wrapper = toggle.querySelector('.subsite-wrapper') || toggle.parentElement.querySelector('.subsite-wrapper');
+  if (!wrapper) return;
+  wrapper.style.display = (wrapper.style.display === 'none' || !wrapper.style.display) ? 'block' : 'none';
+});
+
     document.addEventListener('click', (e) => {
   const btn = e.target.closest('.display-btn[data-id]');
   if (!btn) return;

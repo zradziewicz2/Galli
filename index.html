@@ -946,9 +946,8 @@ return `<article class="card ${asPopup?'popup-card':''}" id="card-${it.id}">
   return it.subsites[idx];
 }
 
-function subsiteBarHTML(it){
+function subsiteBarHTML(it, open = false){
   if (!it.subsites || !it.subsites.length) return '';
-
   if (!it.selectedSubsites || !(it.selectedSubsites instanceof Set)) {
     it.selectedSubsites = new Set();
   }
@@ -968,19 +967,18 @@ function subsiteBarHTML(it){
       </button>`;
   }).join('');
 
-  // ✅ No description here anymore
   const count = (it.subsites?.length || 0);
-return `
-  <div class="subsite-toggle">
-    <div class="subsite-count">${count} subsites ▾</div>
-    <div class="subsite-wrapper" style="display:block">
-      <div class="subsite-bar">${pills}</div>
-      <button class="display-btn" aria-expanded="false" style="display:none">Compare Subsites</button>
-      <div class="compare-slot"></div>
-    </div>
-  </div>`;
-
+  return `
+    <div class="subsite-toggle" data-id="${it.id}">
+      <span class="subsite-count">${count} subsites ▾</span>
+      <div class="subsite-wrapper" style="display:${open ? 'block' : 'none'}">
+        <div class="subsite-bar">${pills}</div>
+        <button class="display-btn" aria-expanded="false" style="display:none">Compare Subsites</button>
+        <div class="compare-slot"></div>
+      </div>
+    </div>`;
 }
+
 
     function buildCardNode(it, score, distMiles){
       const tpl = document.getElementById('cardTemplate');
@@ -1009,8 +1007,9 @@ const chipbarEl = inner.querySelector('.chipbar');
 const moreEl = inner.querySelector('.more');
 // right before or after where "More Info" is inserted in buildCardNode:
 if (it.subsites && it.subsites.length) {
-  moreEl.insertAdjacentHTML('beforebegin', subsiteBarHTML(it));
+  moreEl.insertAdjacentHTML('beforebegin', subsiteBarHTML(it, false));
 }
+
 
 
 
@@ -1627,15 +1626,19 @@ document.addEventListener('click', (e) => {
   item.activeSubsiteIndex = idx;
 
   // update the card UI
-  const card  = document.getElementById('card-' + id);
-  if (!card) return;
-  const inner = card.querySelector('.inner');
-
-  // rebuild pills (no floating desc)
-    const html = subsiteBarHTML(item);
+    const card  = document.getElementById('card-' + id);
+    if (!card) return;
+    const inner = card.querySelector('.inner');
+    
     const container = inner.querySelector('.subsite-toggle');
+    const wasOpen = !!container && (container.querySelector('.subsite-wrapper')?.style.display !== 'none');
+    
+    const html = subsiteBarHTML(item, wasOpen);
     if (container) container.outerHTML = html;
     else inner.insertAdjacentHTML('afterbegin', html);
+    
+    // ...then your existing stats/meta refresh + updateCompareUI(card, item);
+
 
 
   // rebuild stats (cost/duration/desc)

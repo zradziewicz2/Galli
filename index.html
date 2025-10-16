@@ -1009,17 +1009,9 @@ const chipbarEl = inner.querySelector('.chipbar');
 const moreEl = inner.querySelector('.more');
 // right before or after where "More Info" is inserted in buildCardNode:
 if (it.subsites && it.subsites.length) {
-  const subCount = it.subsites.length;
-  const subLabel = `
-    <div class="subsite-toggle" data-id="${it.id}">
-      <span class="subsite-count">${subCount} subsites ▾</span>
-      <div class="subsite-wrapper" style="display:none;">
-        ${subsiteBarHTML(it)}
-      </div>
-    </div>`;
-   moreEl.insertAdjacentHTML('beforebegin', subLabel);
-
+  moreEl.insertAdjacentHTML('beforebegin', subsiteBarHTML(it));
 }
+
 
 
 
@@ -1585,21 +1577,23 @@ document.addEventListener('click', (e) => {
 });
 
 
-    document.addEventListener('click', (e) => {
-  const btn = e.target.closest('.display-btn[data-id]');
+document.addEventListener('click', (e) => {
+  const btn = e.target.closest('.display-btn');
   if (!btn) return;
 
-  const id = btn.getAttribute('data-id');
+  const card = btn.closest('.card');
+  const id = card?.id?.replace('card-','');
+  if (!id) return;
+
   const item = state.items.find(x => x.id === id);
   if (!item) return;
 
-  // toggle open/closed
   const open = btn.getAttribute('aria-expanded') === 'true';
   btn.setAttribute('aria-expanded', open ? 'false' : 'true');
 
-  const card = document.getElementById('card-' + id);
-  if (card) updateCompareUI(card, item);
+  updateCompareUI(card, item);
 });
+
 
 
 // Handle subsite selection and display options
@@ -1638,10 +1632,11 @@ document.addEventListener('click', (e) => {
   const inner = card.querySelector('.inner');
 
   // rebuild pills (no floating desc)
-  const barHTML = subsiteBarHTML(item);
-  const bar = inner.querySelector('.subsite-bar');
-  if (bar) bar.outerHTML = barHTML;
-  else inner.insertAdjacentHTML('afterbegin', barHTML);
+    const html = subsiteBarHTML(item);
+    const container = inner.querySelector('.subsite-toggle');
+    if (container) container.outerHTML = html;
+    else inner.insertAdjacentHTML('afterbegin', html);
+
 
   // rebuild stats (cost/duration/desc)
   const moreBody = card.querySelector('.more-body');

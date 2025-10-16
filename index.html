@@ -231,6 +231,28 @@
         padding: 4px 6px;
         text-align: left;
       }
+      .compare-container {
+        width: 100%;
+        margin-top: 8px;
+      }
+      .subsite-compare {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 4px;
+        background: #fff;
+      }
+      .subsite-compare th,
+      .subsite-compare td {
+        border: 1px solid #ddd;
+        padding: 6px 8px;
+        text-align: left;
+        color: #000;
+      }
+      .subsite-compare thead {
+        background: #f3f4f6;
+        font-weight: bold;
+      }
+
     .subsite-bar{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 10px}
     .subsite-pill{
       border:1px solid var(--ring);
@@ -972,10 +994,12 @@ function subsiteBarHTML(it, open = false){
     <div class="subsite-toggle" data-id="${it.id}">
       <span class="subsite-count">${count} subsites ▾</span>
       <div class="subsite-wrapper" style="display:${open ? 'block' : 'none'}">
-        <div class="subsite-bar">${pills}</div>
+      <div class="subsite-bar">${pills}</div>
+      <div class="compare-container">
         <button class="display-btn" aria-expanded="false" style="display:none">Compare Subsites</button>
         <div class="compare-slot"></div>
       </div>
+
     </div>`;
 }
 

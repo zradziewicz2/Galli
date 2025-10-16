@@ -162,6 +162,23 @@
     "adaaccessibility": true,
     "dogfriendly": true,
     "address": "123 Main Street, Denver CO"
+    "subsites": [
+      {
+        "name": "Red Rocks Museum",
+        "description": "Learn about the music history of one of the world's most famous venues through artifacts and exhibits.",
+        "costText": "$20 adults • $14 youth",
+        "costDescription": "EBT discounts available; kids <3 free",
+        "durationText": "45 min - 1 hr",
+        "website": "https://dinoridge.org/visit-dinosaur-ridge/dinosaur-trail/"
+      },
+      {
+        "name": "Red Rocks Hiking Trail",
+        "description": "Hiking trail with higlights of fossils on the ridge and fascinating geological history.",
+        "costText": "Free trail",
+        "durationText": "30 min",
+        "website": "https://dinoridge.org/visit-dinosaur-ridge/triceratops-trail/"
+      },
+    ]
   },
     {
         "name": "Colorado State Capitol",

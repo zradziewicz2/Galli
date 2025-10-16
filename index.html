@@ -925,7 +925,7 @@ return `<article class="card ${asPopup?'popup-card':''}" id="card-${it.id}">
 }
 
 function subsiteBarHTML(it){
-  if(!it.subsites || !it.subsites.length) return '';
+  if (!it.subsites || !it.subsites.length) return '';
 
   if (!it.selectedSubsites || !(it.selectedSubsites instanceof Set)) {
     it.selectedSubsites = new Set();
@@ -936,7 +936,7 @@ function subsiteBarHTML(it){
     const isChosen = it.selectedSubsites.has(s.name);
     return `
       <button type="button"
-        class="subsite-pill ${isActive?'active':''} ${isChosen?'chosen':''}"
+        class="subsite-pill ${isActive ? 'active' : ''} ${isChosen ? 'chosen' : ''}"
         data-role="subsite"
         data-id="${it.id}"
         data-index="${i}"
@@ -945,6 +945,11 @@ function subsiteBarHTML(it){
         ${s.name}
       </button>`;
   }).join('');
+
+  // ✅ No description here anymore
+  return `<div class="subsite-bar">${pills}</div>`;
+}
+
 
   const s = activeSubsite(it);
   const desc = s?.description ? `<div class="subsite-desc">${s.description}</div>` : '';
@@ -1559,6 +1564,8 @@ function openFavorites(){
 // Subsite multi-select + keep "active" for stats/meta
 document.addEventListener('click', (e) => {
   // Only handle clicks on subsite pills
+document.addEventListener('click', (e) => {
+  // Only handle clicks on subsite pills
   const pill = e.target.closest('.subsite-pill[data-role="subsite"]');
   if (!pill) return;
 
@@ -1576,40 +1583,39 @@ document.addEventListener('click', (e) => {
   if (!s) return;
 
   // toggle chosen (multi-select)
-  if (item.selectedSubsites.has(s.name)) {
-    item.selectedSubsites.delete(s.name);
-  } else {
-    item.selectedSubsites.add(s.name);
-  }
+  if (item.selectedSubsites.has(s.name)) item.selectedSubsites.delete(s.name);
+  else item.selectedSubsites.add(s.name);
 
   // also make this the active subsite (drives stats/meta)
   item.activeSubsiteIndex = idx;
 
   // find that card
-  const card = document.getElementById('card-' + id);
+  const card  = document.getElementById('card-' + id);
   if (!card) return;
-  
-  // rebuild subsite bar (pills + desc)
   const inner = card.querySelector('.inner');
-  const oldBar = inner.querySelector('.subsite-bar'); // no parentElement!
+
+  // 🔥 remove any old floating descriptions
+  inner.querySelectorAll('.subsite-desc').forEach(n => n.remove());
+
+  // rebuild subsite bar (pills only now)
   const barHTML = subsiteBarHTML(item);
-  if (oldBar) {
-    oldBar.outerHTML = barHTML; // just replace the bar
-  } else {
-    inner.insertAdjacentHTML('afterbegin', barHTML);
-  }
-  
-  // rebuild stats (cost/duration table)
+  const bar = inner.querySelector('.subsite-bar');
+  if (bar) bar.outerHTML = barHTML;
+  else inner.insertAdjacentHTML('afterbegin', barHTML);
+
+  // rebuild stats (cost/duration/desc table)
   const moreBody = card.querySelector('.more-body');
   if (moreBody) {
-    const oldTable = moreBody.querySelector('.stats'); // no parentElement!
-    const newHTML = buildStatsTableHTML(item);
-    if (oldTable) {
-      oldTable.outerHTML = newHTML;
-    } else {
-      moreBody.insertAdjacentHTML('beforeend', newHTML);
-    }
+    const oldTable = moreBody.querySelector('.stats');
+    const newHTML  = buildStatsTableHTML(item);
+    if (oldTable) oldTable.outerHTML = newHTML;
+    else moreBody.insertAdjacentHTML('beforeend', newHTML);
   }
+
+  // refresh the Display footer (button visibility + table if open)
+  updateCompareUI(card, item);
+});
+
 
 
   // refresh meta row badge to match active subsite

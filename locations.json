@@ -1,185 +1,206 @@
 [
-{
-    "name": "Dinosaur Ridge",
-    "id": "site123",
-    "lat": 39.6766,
-    "lng": -105.1926,
-    "city": "denver",
-    "description": "A famous fossil site showcasing dinosaur tracks and bones along a scenic trail.",
-    "cost": "free",
-    "cost_description": "Guided Bus Tour: $20 for adults (ages 12+), $14 for children (3-11), ages 2 & under free. - Exhibit Hall standalone: $4 if not doing a bus tour. - Morrison Dino Pass (bus tour + exhibit hall in both Dinosaur Ridge & Morrison Natural History Museum): $34 adults, $22 children (3-11), 2 & under free.",
-    "type": "outdoor",
-    "family_friendly": true,
-    "localornational": "local",
-    "thematiccategory": ["naturalhistory"],
-    "image": "images/dinosaurridge.jpg",
-    "timeperiod": ["prehistoric"],
-    "estimatedtime": "1 hour",
-    "reservations": "walkins_welcome",
-    "tours": ["selftours", "guidedtours"],
-    "transit": "overtenmilesfromtransit",
-    "sitetype": "archaeological",
-    "website": "https://dinoridge.org/?gad_source=1",
-    "giftshop": true,
-    "diningonsite": false,
-    "diningonsite2": false,
-    "featured": false,
-    "spanishtranslations": true,
-    "hours": "8AM - 6PM",
-    "luggagestorage": true,
-    "dollaramount": "0",
-    "paymentmethod": "both",
-    "publicaccess": true,
-    "adaaccessibility": false,
-    "dogfriendly": true,
-    "address": "123 Main Street, Denver CO",
-    "subsites": [
-      {
-        "name": "Guided Bus Tour (English)",
-        "description": "Guided bus tours feature stops at the Bone Bed, the Brontosaur Bulges, and the Dinosaur Tracksite. Brief talks at each site provide context for the fossils on the ridge.",
-        "costText": "$20 adults • $14 youth",
-        "costDescription": "EBT discounts available; kids <3 free",
-        "durationText": "45 min - 1 hr",
-        "website": "https://dinoridge.org/visit-dinosaur-ridge/dinosaur-trail/"
-      },
-      {
-        "name": "Guided Bus Tour (Spanish)",
-        "description": "Guided bus tours feature stops at the Bone Bed, the Brontosaur Bulges, and the Dinosaur Tracksite. Brief talks at each site provide context for the fossils on the ridge.",
-        "costText": "Free trail • $ optional guided",
-        "durationText": "45 min - 1 hr",
-        "website": "https://dinoridge.org/visit-dinosaur-ridge/triceratops-trail/"
-      },
-      {
-        "name": "Private Guided Tour",
-        "description": "Guided bus tours feature stops at the Bone Bed, the Brontosaur Bulges, and the Dinosaur Tracksite. Brief talks at each site provide context for the fossils on the ridge.",
-        "costText": "Free trail • $ optional guided",
-        "durationText": "45 min - 1 hr",
-        "website": "https://dinoridge.org/visit-dinosaur-ridge/triceratops-trail/"
-      },
-      {
-        "name": "Guided Walking Tour",
-        "description": "Join a small group for a guide-interpreted walking tour of several fossil sites across Dinosaur Ridge. Learn about the geology and natuarl history during this outdoor 1.5-mile paved walking tour.",
-        "costText": "$24",
-        "durationText": "1.5 - 2 hours min",
-        "website": "https://dinoridge.org/visit-dinosaur-ridge/triceratops-trail/"
-      },
-      {
-        "name": "Walk with a Geologist",
-        "description": "(1.5 mile) guided walk across Dinosaur Ridge led by a professional or highly knowledgeable amateur geologist. In addition to the interpretation of the dinosaur track and fossil sites, the tour includes an in-depth discussion of the geology and changes to the Denver area through time. Learn how Colorado and North America fit into a global pattern of movements with the assembly of the supercontinent Pangea that allowed world-wide migration of dinosaurs resulting in the dispersal of fossils found today.",
-        "costText": "$28",
-        "durationText": "$2 hours",
-        "website": "https://dinoridge.org/visit-dinosaur-ridge/triceratops-trail/"
-      },
-      {
-        "name": "Self-Guided Walk",
-        "description": "Features over 15 interpretive stops highlighting fossils, geologic formations, and dinosaur tracks. Interpretive signs lead you on this 1.1 mile (one way from gate to gate) outdoor walk along a paved road.",
-        "costText": "FREE $5 - $10, field guide, $8 audio guide",
-        "durationText": "60–90 min",
-        "website": "https://dinoridge.org/visit-dinosaur-ridge/triceratops-trail/"
-      },
-      {
-        "name": "Main Visitor Center",
-        "description": "At the Gift Shop: pick up maps for hiking, purchase tickets for shuttle bus tours and the Exhibit Hall, shop for unique souvenirs and buy snacks and drinks. Our Main Visitor Center Gift Shop is located at the Main Visitor Center, where you can purchase bus tour tickets, pick up a map, get more information and shop for souvenirs. Our gift shop features replicas of dinosaurs, books, posters, clothing, snacks, toys, rocks, minerals, crystals, and fossils.At the Dig Areas: small kids can dig for souvenir fossils in the Benton Seaway Box, bigger kids enjoy uncovering dinosaur fossils in the Backyard Bones pit, everyone loves taking photos with the dinosaur replicas, and giving Sluice Mining a try.",
-        "costText": "Free trail • $ optional guided",
-        "durationText": "15 min",
-        "website": "https://dinoridge.org/visit-dinosaur-ridge/triceratops-trail/"
-      },
-      {
-        "name": "Exhibit Hall",
-        "description": "The Exhibit Hall features paleo-murals, fossil replicas and real fossil bones of giant long-necked dinosaurs. Designed to simulate a walk through diverse environments at different prehistoric dates, it features five sweeping, back-lit murals.",
-        "costText": "Included with Guided Bus Tour - $5.00 otherwise",
-        "durationText": "30 min",
-        "website": "https://dinoridge.org/visit-dinosaur-ridge/triceratops-trail/" }
-    ]
-
-  },
-  {
-    "name": "Molly Brown House Museum",
-    "id": "site124",
-    "lat": 39.7374,
-    "lng": -104.9807,
-    "city": "denver",
-    "description": "The preserved home of Titanic survivor Margaret 'Molly' Brown, showcasing Victorian-era history",
-    "cost": "paid",
-    "cost_description": "General admission pricing; see website for details.",
-    "type": "indoor",
-    "family_friendly": true,
-    "localornational": "local",
-    "thematiccategory": ["historichomes"],
-    "image": "images/mollybrown.jpg",
-    "timeperiod": ["industrialrevolution"],
-    "estimatedtime": "1 hour",
-    "reservations": "walkins_welcome",
-    "tours": ["selftours", "guidedtours"],
-    "transit": "underhalfamilefromtransit",
-    "sitetype": "historichome",
-    "website": "https://mollybrown.org/",
-    "giftshop": false,
-    "diningonsite": false,
-    "diningonsite2": false,
-    "featured": true,
-    "spanishtranslations": true,
-    "hours": "8AM - 6PM",
-    "luggagestorage": true,
-    "dollaramount": "0",
-    "paymentmethod": "both",
-    "publicaccess": true,
-    "adaaccessibility": true,
-    "dogfriendly": true,
-    "address": "123 Main Street, Denver CO"
-  },
-  {
-    "name": "Red Rocks Park & Amphitheater",
-    "id": "site125",
-    "lat": 39.6654,
-    "lng": -105.2057,
-    "city": "denver",
-    "description": "A world-famous concert venue set among stunning natural red rock formations.",
-    "cost": "free",
-    "cost_description": "Guided Bus Tour: $20 for adults (ages 12+), $14 for children (3-11), ages 2 & under free. - Exhibit Hall standalone: $4 if not doing a bus tour. - Morrison Dino Pass (bus tour + exhibit hall in both Dinosaur Ridge & Morrison Natural History Museum): $34 adults, $22 children (3-11), 2 & under free.",
-    "type": "outdoor",
-    "family_friendly": true,
-    "localornational": "local",
-    "thematiccategory": ["naturalhistory"],
-    "image": "images/redrocks.jpg",
-    "timeperiod": ["prehistoric"],
-    "estimatedtime": "1 hour",
-    "reservations": "walkins_welcome",
-    "tours": ["selftours", "guidedtours"],
-    "transit": "underhalfamilefromtransit",
-    "sitetype": "archeological",
-    "website": "https://dinoridge.org/?gad_source=1",
-    "giftshop": true,
-    "diningonsite": false,
-    "diningonsite2": false,
-    "featured": true,
-    "spanishtranslations": true,
-    "hours": "8AM - 5PM",
-    "luggagestorage": false,
-    "dollaramount": "0",
-    "paymentmethod": "both",
-    "publicaccess": true,
-    "adaaccessibility": true,
-    "dogfriendly": true,
-    "address": "123 Main Street, Denver CO"
-    "subsites": [
-      {
-        "name": "Red Rocks Museum",
-        "description": "Learn about the music history of one of the world's most famous venues through artifacts and exhibits.",
-        "costText": "$20 adults • $14 youth",
-        "costDescription": "EBT discounts available; kids <3 free",
-        "durationText": "45 min - 1 hr",
-        "website": "https://dinoridge.org/visit-dinosaur-ridge/dinosaur-trail/"
-      },
-      {
-        "name": "Red Rocks Hiking Trail",
-        "description": "Hiking trail with higlights of fossils on the ridge and fascinating geological history.",
-        "costText": "Free trail",
-        "durationText": "30 min",
-        "website": "https://dinoridge.org/visit-dinosaur-ridge/triceratops-trail/"
-      },
-    ]
-  },
+    {
+        "name": "Dinosaur Ridge",
+        "id": "site123",
+        "lat": 39.6766,
+        "lng": -105.1926,
+        "city": "denver",
+        "description": "A famous fossil site showcasing dinosaur tracks and bones along a scenic trail.",
+        "cost": "free",
+        "cost_description": "Guided Bus Tour: $20 for adults (ages 12+), $14 for children (3-11), ages 2 & under free. - Exhibit Hall standalone: $4 if not doing a bus tour. - Morrison Dino Pass (bus tour + exhibit hall in both Dinosaur Ridge & Morrison Natural History Museum): $34 adults, $22 children (3-11), 2 & under free.",
+        "type": "outdoor",
+        "family_friendly": true,
+        "localornational": "local",
+        "thematiccategory": [
+            "naturalhistory"
+        ],
+        "image": "images/dinosaurridge.jpg",
+        "timeperiod": [
+            "prehistoric"
+        ],
+        "estimatedtime": "1 hour",
+        "reservations": "walkins_welcome",
+        "tours": [
+            "selftours",
+            "guidedtours"
+        ],
+        "transit": "overtenmilesfromtransit",
+        "sitetype": "archaeological",
+        "website": "https://dinoridge.org/?gad_source=1",
+        "giftshop": true,
+        "diningonsite": false,
+        "diningonsite2": false,
+        "featured": false,
+        "spanishtranslations": true,
+        "hours": "8AM - 6PM",
+        "luggagestorage": true,
+        "dollaramount": "0",
+        "paymentmethod": "both",
+        "publicaccess": true,
+        "adaaccessibility": false,
+        "dogfriendly": true,
+        "address": "123 Main Street, Denver CO",
+        "subsites": [
+            {
+                "name": "Guided Bus Tour (English)",
+                "description": "Guided bus tours feature stops at the Bone Bed, the Brontosaur Bulges, and the Dinosaur Tracksite. Brief talks at each site provide context for the fossils on the ridge.",
+                "costText": "$20 adults • $14 youth",
+                "costDescription": "EBT discounts available; kids <3 free",
+                "durationText": "45 min - 1 hr",
+                "website": "https://dinoridge.org/visit-dinosaur-ridge/dinosaur-trail/"
+            },
+            {
+                "name": "Guided Bus Tour (Spanish)",
+                "description": "Guided bus tours feature stops at the Bone Bed, the Brontosaur Bulges, and the Dinosaur Tracksite. Brief talks at each site provide context for the fossils on the ridge.",
+                "costText": "Free trail • $ optional guided",
+                "durationText": "45 min - 1 hr",
+                "website": "https://dinoridge.org/visit-dinosaur-ridge/triceratops-trail/"
+            },
+            {
+                "name": "Private Guided Tour",
+                "description": "Guided bus tours feature stops at the Bone Bed, the Brontosaur Bulges, and the Dinosaur Tracksite. Brief talks at each site provide context for the fossils on the ridge.",
+                "costText": "Free trail • $ optional guided",
+                "durationText": "45 min - 1 hr",
+                "website": "https://dinoridge.org/visit-dinosaur-ridge/triceratops-trail/"
+            },
+            {
+                "name": "Guided Walking Tour",
+                "description": "Join a small group for a guide-interpreted walking tour of several fossil sites across Dinosaur Ridge. Learn about the geology and natuarl history during this outdoor 1.5-mile paved walking tour.",
+                "costText": "$24",
+                "durationText": "1.5 - 2 hours min",
+                "website": "https://dinoridge.org/visit-dinosaur-ridge/triceratops-trail/"
+            },
+            {
+                "name": "Walk with a Geologist",
+                "description": "(1.5 mile) guided walk across Dinosaur Ridge led by a professional or highly knowledgeable amateur geologist. In addition to the interpretation of the dinosaur track and fossil sites, the tour includes an in-depth discussion of the geology and changes to the Denver area through time. Learn how Colorado and North America fit into a global pattern of movements with the assembly of the supercontinent Pangea that allowed world-wide migration of dinosaurs resulting in the dispersal of fossils found today.",
+                "costText": "$28",
+                "durationText": "$2 hours",
+                "website": "https://dinoridge.org/visit-dinosaur-ridge/triceratops-trail/"
+            },
+            {
+                "name": "Self-Guided Walk",
+                "description": "Features over 15 interpretive stops highlighting fossils, geologic formations, and dinosaur tracks. Interpretive signs lead you on this 1.1 mile (one way from gate to gate) outdoor walk along a paved road.",
+                "costText": "FREE $5 - $10, field guide, $8 audio guide",
+                "durationText": "60–90 min",
+                "website": "https://dinoridge.org/visit-dinosaur-ridge/triceratops-trail/"
+            },
+            {
+                "name": "Main Visitor Center",
+                "description": "At the Gift Shop: pick up maps for hiking, purchase tickets for shuttle bus tours and the Exhibit Hall, shop for unique souvenirs and buy snacks and drinks. Our Main Visitor Center Gift Shop is located at the Main Visitor Center, where you can purchase bus tour tickets, pick up a map, get more information and shop for souvenirs. Our gift shop features replicas of dinosaurs, books, posters, clothing, snacks, toys, rocks, minerals, crystals, and fossils.At the Dig Areas: small kids can dig for souvenir fossils in the Benton Seaway Box, bigger kids enjoy uncovering dinosaur fossils in the Backyard Bones pit, everyone loves taking photos with the dinosaur replicas, and giving Sluice Mining a try.",
+                "costText": "Free trail • $ optional guided",
+                "durationText": "15 min",
+                "website": "https://dinoridge.org/visit-dinosaur-ridge/triceratops-trail/"
+            },
+            {
+                "name": "Exhibit Hall",
+                "description": "The Exhibit Hall features paleo-murals, fossil replicas and real fossil bones of giant long-necked dinosaurs. Designed to simulate a walk through diverse environments at different prehistoric dates, it features five sweeping, back-lit murals.",
+                "costText": "Included with Guided Bus Tour - $5.00 otherwise",
+                "durationText": "30 min",
+                "website": "https://dinoridge.org/visit-dinosaur-ridge/triceratops-trail/"
+            }
+        ]
+    },
+    {
+        "name": "Molly Brown House Museum",
+        "id": "site124",
+        "lat": 39.7374,
+        "lng": -104.9807,
+        "city": "denver",
+        "description": "The preserved home of Titanic survivor Margaret 'Molly' Brown, showcasing Victorian-era history",
+        "cost": "paid",
+        "cost_description": "General admission pricing; see website for details.",
+        "type": "indoor",
+        "family_friendly": true,
+        "localornational": "local",
+        "thematiccategory": [
+            "historichomes"
+        ],
+        "image": "images/mollybrown.jpg",
+        "timeperiod": [
+            "industrialrevolution"
+        ],
+        "estimatedtime": "1 hour",
+        "reservations": "walkins_welcome",
+        "tours": [
+            "selftours",
+            "guidedtours"
+        ],
+        "transit": "underhalfamilefromtransit",
+        "sitetype": "historichome",
+        "website": "https://mollybrown.org/",
+        "giftshop": false,
+        "diningonsite": false,
+        "diningonsite2": false,
+        "featured": true,
+        "spanishtranslations": true,
+        "hours": "8AM - 6PM",
+        "luggagestorage": true,
+        "dollaramount": "0",
+        "paymentmethod": "both",
+        "publicaccess": true,
+        "adaaccessibility": true,
+        "dogfriendly": true,
+        "address": "123 Main Street, Denver CO"
+    },
+    {
+        "name": "Red Rocks Park & Amphitheater",
+        "id": "site125",
+        "lat": 39.6654,
+        "lng": -105.2057,
+        "city": "denver",
+        "description": "A world-famous concert venue set among stunning natural red rock formations.",
+        "cost": "free",
+        "cost_description": "Guided Bus Tour: $20 for adults (ages 12+), $14 for children (3-11), ages 2 & under free. - Exhibit Hall standalone: $4 if not doing a bus tour. - Morrison Dino Pass (bus tour + exhibit hall in both Dinosaur Ridge & Morrison Natural History Museum): $34 adults, $22 children (3-11), 2 & under free.",
+        "type": "outdoor",
+        "family_friendly": true,
+        "localornational": "local",
+        "thematiccategory": [
+            "naturalhistory"
+        ],
+        "image": "images/redrocks.jpg",
+        "timeperiod": [
+            "prehistoric"
+        ],
+        "estimatedtime": "1 hour",
+        "reservations": "walkins_welcome",
+        "tours": [
+            "selftours",
+            "guidedtours"
+        ],
+        "transit": "underhalfamilefromtransit",
+        "sitetype": "archeological",
+        "website": "https://dinoridge.org/?gad_source=1",
+        "giftshop": true,
+        "diningonsite": false,
+        "diningonsite2": false,
+        "featured": true,
+        "spanishtranslations": true,
+        "hours": "8AM - 5PM",
+        "luggagestorage": false,
+        "dollaramount": "0",
+        "paymentmethod": "both",
+        "publicaccess": true,
+        "adaaccessibility": true,
+        "dogfriendly": true,
+        "address": "123 Main Street, Denver CO",
+        "subsites": [
+            {
+                "name": "Red Rocks Museum",
+                "description": "Learn about the music history of one of the world's most famous venues through artifacts and exhibits.",
+                "costText": "$20 adults • $14 youth",
+                "costDescription": "EBT discounts available; kids <3 free",
+                "durationText": "45 min - 1 hr",
+                "website": "https://dinoridge.org/visit-dinosaur-ridge/dinosaur-trail/"
+            },
+            {
+                "name": "Red Rocks Hiking Trail",
+                "description": "Hiking trail with higlights of fossils on the ridge and fascinating geological history.",
+                "costText": "Free trail",
+                "durationText": "30 min",
+                "website": "https://dinoridge.org/visit-dinosaur-ridge/triceratops-trail/"
+            }
+        ]
+    },
     {
         "name": "Colorado State Capitol",
         "id": "site126",
@@ -192,12 +213,22 @@
         "type": "indoor",
         "family_friendly": true,
         "localornational": "local",
-        "thematiccategory": ["generalhistory"],
+        "thematiccategory": [
+            "generalhistory"
+        ],
         "image": "images/coloradostatecapital.jpg",
-        "timeperiod": ["colonial", "nineteenthcentury", "industrialrevolution", "modernhistory"],
+        "timeperiod": [
+            "colonial",
+            "nineteenthcentury",
+            "industrialrevolution",
+            "modernhistory"
+        ],
         "estimatedtime": "1 hour",
         "reservations": "walkins_welcome",
-        "tours": ["selftours", "guidedtours"],
+        "tours": [
+            "selftours",
+            "guidedtours"
+        ],
         "transit": "underhalfamilefromtransit",
         "sitetype": "landmark",
         "website": "https://dinoridge.org/?gad_source=1",
@@ -227,12 +258,19 @@
         "type": "indoor",
         "family_friendly": true,
         "localornational": "local",
-        "thematiccategory": ["generalhistory"],
+        "thematiccategory": [
+            "generalhistory"
+        ],
         "image": "images/unionstation.jpg",
-         "timeperiod": ["industrialrevolution"],
+        "timeperiod": [
+            "industrialrevolution"
+        ],
         "estimatedtime": "1 hour",
         "reservations": "walkins_welcome",
-        "tours": ["selftours", "guidedtours"],
+        "tours": [
+            "selftours",
+            "guidedtours"
+        ],
         "transit": "underhalfamilefromtransit",
         "sitetype": "landmark",
         "website": "https://dinoridge.org/?gad_source=1",
@@ -253,7 +291,7 @@
     {
         "name": "Buffalo Bill Museum & Grave",
         "id": "site128",
-        "lat": 39.7310,
+        "lat": 39.731,
         "lng": -105.2386,
         "city": "denver",
         "description": "Museum dedicated to Wild West showman Buffalo Bill Cody, with scenic views from Lookout Mountain.",
@@ -262,12 +300,19 @@
         "type": "outdoor",
         "family_friendly": true,
         "localornational": "local",
-        "thematiccategory": ["generalhistory"],
+        "thematiccategory": [
+            "generalhistory"
+        ],
         "image": "images/buffalobillmuseumandgrave.jpg",
-        "timeperiod": ["colonial"],
+        "timeperiod": [
+            "colonial"
+        ],
         "estimatedtime": "1 hour",
         "reservations": "walkins_welcome",
-        "tours": ["selftours", "guidedtours"],
+        "tours": [
+            "selftours",
+            "guidedtours"
+        ],
         "transit": "underhalfamilefromtransit",
         "sitetype": "museums",
         "website": "https://dinoridge.org/?gad_source=1",
@@ -297,12 +342,19 @@
         "type": "outdoor",
         "family_friendly": true,
         "localornational": "local",
-        "thematiccategory": ["generalhistory"],
+        "thematiccategory": [
+            "generalhistory"
+        ],
         "image": "images/fourmilehistoricpark.jpg",
-        "timeperiod": ["nineteenthcentury"],
+        "timeperiod": [
+            "nineteenthcentury"
+        ],
         "estimatedtime": "<than 15 minutes",
         "reservations": "walkins_welcome",
-        "tours": ["selftours", "guidedtours"],
+        "tours": [
+            "selftours",
+            "guidedtours"
+        ],
         "transit": "underhalfamilefromtransit",
         "sitetype": "historichome",
         "website": "https://dinoridge.org/?gad_source=1",
@@ -332,12 +384,24 @@
         "type": "indoor",
         "family_friendly": true,
         "localornational": "local",
-        "thematiccategory": ["generalhistory"],
+        "thematiccategory": [
+            "generalhistory"
+        ],
         "image": "images/default.jpg",
-        "timeperiod": ["prehistoric", "indigenous", "colonial", "nineteenthcentury", "industrialrevolution", "modernhistory"],
+        "timeperiod": [
+            "prehistoric",
+            "indigenous",
+            "colonial",
+            "nineteenthcentury",
+            "industrialrevolution",
+            "modernhistory"
+        ],
         "estimatedtime": "1 hour",
         "reservations": "reservationrequired",
-        "tours": ["selftours", "guidedtours"],
+        "tours": [
+            "selftours",
+            "guidedtours"
+        ],
         "transit": "underhalfamilefromtransit",
         "sitetype": "museums",
         "website": "https://dinoridge.org/?gad_source=1",
@@ -358,8 +422,8 @@
     {
         "name": "Denver Botanic Gardens",
         "id": "site131",
-        "lat": 39.7320,
-        "lng": -104.9610,
+        "lat": 39.732,
+        "lng": -104.961,
         "city": "denver",
         "description": "A beautiful 23-acre garden featuring diverse plant collections from around the world.",
         "cost": "paid",
@@ -367,12 +431,19 @@
         "type": "outdoor",
         "family_friendly": true,
         "localornational": "local",
-        "thematiccategory": ["artsandculture"],
+        "thematiccategory": [
+            "artsandculture"
+        ],
         "image": "images/default.jpg",
-        "timeperiod": ["other"],
+        "timeperiod": [
+            "other"
+        ],
         "estimatedtime": "1 hour",
         "reservations": "walkins_welcome",
-        "tours": ["selftours", "guidedtours"],
+        "tours": [
+            "selftours",
+            "guidedtours"
+        ],
         "transit": "underhalfamilefromtransit",
         "sitetype": "other",
         "website": "https://dinoridge.org/?gad_source=1",
@@ -402,12 +473,18 @@
         "type": "outdoor",
         "family_friendly": true,
         "localornational": "local",
-        "thematiccategory": ["generalhistory"],
+        "thematiccategory": [
+            "generalhistory"
+        ],
         "image": "images/default.jpg",
-        "timeperiod": ["nineteenthcentury"],
+        "timeperiod": [
+            "nineteenthcentury"
+        ],
         "estimatedtime": "1 hour",
         "reservations": "walkins_welcome",
-        "tours": ["selftours"],
+        "tours": [
+            "selftours"
+        ],
         "transit": "underhalfamilefromtransit",
         "sitetype": "museums",
         "website": "https://dinoridge.org/?gad_source=1",
@@ -437,12 +514,18 @@
         "type": "indoor",
         "family_friendly": true,
         "localornational": "national",
-        "thematiccategory": ["technologyandtransportation"],
+        "thematiccategory": [
+            "technologyandtransportation"
+        ],
         "image": "images/default.jpg",
-        "timeperiod": ["nineteenthcentury"],
+        "timeperiod": [
+            "nineteenthcentury"
+        ],
         "estimatedtime": "1 hour",
         "reservations": "walkins_welcome",
-        "tours": ["selftours"],
+        "tours": [
+            "selftours"
+        ],
         "transit": "underhalfamilefromtransit",
         "sitetype": "museums",
         "website": "https://dinoridge.org/?gad_source=1",
@@ -472,12 +555,18 @@
         "type": "outdoor",
         "family_friendly": true,
         "localornational": "local",
-        "thematiccategory": ["generalhistory"],
+        "thematiccategory": [
+            "generalhistory"
+        ],
         "image": "images/default.jpg",
-        "timeperiod": ["nineteenthcentury"],
+        "timeperiod": [
+            "nineteenthcentury"
+        ],
         "estimatedtime": "1 hour",
         "reservations": "walkins_welcome",
-        "tours": ["selftours"],
+        "tours": [
+            "selftours"
+        ],
         "transit": "underhalfamilefromtransit",
         "sitetype": "historichome",
         "website": "https://dinoridge.org/?gad_source=1",
@@ -507,12 +596,18 @@
         "type": "indoor",
         "family_friendly": true,
         "localornational": "local",
-        "thematiccategory": ["generalhistory"],
+        "thematiccategory": [
+            "generalhistory"
+        ],
         "image": "images/default.jpg",
-        "timeperiod": ["nineteenthcentury"],
+        "timeperiod": [
+            "nineteenthcentury"
+        ],
         "estimatedtime": "1 hour",
         "reservations": "reservationrequired",
-        "tours": ["selftours"],
+        "tours": [
+            "selftours"
+        ],
         "transit": "underhalfamilefromtransit",
         "sitetype": "museums",
         "website": "https://dinoridge.org/?gad_source=1",
@@ -542,12 +637,19 @@
         "type": "indoor",
         "family_friendly": false,
         "localornational": "local",
-        "thematiccategory": ["historichomes"],
+        "thematiccategory": [
+            "historichomes"
+        ],
         "image": "images/default.jpg",
-        "timeperiod": ["nineteenthcentury"],
+        "timeperiod": [
+            "nineteenthcentury"
+        ],
         "estimatedtime": "1 hour",
         "reservations": "walkins_welcome",
-        "tours": ["selftours", "guidedtours"],
+        "tours": [
+            "selftours",
+            "guidedtours"
+        ],
         "transit": "underhalfamilefromtransit",
         "sitetype": "museums",
         "website": "https://dinoridge.org/?gad_source=1",
@@ -577,12 +679,19 @@
         "type": "outdoor",
         "family_friendly": true,
         "localornational": "local",
-        "thematiccategory": ["generalhistory"],
+        "thematiccategory": [
+            "generalhistory"
+        ],
         "image": "images/default.jpg",
-        "timeperiod": ["nineteenthcentury"],
+        "timeperiod": [
+            "nineteenthcentury"
+        ],
         "estimatedtime": "1 hour",
         "reservations": "walkins_welcome",
-        "tours": ["selftours", "guidedtours"],
+        "tours": [
+            "selftours",
+            "guidedtours"
+        ],
         "transit": "halfamiletotenmilesfromtransit",
         "sitetype": "landmark",
         "website": "https://dinoridge.org/?gad_source=1",
@@ -612,12 +721,19 @@
         "type": "indoor",
         "family_friendly": true,
         "localornational": "national",
-        "thematiccategory": ["technologyandtransportation"],
+        "thematiccategory": [
+            "technologyandtransportation"
+        ],
         "image": "images/default.jpg",
-        "timeperiod": ["nineteenthcentury"],
+        "timeperiod": [
+            "nineteenthcentury"
+        ],
         "estimatedtime": "1 hour",
         "reservations": "walkins_welcome",
-        "tours": ["selftours", "guidedtours"],
+        "tours": [
+            "selftours",
+            "guidedtours"
+        ],
         "transit": "underhalfamilefromtransit",
         "sitetype": "museums",
         "website": "https://dinoridge.org/?gad_source=1",
@@ -647,12 +763,19 @@
         "type": "indoor",
         "family_friendly": true,
         "localornational": "local",
-        "thematiccategory": ["technologyandtransportation"],
+        "thematiccategory": [
+            "technologyandtransportation"
+        ],
         "image": "images/default.jpg",
-        "timeperiod": ["nineteenthcentury"],
+        "timeperiod": [
+            "nineteenthcentury"
+        ],
         "estimatedtime": "1 hour",
         "reservations": "walkins_welcome",
-        "tours": ["selftours", "guidedtours"],
+        "tours": [
+            "selftours",
+            "guidedtours"
+        ],
         "transit": "underhalfamilefromtransit",
         "sitetype": "museums",
         "website": "https://dinoridge.org/?gad_source=1",
@@ -682,12 +805,18 @@
         "type": "outdoor",
         "family_friendly": false,
         "localornational": "local",
-        "thematiccategory": ["naturalhistory"],
+        "thematiccategory": [
+            "naturalhistory"
+        ],
         "image": "images/default.jpg",
-        "timeperiod": ["nineteenthcentury"],
+        "timeperiod": [
+            "nineteenthcentury"
+        ],
         "estimatedtime": "1 hour",
         "reservations": "walkins_welcome",
-        "tours": ["selftours"],
+        "tours": [
+            "selftours"
+        ],
         "transit": "morethantenmilesfromtransit",
         "sitetype": "archeological",
         "website": "https://dinoridge.org/?gad_source=1",
@@ -717,12 +846,19 @@
         "type": "indoor",
         "family_friendly": true,
         "localornational": "local",
-        "thematiccategory": ["generalhistory"],
+        "thematiccategory": [
+            "generalhistory"
+        ],
         "image": "images/default.jpg",
-        "timeperiod": ["nineteenthcentury"],
+        "timeperiod": [
+            "nineteenthcentury"
+        ],
         "estimatedtime": "1 hour",
         "reservations": "walkins_welcome",
-        "tours": ["selftours", "guidedtours"],
+        "tours": [
+            "selftours",
+            "guidedtours"
+        ],
         "transit": "underhalfamilefromtransit",
         "sitetype": "museums",
         "website": "https://dinoridge.org/?gad_source=1",
@@ -752,12 +888,19 @@
         "type": "indoor",
         "family_friendly": true,
         "localornational": "local",
-        "thematiccategory": ["artsandculture"],
+        "thematiccategory": [
+            "artsandculture"
+        ],
         "image": "images/default.jpg",
-        "timeperiod": ["nineteenthcentury"],
+        "timeperiod": [
+            "nineteenthcentury"
+        ],
         "estimatedtime": "1 hour",
         "reservations": "walkins_welcome",
-        "tours": ["selftours", "guidedtours"],
+        "tours": [
+            "selftours",
+            "guidedtours"
+        ],
         "transit": "underhalfamilefromtransit",
         "sitetype": "museums",
         "website": "https://dinoridge.org/?gad_source=1",
@@ -787,12 +930,19 @@
         "type": "indoor",
         "family_friendly": true,
         "localornational": "national",
-        "thematiccategory": ["technologyandtransportation"],
+        "thematiccategory": [
+            "technologyandtransportation"
+        ],
         "image": "images/default.jpg",
-        "timeperiod": ["nineteenthcentury"],
+        "timeperiod": [
+            "nineteenthcentury"
+        ],
         "estimatedtime": "1 hour",
         "reservations": "walkins_welcome",
-        "tours": ["selftours", "guidedtours"],
+        "tours": [
+            "selftours",
+            "guidedtours"
+        ],
         "transit": "underhalfamilefromtransit",
         "sitetype": "museums",
         "website": "https://dinoridge.org/?gad_source=1",
@@ -822,12 +972,19 @@
         "type": "indoor",
         "family_friendly": true,
         "localornational": "National",
-        "thematiccategory": ["generalhistory"],
+        "thematiccategory": [
+            "generalhistory"
+        ],
         "image": "images/default.jpg",
-        "timeperiod": ["nineteenthcentury"],
+        "timeperiod": [
+            "nineteenthcentury"
+        ],
         "estimatedtime": "1 hour",
         "reservations": "walkins_welcome",
-        "tours": ["selftours", "guidedtours"],
+        "tours": [
+            "selftours",
+            "guidedtours"
+        ],
         "transit": "underhalfamilefromtransit",
         "sitetype": "museums",
         "website": "https://dinoridge.org/?gad_source=1",
@@ -857,12 +1014,19 @@
         "type": "indoor",
         "family_friendly": false,
         "localornational": "national",
-        "thematiccategory": ["generalhistory"],
+        "thematiccategory": [
+            "generalhistory"
+        ],
         "image": "images/default.jpg",
-        "timeperiod": ["nineteenthcentury"],
+        "timeperiod": [
+            "nineteenthcentury"
+        ],
         "estimatedtime": "1 hour",
         "reservations": "walkins_welcome",
-        "tours": ["selftours", "guidedtours"],
+        "tours": [
+            "selftours",
+            "guidedtours"
+        ],
         "transit": "underhalfamilefromtransit",
         "sitetype": "historichome",
         "website": "https://dinoridge.org/?gad_source=1",
@@ -892,12 +1056,19 @@
         "type": "indoor",
         "family_friendly": false,
         "localornational": "local",
-        "thematiccategory": ["religious"],
+        "thematiccategory": [
+            "religious"
+        ],
         "image": "images/default.jpg",
-        "timeperiod": ["nineteenthcentury"],
+        "timeperiod": [
+            "nineteenthcentury"
+        ],
         "estimatedtime": "1 hour",
         "reservations": "walkins_welcome",
-        "tours": ["selftours", "guidedtours"],
+        "tours": [
+            "selftours",
+            "guidedtours"
+        ],
         "transit": "underhalfamilefromtransit",
         "sitetype": "other",
         "website": "https://dinoridge.org/?gad_source=1",
@@ -926,12 +1097,19 @@
         "cost_description": "Guided Bus Tour: $20 for adults (ages 12+), $14 for children (3-11), ages 2 & under free. - Exhibit Hall standalone: $4 if not doing a bus tour. - Morrison Dino Pass (bus tour + exhibit hall in both Dinosaur Ridge & Morrison Natural History Museum): $34 adults, $22 children (3-11), 2 & under free.",
         "type": "indoor",
         "family_friendly": false,
-        "thematiccategory": ["foodanddrink"],
+        "thematiccategory": [
+            "foodanddrink"
+        ],
         "image": "images/default.jpg",
-        "timeperiod": ["nineteenthcentury"],
+        "timeperiod": [
+            "nineteenthcentury"
+        ],
         "estimatedtime": "1 hour",
         "reservations": "walkins_welcome",
-        "tours": ["selftours", "guidedtours"],
+        "tours": [
+            "selftours",
+            "guidedtours"
+        ],
         "transit": "underhalfamilefromtransit",
         "sitetype": "other",
         "website": "https://dinoridge.org/?gad_source=1",
@@ -961,12 +1139,19 @@
         "type": "outdoor",
         "family_friendly": true,
         "localornational": "national",
-        "thematiccategory": ["generalhistory"],
+        "thematiccategory": [
+            "generalhistory"
+        ],
         "image": "images/default.jpg",
-        "timeperiod": ["nineteenthcentury"],
+        "timeperiod": [
+            "nineteenthcentury"
+        ],
         "estimatedtime": "1 hour",
         "reservations": "walkins_welcome",
-        "tours": ["selftours", "guidedtours"],
+        "tours": [
+            "selftours",
+            "guidedtours"
+        ],
         "transit": "underhalfamilefromtransit",
         "sitetype": "other",
         "website": "https://dinoridge.org/?gad_source=1",
@@ -987,7 +1172,7 @@
     {
         "name": "Buckhorn Exchange",
         "id": "site150",
-        "lat": 39.7300,
+        "lat": 39.73,
         "lng": -105.0076,
         "city": "denver",
         "description": "Denver's oldest restaurant, established in 1893, filled with historic artifacts and taxidermy.",
@@ -996,12 +1181,19 @@
         "type": "indoor",
         "family_friendly": false,
         "localornational": "local",
-        "thematiccategory": ["generalhistory"],
+        "thematiccategory": [
+            "generalhistory"
+        ],
         "image": "images/default.jpg",
-        "timeperiod": ["nineteenthcentury"],
+        "timeperiod": [
+            "nineteenthcentury"
+        ],
         "estimatedtime": "1 hour",
         "reservations": "walkins_welcome",
-        "tours": ["selftours", "guidedtours"],
+        "tours": [
+            "selftours",
+            "guidedtours"
+        ],
         "transit": "underhalfamilefromtransit",
         "sitetype": "other",
         "website": "https://dinoridge.org/?gad_source=1",
@@ -1031,12 +1223,19 @@
         "type": "indoor",
         "family_friendly": false,
         "localornational": "local",
-        "thematiccategory": ["foodanddrink"],
+        "thematiccategory": [
+            "foodanddrink"
+        ],
         "image": "images/default.jpg",
-        "timeperiod": ["nineteenthcentury"],
+        "timeperiod": [
+            "nineteenthcentury"
+        ],
         "estimatedtime": "1 hour",
         "reservations": "walkins_welcome",
-        "tours": ["selftours", "guidedtours"],
+        "tours": [
+            "selftours",
+            "guidedtours"
+        ],
         "transit": "underhalfamilefromtransit",
         "sitetype": "other",
         "website": "https://dinoridge.org/?gad_source=1",
@@ -1066,12 +1265,19 @@
         "type": "indoor",
         "family_friendly": true,
         "localornational": "local",
-        "thematiccategory": ["generalhistory"],
+        "thematiccategory": [
+            "generalhistory"
+        ],
         "image": "images/default.jpg",
-        "timeperiod": ["nineteenthcentury"],
+        "timeperiod": [
+            "nineteenthcentury"
+        ],
         "estimatedtime": "1 hour",
         "reservations": "walkins_welcome",
-        "tours": ["selftours", "guidedtours"],
+        "tours": [
+            "selftours",
+            "guidedtours"
+        ],
         "transit": "underhalfamilefromtransit",
         "sitetype": "landmark",
         "website": "https://dinoridge.org/?gad_source=1",
@@ -1101,12 +1307,19 @@
         "type": "indoor",
         "family_friendly": true,
         "localornational": "local",
-        "thematiccategory": ["foodanddrink"],
+        "thematiccategory": [
+            "foodanddrink"
+        ],
         "image": "images/default.jpg",
-        "timeperiod": ["nineteenthcentury"],
+        "timeperiod": [
+            "nineteenthcentury"
+        ],
         "estimatedtime": "1 hour",
         "reservations": "walkins_welcome",
-        "tours": ["selftours", "guidedtours"],
+        "tours": [
+            "selftours",
+            "guidedtours"
+        ],
         "transit": "underhalfamilefromtransit",
         "sitetype": "other",
         "website": "https://dinoridge.org/?gad_source=1",
@@ -1136,12 +1349,19 @@
         "type": "indoor",
         "family_friendly": true,
         "localornational": "national",
-        "thematiccategory": ["generalhistory"],
+        "thematiccategory": [
+            "generalhistory"
+        ],
         "image": "images/default.jpg",
-        "timeperiod": ["nineteenthcentury"],
+        "timeperiod": [
+            "nineteenthcentury"
+        ],
         "estimatedtime": "1 hour",
         "reservations": "walkins_welcome",
-        "tours": ["selftours", "guidedtours"],
+        "tours": [
+            "selftours",
+            "guidedtours"
+        ],
         "transit": "underhalfamilefromtransit",
         "sitetype": "museums",
         "website": "https://dinoridge.org/?gad_source=1",
@@ -1171,12 +1391,19 @@
         "type": "indoor",
         "family_friendly": false,
         "localornational": "national",
-        "thematiccategory": ["technologyandtransportation"],
+        "thematiccategory": [
+            "technologyandtransportation"
+        ],
         "image": "images/default.jpg",
-        "timeperiod": ["nineteenthcentury"],
+        "timeperiod": [
+            "nineteenthcentury"
+        ],
         "estimatedtime": "1 hour",
         "reservations": "walkins_welcome",
-        "tours": ["selftours", "guidedtours"],
+        "tours": [
+            "selftours",
+            "guidedtours"
+        ],
         "transit": "underhalfamilefromtransit",
         "sitetype": "archeological",
         "website": "https://dinoridge.org/?gad_source=1",
@@ -1206,12 +1433,19 @@
         "type": "outdoor",
         "family_friendly": true,
         "localornational": "local",
-        "thematiccategory": ["generalhistory"],
+        "thematiccategory": [
+            "generalhistory"
+        ],
         "image": "images/default.jpg",
-        "timeperiod": ["nineteenthcentury"],
+        "timeperiod": [
+            "nineteenthcentury"
+        ],
         "estimatedtime": "1 hour",
         "reservations": "walkins_welcome",
-        "tours": ["selftours", "guidedtours"],
+        "tours": [
+            "selftours",
+            "guidedtours"
+        ],
         "transit": "underhalfamilefromtransit",
         "sitetype": "landmark",
         "website": "https://dinoridge.org/?gad_source=1",
@@ -1241,12 +1475,19 @@
         "type": "outdoor",
         "family_friendly": true,
         "localornational": "local",
-        "thematiccategory": ["artsandculture"],
+        "thematiccategory": [
+            "artsandculture"
+        ],
         "image": "images/default.jpg",
-        "timeperiod": ["nineteenthcentury"],
+        "timeperiod": [
+            "nineteenthcentury"
+        ],
         "estimatedtime": "1 hour",
         "reservations": "walkins_welcome",
-        "tours": ["selftours", "guidedtours"],
+        "tours": [
+            "selftours",
+            "guidedtours"
+        ],
         "transit": "underhalfamilefromtransit",
         "sitetype": "other",
         "website": "https://dinoridge.org/?gad_source=1",
@@ -1276,12 +1517,19 @@
         "type": "indoor",
         "family_friendly": true,
         "localornational": "national",
-        "thematiccategory": ["artsandculture"],
+        "thematiccategory": [
+            "artsandculture"
+        ],
         "image": "images/default.jpg",
-        "timeperiod": ["nineteenthcentury"],
+        "timeperiod": [
+            "nineteenthcentury"
+        ],
         "estimatedtime": "1 hour",
         "reservations": "reservationrequired",
-        "tours": ["selftours", "guidedtours"],
+        "tours": [
+            "selftours",
+            "guidedtours"
+        ],
         "transit": "underhalfamilefromtransit",
         "sitetype": "other",
         "website": "https://dinoridge.org/?gad_source=1",
@@ -1311,12 +1559,19 @@
         "type": "indoor",
         "family_friendly": true,
         "localornational": "local",
-        "thematiccategory": ["generalhistory"],
+        "thematiccategory": [
+            "generalhistory"
+        ],
         "image": "images/default.jpg",
-        "timeperiod": ["nineteenthcentury"],
+        "timeperiod": [
+            "nineteenthcentury"
+        ],
         "estimatedtime": "1 hour",
         "reservations": "walkins_welcome",
-        "tours": ["selftours", "guidedtours"],
+        "tours": [
+            "selftours",
+            "guidedtours"
+        ],
         "transit": "underhalfamilefromtransit",
         "sitetype": "museums",
         "website": "https://dinoridge.org/?gad_source=1",
@@ -1346,12 +1601,19 @@
         "type": "indoor",
         "family_friendly": true,
         "localornational": "national",
-        "thematiccategory": ["generalhistory"],
+        "thematiccategory": [
+            "generalhistory"
+        ],
         "image": "images/default.jpg",
-        "timeperiod": ["nineteenthcentury"],
+        "timeperiod": [
+            "nineteenthcentury"
+        ],
         "estimatedtime": "1 hour",
         "reservations": "walkins_welcome",
-        "tours": ["selftours", "guidedtours"],
+        "tours": [
+            "selftours",
+            "guidedtours"
+        ],
         "transit": "underhalfamilefromtransit",
         "sitetype": "museums",
         "website": "https://dinoridge.org/?gad_source=1",
@@ -1381,12 +1643,19 @@
         "type": "indoor",
         "family_friendly": true,
         "localornational": "local",
-        "thematiccategory": ["generalhistory"],
+        "thematiccategory": [
+            "generalhistory"
+        ],
         "image": "images/default.jpg",
-        "timeperiod": ["nineteenthcentury"],
+        "timeperiod": [
+            "nineteenthcentury"
+        ],
         "estimatedtime": "1 hour",
         "reservations": "walkins_welcome",
-        "tours": ["selftours", "guidedtours"],
+        "tours": [
+            "selftours",
+            "guidedtours"
+        ],
         "transit": "underhalfamilefromtransit",
         "sitetype": "museums",
         "website": "https://dinoridge.org/?gad_source=1",
@@ -1416,12 +1685,19 @@
         "type": "indoor",
         "family_friendly": true,
         "localornational": "local",
-        "thematiccategory": ["technologyandtransportation"],
+        "thematiccategory": [
+            "technologyandtransportation"
+        ],
         "image": "images/default.jpg",
-        "timeperiod": ["nineteenthcentury"],
+        "timeperiod": [
+            "nineteenthcentury"
+        ],
         "estimatedtime": "1 hour",
         "reservations": "walkins_welcome",
-        "tours": ["selftours", "guidedtours"],
+        "tours": [
+            "selftours",
+            "guidedtours"
+        ],
         "transit": "underhalfamilefromtransit",
         "sitetype": "museums",
         "website": "http://www.mountaineeringmuseum.org",
@@ -1451,12 +1727,20 @@
         "type": "indoor",
         "family_friendly": true,
         "localornational": "local",
-        "thematiccategory": ["generalhistory"],
+        "thematiccategory": [
+            "generalhistory"
+        ],
         "image": "images/default.jpg",
-        "timeperiod": ["nineteenthcentury", "twentiethcentury"],
+        "timeperiod": [
+            "nineteenthcentury",
+            "twentiethcentury"
+        ],
         "estimatedtime": "1-2 hours",
         "reservations": "walkins_welcome",
-        "tours": ["selftours", "guidedtours"],
+        "tours": [
+            "selftours",
+            "guidedtours"
+        ],
         "transit": "underhalfamilefromtransit",
         "sitetype": "museums",
         "website": "https://www.goldenhistory.org",
@@ -1486,12 +1770,19 @@
         "type": "indoor",
         "family_friendly": true,
         "localornational": "local",
-        "thematiccategory": ["generalhistory"],
+        "thematiccategory": [
+            "generalhistory"
+        ],
         "image": "images/default.jpg",
-        "timeperiod": ["nineteenthcentury"],
+        "timeperiod": [
+            "nineteenthcentury"
+        ],
         "estimatedtime": "1 hour",
         "reservations": "walkins_welcome",
-        "tours": ["selftours", "guidedtours"],
+        "tours": [
+            "selftours",
+            "guidedtours"
+        ],
         "transit": "underhalfamilefromtransit",
         "sitetype": "historichomes",
         "website": "https://www.goldenhistory.org/visit/astor-house/",
@@ -1521,9 +1812,13 @@
         "type": "private",
         "family_friendly": false,
         "localornational": "local",
-        "thematiccategory": ["historichome"],
+        "thematiccategory": [
+            "historichome"
+        ],
         "image": "images/default.jpg",
-        "timeperiod": ["nineteenthcentury"],
+        "timeperiod": [
+            "nineteenthcentury"
+        ],
         "estimatedtime": "viewfromoutside",
         "reservations": "notapplicable",
         "tours": [],
@@ -1556,9 +1851,13 @@
         "type": "private",
         "family_friendly": false,
         "localornational": "local",
-        "thematiccategory": ["historichomes"],
+        "thematiccategory": [
+            "historichomes"
+        ],
         "image": "images/default.jpg",
-        "timeperiod": ["twentiethcentury"],
+        "timeperiod": [
+            "twentiethcentury"
+        ],
         "estimatedtime": "viewfromoutside",
         "reservations": "notapplicable",
         "tours": [],
@@ -1591,12 +1890,19 @@
         "type": "indoor",
         "family_friendly": true,
         "localornational": "local",
-        "thematiccategory": ["historichomes"],
+        "thematiccategory": [
+            "historichomes"
+        ],
         "image": "images/default.jpg",
-        "timeperiod": ["twentiethcentury"],
+        "timeperiod": [
+            "twentiethcentury"
+        ],
         "estimatedtime": "1 hour",
         "reservations": "recommended",
-        "tours": ["selftours", "guidedtours"],
+        "tours": [
+            "selftours",
+            "guidedtours"
+        ],
         "transit": "carrequired",
         "sitetype": "historichomes",
         "website": "https://jeffco.us/boettcher-mansion/",
@@ -1626,9 +1932,13 @@
         "type": "private",
         "family_friendly": false,
         "localornational": "local",
-        "thematiccategory": ["historichomes"],
+        "thematiccategory": [
+            "historichomes"
+        ],
         "image": "images/default.jpg",
-        "timeperiod": ["nineteenthcentury"],
+        "timeperiod": [
+            "nineteenthcentury"
+        ],
         "estimatedtime": "viewfromoutside",
         "reservations": "notapplicable",
         "tours": [],
@@ -1661,12 +1971,18 @@
         "type": "indoor",
         "family_friendly": true,
         "localornational": "local",
-        "thematiccategory": ["religious"],
+        "thematiccategory": [
+            "religious"
+        ],
         "image": "images/default.jpg",
-        "timeperiod": ["nineteenthcentury"],
+        "timeperiod": [
+            "nineteenthcentury"
+        ],
         "estimatedtime": "30 minutes",
         "reservations": "walkins_welcome",
-        "tours": ["selftours"],
+        "tours": [
+            "selftours"
+        ],
         "transit": "underhalfamilefromtransit",
         "sitetype": "historichomes",
         "website": "notavailable",

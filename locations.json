@@ -59,15 +59,15 @@
       {
         "name": "Guided Walking Tour",
         "description": "Join a small group for a guide-interpreted walking tour of several fossil sites across Dinosaur Ridge. Learn about the geology and natuarl history during this outdoor 1.5-mile paved walking tour.",
-        "costText": "Free trail • $ optional guided",
+        "costText": "$24",
         "durationText": "1.5 - 2 hours min",
         "website": "https://dinoridge.org/visit-dinosaur-ridge/triceratops-trail/"
       },
       {
         "name": "Walk with a Geologist",
         "description": "(1.5 mile) guided walk across Dinosaur Ridge led by a professional or highly knowledgeable amateur geologist. In addition to the interpretation of the dinosaur track and fossil sites, the tour includes an in-depth discussion of the geology and changes to the Denver area through time. Learn how Colorado and North America fit into a global pattern of movements with the assembly of the supercontinent Pangea that allowed world-wide migration of dinosaurs resulting in the dispersal of fossils found today.",
-        "costText": "Free trail • $ optional guided",
-        "durationText": "$28.00 (includes admission to Exhibit Hall)",
+        "costText": "$28",
+        "durationText": "$2 hours",
         "website": "https://dinoridge.org/visit-dinosaur-ridge/triceratops-trail/"
       },
       {

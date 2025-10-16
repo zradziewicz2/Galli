@@ -969,7 +969,17 @@ function subsiteBarHTML(it){
   }).join('');
 
   // ✅ No description here anymore
-  return `<div class="subsite-bar">${pills}</div>`;
+  const count = (it.subsites?.length || 0);
+return `
+  <div class="subsite-toggle">
+    <div class="subsite-count">${count} subsites ▾</div>
+    <div class="subsite-wrapper" style="display:block">
+      <div class="subsite-bar">${pills}</div>
+      <button class="display-btn" aria-expanded="false" style="display:none">Compare Subsites</button>
+      <div class="compare-slot"></div>
+    </div>
+  </div>`;
+
 }
 
     function buildCardNode(it, score, distMiles){
@@ -1563,13 +1573,17 @@ function openFavorites(){
         p.style.display = (p.style.display === 'none' || !p.style.display) ? 'block' : 'none';
       }
     });
-    document.addEventListener('click', (e) => {
-  const toggle = e.target.closest('.subsite-toggle, .subsite-count');
-  if (!toggle) return;
-  const wrapper = toggle.querySelector('.subsite-wrapper') || toggle.parentElement.querySelector('.subsite-wrapper');
+document.addEventListener('click', (e) => {
+  const label = e.target.closest('.subsite-count'); // click only on the label
+  if (!label) return;
+  const toggle = label.closest('.subsite-toggle');
+  const wrapper = toggle?.querySelector('.subsite-wrapper');
   if (!wrapper) return;
-  wrapper.style.display = (wrapper.style.display === 'none' || !wrapper.style.display) ? 'block' : 'none';
+
+  const open = wrapper.style.display !== 'none';
+  wrapper.style.display = open ? 'none' : 'block';
 });
+
 
     document.addEventListener('click', (e) => {
   const btn = e.target.closest('.display-btn[data-id]');
@@ -1595,6 +1609,8 @@ function openFavorites(){
 document.addEventListener('click', (e) => {
   const pill = e.target.closest('.subsite-pill[data-role="subsite"]');
   if (!pill) return;
+  e.stopPropagation(); // prevents click from closing the subsite toggle
+
 
   const id  = pill.getAttribute('data-id');
   const idx = parseInt(pill.getAttribute('data-index'), 10) || 0;

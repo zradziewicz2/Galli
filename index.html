@@ -1007,7 +1007,8 @@ if (it.subsites && it.subsites.length) {
         ${subsiteBarHTML(it)}
       </div>
     </div>`;
-  node.querySelector('.meta-row')?.insertAdjacentHTML('beforebegin', subLabel);
+   moreEl.insertAdjacentHTML('beforebegin', subLabel);
+
 }
 
 
@@ -1590,10 +1591,8 @@ function openFavorites(){
 // Handle subsite selection and display options
 // Subsite multi-select + keep "active" for stats/meta
 // Subsite multi-select + keep "active" for stats/meta
+// Handle subsite selection and display options (multi-select + active drives stats/meta)
 document.addEventListener('click', (e) => {
-  // Only handle clicks on subsite pills
-document.addEventListener('click', (e) => {
-  // Only handle clicks on subsite pills
   const pill = e.target.closest('.subsite-pill[data-role="subsite"]');
   if (!pill) return;
 
@@ -1610,28 +1609,25 @@ document.addEventListener('click', (e) => {
   const s = (item.subsites || [])[idx];
   if (!s) return;
 
-  // toggle chosen (multi-select)
+  // toggle chosen
   if (item.selectedSubsites.has(s.name)) item.selectedSubsites.delete(s.name);
   else item.selectedSubsites.add(s.name);
 
-  // also make this the active subsite (drives stats/meta)
+  // make this the active subsite (drives stats/meta)
   item.activeSubsiteIndex = idx;
 
-  // find that card
+  // update the card UI
   const card  = document.getElementById('card-' + id);
   if (!card) return;
   const inner = card.querySelector('.inner');
 
-  // 🔥 remove any old floating descriptions
-  inner.querySelectorAll('.subsite-desc').forEach(n => n.remove());
-
-  // rebuild subsite bar (pills only now)
+  // rebuild pills (no floating desc)
   const barHTML = subsiteBarHTML(item);
   const bar = inner.querySelector('.subsite-bar');
   if (bar) bar.outerHTML = barHTML;
   else inner.insertAdjacentHTML('afterbegin', barHTML);
 
-  // rebuild stats (cost/duration/desc table)
+  // rebuild stats (cost/duration/desc)
   const moreBody = card.querySelector('.more-body');
   if (moreBody) {
     const oldTable = moreBody.querySelector('.stats');
@@ -1640,9 +1636,24 @@ document.addEventListener('click', (e) => {
     else moreBody.insertAdjacentHTML('beforeend', newHTML);
   }
 
-  // refresh the Display footer (button visibility + table if open)
+  // refresh meta row badge to match active subsite
+  const s2 = activeSubsite(item);
+  const meta = card.querySelector('.meta');
+  if (meta) {
+    const bits = [];
+    const newBadge = costBadgeHTML({ costText: s2?.costText || item.costText, raw: item.raw });
+    if (newBadge) bits.push(newBadge);
+    if (item.categories?.length) bits.push(item.categories.join(', '));
+    if (item.periods?.length) bits.push(item.periods[0]);
+    const distMatch = meta.textContent.match(/(?:\d+(?:\.\d+)?\smi away|\d+\sft away)/);
+    if (distMatch?.[0]) bits.push(distMatch[0]);
+    meta.innerHTML = bits.join(' • ');
+  }
+
+  // refresh Display footer
   updateCompareUI(card, item);
 });
+
 
 
 

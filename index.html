@@ -140,6 +140,8 @@
 
 .subsite-track{
   display:flex;
+  gap:12px;
+  padding:12px;
   overflow-x:auto;
   scroll-snap-type:x mandatory;
   -webkit-overflow-scrolling:touch;
@@ -148,11 +150,31 @@
 .subsite-track::-webkit-scrollbar{ height:8px; }
 .subsite-track::-webkit-scrollbar-thumb{ background:#e5e7eb; border-radius:999px; }
 
+/* 4-up by default */
 .subsite-slide{
-  flex:0 0 100%;
+  flex: 0 0 calc((100% - 36px) / 4); /* 4 cards, 3 gaps of 12px = 36px */
   scroll-snap-align:start;
-  padding:12px 12px 14px;
+  border:1px solid var(--ring);
+  border-radius:14px;
+  background:#fff;
+  padding:10px;
 }
+
+/* 3-up */
+@media (max-width: 980px){
+  .subsite-slide{ flex: 0 0 calc((100% - 24px) / 3); }
+}
+
+/* 2-up */
+@media (max-width: 680px){
+  .subsite-slide{ flex: 0 0 calc((100% - 12px) / 2); }
+}
+
+/* 1-up */
+@media (max-width: 420px){
+  .subsite-slide{ flex: 0 0 100%; }
+}
+
 
 .subsite-slide h4{
   margin:0 0 6px;
@@ -1288,12 +1310,8 @@ function setActiveSubsiteByIndex(item, idx, cardRoot){
       node.querySelector('.title').textContent = it.name;
             // If multi-site, render the subsite selector just under the title
 // If subsites exist, render swipe carousel (inside the card)
-const inner = root.querySelector('.inner');
-if (it.subsites && it.subsites.length) {
-  // put carousel right after meta row (before chips)
-  const metaEl = inner.querySelector('.meta');
-  metaEl.insertAdjacentHTML('afterend', subsiteCarouselHTML(it));
-}
+// Subsites should ONLY appear inside the expanded modal, not in list cards.
+// (Keep carousel rendering in expandedCardHTML only.)
 
 
 
@@ -1867,7 +1885,6 @@ document.addEventListener('click', (e)=>{
   const item = state.items.find(x=>x.id===id);
   if(!item) return;
 
-  // Prefer the track near the button so list-card + modal both work
   const cardRoot = btn.closest('.card') || document.getElementById('card-' + id);
   const track =
     cardRoot?.querySelector(`.subsite-track[data-track-id="${id}"]`) ||
@@ -1875,15 +1892,20 @@ document.addEventListener('click', (e)=>{
 
   if(!track) return;
 
-  const w = track.clientWidth || 1;
   const curIdx = item.activeSubsiteIndex|0;
   const nextIdx = act==='next' ? curIdx + 1 : curIdx - 1;
   const clamped = Math.max(0, Math.min(nextIdx, item.subsites.length - 1));
 
-  track.scrollTo({ left: clamped * w, behavior: 'smooth' });
+  const slide = track.querySelector(`.subsite-slide[data-index="${clamped}"]`);
+  if(slide){
+    slide.scrollIntoView({ behavior:'smooth', inline:'start', block:'nearest' });
+  }
+
   if(cardRoot) setActiveSubsiteByIndex(item, clamped, cardRoot);
 });
 
+
+// Update active slide on swipe/scroll end (debounced)
 // Update active slide on swipe/scroll end (debounced)
 let __subsiteScrollTimer = null;
 document.addEventListener('scroll', (e)=>{
@@ -1898,13 +1920,24 @@ document.addEventListener('scroll', (e)=>{
     const item = state.items.find(x=>x.id===id);
     if(!item) return;
 
-    const w = track.clientWidth || 1;
-    const idx = Math.round(track.scrollLeft / w);
+    const slides = Array.from(track.querySelectorAll('.subsite-slide'));
+    if(!slides.length) return;
+
+    // pick the slide whose left edge is closest to the track's left scroll position
+    const left = track.scrollLeft;
+    let bestIdx = 0;
+    let bestDist = Infinity;
+
+    slides.forEach((el, i)=>{
+      const dist = Math.abs(el.offsetLeft - left);
+      if(dist < bestDist){ bestDist = dist; bestIdx = i; }
+    });
 
     const cardRoot = track.closest('.card') || document.getElementById('card-' + id);
-    if(cardRoot) setActiveSubsiteByIndex(item, idx, cardRoot);
+    if(cardRoot) setActiveSubsiteByIndex(item, bestIdx, cardRoot);
   }, 120);
 }, true);
+
 
 
 

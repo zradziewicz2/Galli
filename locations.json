@@ -1,4 +1,4 @@
-[
+is a beautifully preserved Victorian home-turned-museum in Denver that tells the story of Margaret “Molly” Brown—Titanic survivor, philanthropist, and early 20th-century activist—through original artifacts, period rooms, and engaging exhibits of her life and impact on Denver and beyond. Built in 1889 in an eclectic Queen Anne/Romanesque style, the house reflects the prosperity and social history of Denver’s Capitol Hill neighborhood in the late 1800s. The museum’s guided and self-guided tours illuminate Molly Brown’s activism, philanthropy, and role in women’s suffrage, going well beyond her Titanic fame[
     {
         "name": "Dinosaur Ridge",
         "id": "site123",
@@ -114,10 +114,11 @@
         "lat": 39.7374,
         "lng": -104.9807,
         "city": "denver",
-        "description": "The preserved home of Titanic survivor Margaret 'Molly' Brown, showcasing Victorian-era history",
+        "description": "This preserved building is a beautifully preserved Victorian home-turned-museum in Denver that tells the story of Margaret “Molly” Brown—Titanic survivor, philanthropist, and early 20th-century activist—through original artifacts, period rooms, and engaging exhibits of her life and impact on Denver and beyond. Built in 1889 in an eclectic Queen Anne/Romanesque style, the house reflects the prosperity and social history of Denver’s Capitol Hill neighborhood in the late 1800s. The museum’s guided and self-guided tours illuminate Molly Brown’s activism, philanthropy, and role in women’s suffrage, going well beyond her Titanic fame",
         "cost": "paid",
         "cost_description": "General admission pricing; see website for details.",
         "type": "indoor",
+        "what_to_expect": "When you visit, expect to step back in time as you explore multiple floors of period-furnished rooms and learn about the Brown family’s life and legacy—guided tours are highly recommended for deeper context. There’s no air conditioning, so dress comfortably, and plan around 1–2 hours to enjoy the house, exhibits, and gift shop fully",
         "family_friendly": true,
         "localornational": "local",
         "thematiccategory": [
@@ -386,8 +387,9 @@
         "lat": 39.7377,
         "lng": -104.9866,
         "city": "denver",
-        "description": "An interactive museum showcasing Colorado’s past through exhibits and artifacts.",
+        "description": "History Colorado Center is a major history museum in Denver dedicated to chronicling the rich and diverse story of Colorado—from its Indigenous roots and frontier days to modern cultural movements—through immersive, interactive exhibits. Opened in 2012, the center features a mix of permanent and rotating galleries that include artifacts, multimedia displays, hands-on experiences, and engaging storytelling across more than a dozen exhibitions. It serves as a hub for exploring Colorado’s environment, communities, innovation, and heritage in a family-friendly setting.",
         "cost": "paid",
+        "what_to_expect": "At the museum, expect a dynamic experience with interactive displays (like a large state map you can “travel” through and simulated environments), a mix of historical artifacts and modern interpretive media, and special exhibitions that appeal to both adults and children. Comfortable shoes and a couple of hours are recommended, as the center’s multi-floor layout and breadth of content make for an engaging and explorative visit.",
         "cost_description": "Guided Bus Tour: $20 for adults (ages 12+), $14 for children (3-11), ages 2 & under free. - Exhibit Hall standalone: $4 if not doing a bus tour. - Morrison Dino Pass (bus tour + exhibit hall in both Dinosaur Ridge & Morrison Natural History Museum): $34 adults, $22 children (3-11), 2 & under free.",
         "type": "indoor",
         "family_friendly": true,

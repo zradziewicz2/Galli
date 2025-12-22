@@ -136,6 +136,30 @@
   background:#fff;
   padding:12px 12px;
 }
+    .photo-strip{
+  display:flex;
+  gap:10px;
+  overflow-x:auto;
+  scroll-snap-type:x mandatory;
+  -webkit-overflow-scrolling:touch;
+  margin-bottom:12px;
+}
+.photo-strip::-webkit-scrollbar{ height:8px; }
+.photo-strip::-webkit-scrollbar-thumb{ background:#e5e7eb; border-radius:999px; }
+
+.photo{
+  flex:0 0 auto;
+  width: 260px;
+  height: 180px;
+  object-fit:cover;
+  border-radius:16px;
+  border:1px solid var(--ring);
+  scroll-snap-align:start;
+}
+@media (max-width:680px){
+  .photo{ width: 220px; height: 160px; }
+}
+
 
 .detail-section h4{
   margin:0 0 8px;
@@ -997,7 +1021,12 @@ function expandedCardHTML(it){
       <button class="fav${state.favorites.has(it.id)?' active':''}" aria-label="Save" data-id="${it.id}">
         <svg viewBox="0 0 24 24"><path d="M12 21s-7-4.35-7-10a4 4 0 0 1 7-2 4 4 0 0 1 7 2c0 5.65-7 10-7 10z"/></svg>
       </button>
-      <img class="img" src="${img}" alt="${it.name} image" onerror="this.src='images/default.jpg'"/>
+      <div class="photo-strip">
+        ${photos.map((src)=>`
+          <img class="photo" src="${src}" alt="${it.name} photo" onerror="this.src='images/default.jpg'"/>
+        `).join('')}
+      </div>
+
 
       <div class="inner">
         <h3 class="title">${it.name}</h3>
@@ -1276,6 +1305,7 @@ function includedHTML(it){
         name: raw.name,
         type: 'Site',
         image: raw.image,
+        photos: Array.isArray(raw.photos) ? raw.photos : [],
         website: raw.website && raw.website!=='notavailable' ? raw.website : '',
         categories: (raw.thematiccategory||[]).map(c => CATEGORY_LABELS[c]||c),
         siteType,
@@ -1481,7 +1511,9 @@ function includedHTML(it){
       if(it.periods?.length){ metaBits.push(it.periods[0]); }
       const distanceText = formatMiles(distMiles);
       if(distanceText) metaBits.push(distanceText);
-      const img = resolveImage(it.image) || 'images/default.jpg';
+      onst photos = (it.photos && it.photos.length ? it.photos : (it.image ? [it.image] : []))
+      .map(resolveImage)
+      .filter(Boolean)
 
 const links = [];
 if(it.website){

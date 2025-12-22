@@ -1021,11 +1021,8 @@ function expandedCardHTML(it){
       <button class="fav${state.favorites.has(it.id)?' active':''}" aria-label="Save" data-id="${it.id}">
         <svg viewBox="0 0 24 24"><path d="M12 21s-7-4.35-7-10a4 4 0 0 1 7-2 4 4 0 0 1 7 2c0 5.65-7 10-7 10z"/></svg>
       </button>
-      <div class="photo-strip">
-        ${photos.map((src)=>`
-          <img class="photo" src="${src}" alt="${it.name} photo" onerror="this.src='images/default.jpg'"/>
-        `).join('')}
-      </div>
+      ${photoGalleryHTML(it)}
+
 
 
       <div class="inner">
@@ -1511,7 +1508,7 @@ function includedHTML(it){
       if(it.periods?.length){ metaBits.push(it.periods[0]); }
       const distanceText = formatMiles(distMiles);
       if(distanceText) metaBits.push(distanceText);
-      onst photos = (it.photos && it.photos.length ? it.photos : (it.image ? [it.image] : []))
+      const photos = (it.photos && it.photos.length ? it.photos : (it.image ? [it.image] : []))
       .map(resolveImage)
       .filter(Boolean)
 

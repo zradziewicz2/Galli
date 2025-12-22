@@ -867,7 +867,9 @@ function expandedCardHTML(it){
   const img = resolveImage(it.image) || 'images/default.jpg';
 
   const metaBits = [];
-  const costBadge = costBadgeHTML({ costText: s?.costText || it.costText, raw: it.raw });
+  const hasSubsites = !!(it.subsites && it.subsites.length);
+  const hasSubsites = !!(it.subsites && it.subsites.length);
+  const costBadge = hasSubsites ? '' : costBadgeHTML({ costText: it.costText, raw: it.raw });
   if(costBadge) metaBits.push(costBadge);
   if(it.categories?.length) metaBits.push(it.categories.join(', '));
   if(it.periods?.length) metaBits.push(it.periods[0]);
@@ -1123,7 +1125,9 @@ document.addEventListener('click', (e)=>{
     // Build the Stats table HTML for an item (with inline info icon for Cost)
       function buildStatsTableHTML(it){
         const r = it.raw || {};
-        const s = activeSubsite(it); // may be null
+        const hasSubsites = !!(it.subsites && it.subsites.length);
+        const s = hasSubsites ? activeSubsite(it) : null; // only use subsite when needed elsewhere
+
       
         const yesNo = v => v===undefined || v===null ? '—' : (v ? 'Yes' : 'No');
         const foodOnsite = !!(r.diningonsite || r.diningonsite2);
@@ -1132,30 +1136,34 @@ document.addEventListener('click', (e)=>{
                           (r.paymentmethod||'') ? String(r.paymentmethod) : '—';
       
         // Prefer subsite cost/duration; fall back to top-level
-        const costText = (s?.costText || it.costText || '').trim();
-        const durationText = (s?.durationText || it.durationText || '').trim();
-        const costDesc = (s?.costDescription || it.costDescription || '').trim();
+        // If subsites exist, we do NOT show general cost/duration in the table.
+        // If no subsites, we show the site's general cost/duration.
+        const costText = (!hasSubsites ? (it.costText || '') : '').trim();
+        const durationText = (!hasSubsites ? (it.durationText || '') : '').trim();
+        const costDesc = (!hasSubsites ? (it.costDescription || '') : '').trim();
         const costIcon = costDesc ? ` <a href="#" class="info-cost" data-id="${it.id}">i</a>` : '';
+
       
-        // Build Site rows
-        const rowsSite = [
-          ...(it.subsites && it.subsites.length ? [
-            ['Cost', (costText || '—') + costIcon],
-            ['Duration', durationText || '—'],
-          ] : []),
-        
-          ['Hours', r.hours||'—'],
-          ['Pet-friendly', yesNo(r.dogfriendly)],
-          ['Family-friendly', yesNo(r.family_friendly)],
-          ['Gift shop', yesNo(r.giftshop)],
-          ['Food & beverage on-site', yesNo(foodOnsite)],
-          ['Accessible by public transit', yesNo(transitOk)],
-          ['ADA accessibility', yesNo(r.adaaccessibility)],
-          ['Luggage storage', yesNo(r.luggagestorage)],
-          ['Spanish translations', yesNo(r.spanishtranslations)],
-          ['Public access', yesNo(r.publicaccess)],
-          ['Payment method', payMethod]
-        ];
+      // Build Site rows
+      const rowsSite = [
+        ...(!hasSubsites ? [
+          ['Cost', (costText || '—') + costIcon],
+          ['Duration', durationText || '—'],
+        ] : []),
+      
+        ['Hours', r.hours||'—'],
+        ['Pet-friendly', yesNo(r.dogfriendly)],
+        ['Family-friendly', yesNo(r.family_friendly)],
+        ['Gift shop', yesNo(r.giftshop)],
+        ['Food & beverage on-site', yesNo(foodOnsite)],
+        ['Accessible by public transit', yesNo(transitOk)],
+        ['ADA accessibility', yesNo(r.adaaccessibility)],
+        ['Luggage storage', yesNo(r.luggagestorage)],
+        ['Spanish translations', yesNo(r.spanishtranslations)],
+        ['Public access', yesNo(r.publicaccess)],
+        ['Payment method', payMethod]
+      ];
+
 
       
         const rowsTour = [
@@ -1189,8 +1197,11 @@ document.addEventListener('click', (e)=>{
       const chipHtml = chips.map(c=>`<span class="chip hit">${c}</span>`).join('');
       const metaBits=[];
       // cost badge visible up front (requested); keep existing meta intact too
-      const s = activeSubsite(it);
-      const costBadge = costBadgeHTML({ costText: s?.costText || it.costText, raw: it.raw });
+      const hasSubsites = !!(it.subsites && it.subsites.length);
+      const s = hasSubsites ? activeSubsite(it) : null;
+
+      const costBadge = hasSubsites ? '' : costBadgeHTML({ costText: it.costText, raw: it.raw });
+
 
       if(costBadge) metaBits.push(costBadge);
       if(it.categories?.length){ metaBits.push(it.categories.join(', ')); }
@@ -1334,23 +1345,26 @@ function setActiveSubsiteByIndex(item, idx, cardRoot){
   }
 
   // refresh meta badge
-  const s2 = activeSubsite(item);
-  const meta = cardRoot?.querySelector('.meta');
-  if(meta){
-    const metaBits = [];
-    const newBadge = costBadgeHTML({ costText: s2?.costText || item.costText, raw: item.raw });
-    if(newBadge) metaBits.push(newBadge);
-    if(item.categories?.length) metaBits.push(item.categories.join(', '));
-    if(item.periods?.length) metaBits.push(item.periods[0]);
+const meta = cardRoot?.querySelector('.meta');
+if(meta){
+  const metaBits = [];
+  const hasSubsites = !!(item.subsites && item.subsites.length);
 
-    // keep distance if present (best-effort)
-    const txt = meta.textContent || '';
-    const m = txt.match(/(\d+(?:\.\d+)?\smi away|\d+\sft away)/);
-    if(m?.[0]) metaBits.push(m[0]);
+  // Don't show (or update) general cost badge when subsites exist
+  const newBadge = hasSubsites ? '' : costBadgeHTML({ costText: item.costText, raw: item.raw });
+  if(newBadge) metaBits.push(newBadge);
 
-    meta.innerHTML = metaBits.join(' • ');
-  }
+  if(item.categories?.length) metaBits.push(item.categories.join(', '));
+  if(item.periods?.length) metaBits.push(item.periods[0]);
+
+  // keep distance if present (best-effort)
+  const txt = meta.textContent || '';
+  const m = txt.match(/(\d+(?:\.\d+)?\smi away|\d+\sft away)/);
+  if(m?.[0]) metaBits.push(m[0]);
+
+  meta.innerHTML = metaBits.join(' • ');
 }
+
 
 
 
@@ -1395,8 +1409,9 @@ function setActiveSubsiteByIndex(item, idx, cardRoot){
 
       // meta row + cost badge
       const metaBits=[];
-      const s = activeSubsite(it);
-      const costBadge = costBadgeHTML({ costText: s?.costText || it.costText, raw: it.raw });
+      const hasSubsites = !!(it.subsites && it.subsites.length);
+      const s = hasSubsites ? activeSubsite(it) : null;
+      const costBadge = hasSubsites ? '' : costBadgeHTML({ costText: it.costText, raw: it.raw });
       if(costBadge) metaBits.push(costBadge);
       if(it.categories?.length){ metaBits.push(it.categories.join(', ')); }
       if(it.periods?.length){ metaBits.push(it.periods[0]); }

@@ -868,7 +868,6 @@ function expandedCardHTML(it){
 
   const metaBits = [];
   const hasSubsites = !!(it.subsites && it.subsites.length);
-  const hasSubsites = !!(it.subsites && it.subsites.length);
   const costBadge = hasSubsites ? '' : costBadgeHTML({ costText: it.costText, raw: it.raw });
   if(costBadge) metaBits.push(costBadge);
   if(it.categories?.length) metaBits.push(it.categories.join(', '));
@@ -1364,7 +1363,7 @@ if(meta){
 
   meta.innerHTML = metaBits.join(' • ');
 }
-
+}
 
 
 

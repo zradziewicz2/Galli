@@ -903,16 +903,17 @@ function expandedCardHTML(it){
 
 
         <div class="icons" style="margin-top:10px">${links.join(' ')}</div>
-
+        
         ${it.description ? `<p class="desc" style="margin-top:10px">${it.description}</p>` : ''}
-
+        
         <div style="margin-top:10px" class="chipbar">${chipHtml}</div>
-
+        
+        ${it.subsites?.length ? `<div style="margin-top:12px">${subsiteCarouselHTML(it)}</div>` : ''}
+        
         <div style="margin-top:12px">
           ${buildStatsTableHTML(it)}
         </div>
-        
-        ${it.subsites?.length ? subsiteCarouselHTML(it) : ''}
+
 
       </div>
     </article>
@@ -1136,10 +1137,13 @@ document.addEventListener('click', (e)=>{
         const costDesc = (s?.costDescription || it.costDescription || '').trim();
         const costIcon = costDesc ? ` <a href="#" class="info-cost" data-id="${it.id}">i</a>` : '';
       
-        // Put COST & DURATION first
+        // Build Site rows
         const rowsSite = [
-          ['Cost', (costText || '—') + costIcon],
-          ['Duration', durationText || '—'],
+          ...(it.subsites && it.subsites.length ? [
+            ['Cost', (costText || '—') + costIcon],
+            ['Duration', durationText || '—'],
+          ] : []),
+        
           ['Hours', r.hours||'—'],
           ['Pet-friendly', yesNo(r.dogfriendly)],
           ['Family-friendly', yesNo(r.family_friendly)],
@@ -1152,6 +1156,7 @@ document.addEventListener('click', (e)=>{
           ['Public access', yesNo(r.publicaccess)],
           ['Payment method', payMethod]
         ];
+
       
         const rowsTour = [
           ['Cost', (r.Cost || r.cost_range?.join(' - ') || costText || '—') + costIcon],

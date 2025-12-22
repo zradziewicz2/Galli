@@ -1818,32 +1818,21 @@ if(it.type==='Tour' && it.raw?.external_links){
       root.querySelector('.more-body').appendChild(p);
     }
     
-    // stats
-    const moreBody = root.querySelector('.more-body');
-    const statsDiv = document.createElement('div');
-    statsDiv.innerHTML = buildStatsTableHTML(it);
-    moreBody.appendChild(statsDiv.firstElementChild);
-    // footer where "Display" button + table will live
-    // Compare footer (Display button + results slot)
-    const footer = document.createElement('div');
-    footer.className = 'compare-footer';
-    footer.innerHTML = `
-      <button class="display-btn" data-id="${it.id}" aria-expanded="false" style="display:none">Display</button>
-    `;
-    const detailsEl = root.querySelector('.more');
-    detailsEl.insertAdjacentElement('afterend', footer);
+// Compare footer (Display button + results slot)
+const footer = document.createElement('div');
+footer.className = 'compare-footer';
+footer.innerHTML = `
+  <button class="display-btn" data-id="${it.id}" aria-expanded="false" style="display:none">Display</button>
+`;
+const detailsEl = root.querySelector('.more');
+detailsEl.insertAdjacentElement('afterend', footer);
 
-    
-    // show/hide the button based on current selection state
-    if (!it.selectedSubsites || !(it.selectedSubsites instanceof Set)) it.selectedSubsites = new Set();
-    const btn = footer.querySelector('.display-btn');
-    btn.style.display = it.selectedSubsites.size ? 'inline-flex' : 'none';
+if (!it.selectedSubsites || !(it.selectedSubsites instanceof Set)) it.selectedSubsites = new Set();
+const btn = footer.querySelector('.display-btn');
+btn.style.display = it.selectedSubsites.size ? 'inline-flex' : 'none';
 
+return node;
 
-
-    return node;
-    ;
-    }
 
     /* ---------------- Favorites (kept) ---------------- */
       function toggleFavorite(id){

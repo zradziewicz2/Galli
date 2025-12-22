@@ -122,6 +122,56 @@
 @media (max-width: 980px){
   .detail-grid{ grid-template-columns: 1fr; }
 }
+/* ===== Modal gallery: thumbs left (2 columns) + main image right ===== */
+.gallery--side{
+  display:grid;
+  grid-template-columns: 210px 1fr;
+  gap:12px;
+  padding:12px;
+  border-bottom:1px solid var(--ring);
+  background:#fff;
+}
+
+@media (max-width: 680px){
+  .gallery--side{
+    grid-template-columns: 1fr;
+  }
+}
+
+.gallery--side .thumbs{
+  display:grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap:10px;
+  align-content:start;
+}
+
+.gallery--side .thumbs .gallery-thumb{
+  width:100%;
+  height:76px;
+  border-radius:14px;
+  object-fit:cover;
+  border:1px solid var(--ring);
+  cursor:pointer;
+  opacity:.9;
+}
+
+.gallery--side .thumbs .gallery-thumb.active{
+  outline:2px solid var(--brand);
+  opacity:1;
+}
+
+.gallery--side .main{
+  width:100%;
+  height:360px;
+  border-radius:18px;
+  object-fit:cover;
+  border:1px solid var(--ring);
+  display:block;
+}
+
+@media (max-width: 680px){
+  .gallery--side .main{ height:240px; }
+}
 
 .detail-card{
   border:1px solid var(--ring);
@@ -989,11 +1039,9 @@ function onModalEsc(e){
 }
 
 function expandedCardHTML(it){
-  const s = activeSubsite(it);
-  const img = resolveImage(it.image) || 'images/default.jpg';
+  const hasSubsites = !!(it.subsites && it.subsites.length);
 
   const metaBits = [];
-  const hasSubsites = !!(it.subsites && it.subsites.length);
   const costBadge = hasSubsites ? '' : costBadgeHTML({ costText: it.costText, raw: it.raw });
   if(costBadge) metaBits.push(costBadge);
   if(it.categories?.length) metaBits.push(it.categories.join(', '));
@@ -1021,59 +1069,59 @@ function expandedCardHTML(it){
       <button class="fav${state.favorites.has(it.id)?' active':''}" aria-label="Save" data-id="${it.id}">
         <svg viewBox="0 0 24 24"><path d="M12 21s-7-4.35-7-10a4 4 0 0 1 7-2 4 4 0 0 1 7 2c0 5.65-7 10-7 10z"/></svg>
       </button>
-      ${photoGalleryHTML(it)}
 
-
+      ${modalGalleryHTML(it)}
 
       <div class="inner">
         <h3 class="title">${it.name}</h3>
         <div class="meta">${metaBits.join(' • ')}</div>
 
-
-
         <div class="icons" style="margin-top:10px">${links.join(' ')}</div>
-        
-        ${it.description ? `<p class="desc" style="margin-top:10px">${it.description}</p>` : ''}
-        
         <div style="margin-top:10px" class="chipbar">${chipHtml}</div>
-        
-        ${it.subsites?.length ? `<div style="margin-top:12px">${subsiteCarouselHTML(it)}</div>` : ''}
-        
-<div class="detail-grid" style="margin-top:12px">
-  <div class="detail-section">
-    <h4>Overview</h4>
-    ${it.description ? `<p class="desc" style="margin:0">${it.description}</p>` : `<p class="detail-muted">No overview yet.</p>`}
-  </div>
 
-  <div class="detail-section">
-    <h4>At a glance</h4>
-    <div class="feature-list">
-      ${atAGlanceHTML(it)}
-    </div>
-  </div>
+        <!-- OVERVIEW first (no duplicates elsewhere) -->
+        <div class="detail-section" style="margin-top:12px">
+          <h4>Overview</h4>
+          ${it.description ? `<p class="desc" style="margin:0">${it.description}</p>` : `<p class="detail-muted">No overview yet.</p>`}
+        </div>
 
-  <div class="detail-section">
-    <h4>What to expect</h4>
-    ${whatToExpectHTML(it)}
-  </div>
+        <!-- Ways to Visit (subsites) AFTER overview -->
+        ${hasSubsites ? `
+          <div style="margin-top:12px">
+            ${subsiteCarouselHTML(it)}
+          </div>
+        ` : ''}
 
-  <div class="detail-section">
-    <h4>Additional info</h4>
-    ${additionalInfoHTML(it)}
-  </div>
+        <!-- Details (no duplicate overview section) -->
+        <div class="detail-grid" style="margin-top:12px">
+          <div class="detail-section">
+            <h4>At a glance</h4>
+            <div class="feature-list">
+              ${atAGlanceHTML(it)}
+            </div>
+          </div>
 
-  <div class="detail-section">
-    <h4>What’s included</h4>
-    ${includedHTML(it)}
-  </div>
-</div>
+          <div class="detail-section">
+            <h4>What to expect</h4>
+            ${whatToExpectHTML(it)}
+          </div>
 
+          <div class="detail-section">
+            <h4>Additional info</h4>
+            ${additionalInfoHTML(it)}
+          </div>
 
+          <div class="detail-section">
+            <h4>What’s included</h4>
+            ${includedHTML(it)}
+          </div>
+        </div>
 
       </div>
     </article>
   `;
 }
+
 
 /* Modal wiring */
 document.addEventListener('click', (e)=>{
@@ -1560,21 +1608,44 @@ ${photoGalleryHTML(it)}
   const idx = Math.min(Math.max(0, it.activeSubsiteIndex|0), it.subsites.length-1);
   return it.subsites[idx];
 }
+function modalGalleryHTML(it){
+  const photos = getPhotosForItem(it);
+  const main = photos[0];
+
+  // thumbs: show up to 6 thumbs (2 cols = 3 rows). You can raise this later.
+  const thumbs = photos.slice(0, 6).map((p,i)=>`
+    <img class="gallery-thumb ${i===0?'active':''}"
+      src="${p}"
+      alt="Photo ${i+1}"
+      data-photo="${p}"
+      onerror="this.src='images/default.jpg'"/>
+  `).join('');
+
+  return `
+    <div class="gallery gallery--side" data-gallery-id="${it.id}">
+      <div class="thumbs">
+        ${thumbs}
+      </div>
+      <img class="gallery-main main" src="${main}" alt="${it.name} photo" onerror="this.src='images/default.jpg'"/>
+    </div>
+  `;
+}
 
 function subsiteCarouselHTML(it){
   if(!it.subsites?.length) return '';
 
   const count = it.subsites.length;
+
   const slides = it.subsites.map((s, i)=>{
     const cost = (s.costText || '').trim();
     const dur  = (s.durationText || '').trim();
     const costChip = cost ? `<span class="chip hit">${cost}</span>` : '';
     const durChip  = dur  ? `<span class="chip">${dur}</span>` : '';
-    const link = s.website ? `<a class="subsite-link" href="${s.website}" target="_blank" rel="noopener">🌐 <span>Subsite website</span></a>` : '';
-    const desc = (s.description || '').trim();
 
-            const hasLong = desc && desc.length > 120;
-    const shortDesc = hasLong ? (desc.slice(0, 120).trim() + '…') : desc;
+    const desc = (s.description || '').trim();
+    const websiteLine = s.website
+      ? `<a class="subsite-link" href="${s.website}" target="_blank" rel="noopener">🌐 <span>Subsite website</span></a>`
+      : `<span class="detail-muted" style="font-size:12px">No subsite website.</span>`;
 
     return `
       <div class="subsite-slide" data-index="${i}">
@@ -1587,32 +1658,23 @@ function subsiteCarouselHTML(it){
               ${durChip}
             </div>
 
-            ${desc ? (
-              hasLong
-                ? `
-                  <details class="subsite-more">
-                    <summary><span>More info</span></summary>
-                    <p class="subsite-desc">${desc}</p>
-                  </details>
-                `
-                : `<p class="subsite-desc">${shortDesc}</p>`
-            ) : ''}
+            <details class="subsite-more">
+              <summary><span>More info</span></summary>
+              ${desc ? `<p class="subsite-desc">${desc}</p>` : `<p class="detail-muted" style="margin:6px 0 0">No description yet.</p>`}
+              <div style="margin-top:8px">${websiteLine}</div>
+            </details>
           </div>
         </div>
-
-        ${link}
       </div>
     `;
-
-
   }).join('');
 
   return `
     <div class="subsite-carousel" data-id="${it.id}">
       <div class="subsite-carousel-head">
-
         <div class="subsite-carousel-title">
-          Subsites <span class="subsite-carousel-count"><span class="subsite-active">1</span> / ${count}</span>
+          Ways to Visit
+          <span class="subsite-carousel-count"><span class="subsite-active">1</span> / ${count}</span>
         </div>
         <div class="subsite-carousel-controls">
           <button type="button" class="subsite-carousel-btn" data-act="prev" data-id="${it.id}">‹</button>
@@ -1626,6 +1688,7 @@ function subsiteCarouselHTML(it){
     </div>
   `;
 }
+
 
 function setActiveSubsiteByIndex(item, idx, cardRoot){
   if(!item?.subsites?.length) return;

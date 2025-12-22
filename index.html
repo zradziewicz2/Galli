@@ -1472,11 +1472,12 @@ function includedHTML(it){
 
     // Build the Stats table HTML for an item (with inline info icon for Cost)
       function buildStatsTableHTML(it){
-        const r = it.raw || {};
         const hasSubsites = !!(it.subsites && it.subsites.length);
-        const s = hasSubsites ? activeSubsite(it) : null; // only use subsite when needed elsewhere
-
       
+        // ✅ If the site has subsites, don't show the Yes/No table at all
+        if(it.type === 'Site' && hasSubsites) return '';
+      
+        const r = it.raw || {};
         const yesNo = v => v===undefined || v===null ? '—' : (v ? 'Yes' : 'No');
         const foodOnsite = !!(r.diningonsite || r.diningonsite2);
         const transitOk = (r.transit||'').toLowerCase()==='underhalfamilefromtransit';
@@ -1832,6 +1833,8 @@ const btn = footer.querySelector('.display-btn');
 btn.style.display = it.selectedSubsites.size ? 'inline-flex' : 'none';
 
 return node;
+} // ✅ CLOSE buildCardNode HERE
+
 
 
     /* ---------------- Favorites (kept) ---------------- */

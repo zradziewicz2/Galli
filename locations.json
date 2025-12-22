@@ -139,6 +139,31 @@
         "transit": "underhalfamilefromtransit",
         "sitetype": "historichome",
         "website": "https://mollybrown.org/",
+        "subsites": [
+            {
+                "name": "Guided House Tour (Standard)",
+                "description": "Small-group docent-led tour through the home that focuses on Molly Brown’s life, activism, and the house itself.",
+                "costText": "$20",
+                "costDescription": "Included with admission",
+                "durationText": "45 min - 1 hr",
+                "website": "https://dinoridge.org/visit-dinosaur-ridge/dinosaur-trail/"
+            },
+            {
+                "name": "Self-Guided Museum Visit",
+                "description": "Explore exhibits and rooms at your own pace.",
+                "costText": "$24",
+                "durationText": "1.5 - 2 hours min",
+                "website": "https://dinoridge.org/visit-dinosaur-ridge/triceratops-trail/"
+            },
+            {
+                "name": "After-Hours / Cocktail / Lecture Event",
+                "description": "Evening programs, talks, or themed events. View the link below for scheduling and availiabilites.",
+                "costText": "$50 - $75",
+                "durationText": "2 hours min",
+                "website": "https://dinoridge.org/visit-dinosaur-ridge/triceratops-trail/"
+            },
+         
+           
         "giftshop": false,
         "diningonsite": false,
         "diningonsite2": false,

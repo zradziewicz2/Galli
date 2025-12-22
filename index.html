@@ -112,6 +112,108 @@
   gap:8px;
   align-items:center;
 }
+    /* ===== Viator-ish modal layout ===== */
+.detail-grid{
+  display:grid;
+  grid-template-columns: 1.2fr .8fr;
+  gap:16px;
+  align-items:start;
+}
+@media (max-width: 980px){
+  .detail-grid{ grid-template-columns: 1fr; }
+}
+
+.detail-card{
+  border:1px solid var(--ring);
+  border-radius:18px;
+  background:#fff;
+  overflow:hidden;
+}
+
+.detail-section{
+  border:1px solid var(--ring);
+  border-radius:18px;
+  background:#fff;
+  padding:12px 12px;
+}
+
+.detail-section h4{
+  margin:0 0 8px;
+  font-size:14px;
+  font-weight:900;
+  letter-spacing:.02em;
+}
+
+.detail-muted{ color:#64748b; font-size:12px; }
+
+.detail-bullets{
+  margin:8px 0 0;
+  padding-left:18px;
+  color:#334155;
+  font-size:13px;
+  line-height:1.4;
+}
+.detail-bullets li{ margin:6px 0; }
+
+.feature-list{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  margin-top:8px;
+}
+.feature-row{
+  display:flex;
+  gap:10px;
+  align-items:flex-start;
+  font-size:13px;
+  color:#0f172a;
+}
+.feature-ic{
+  width:18px;
+  flex:0 0 18px;
+  display:grid;
+  place-items:center;
+  font-weight:900;
+}
+.feature-ic.ok{ color:#059669; }
+.feature-ic.no{ color:#ef4444; }
+.feature-text{ line-height:1.35; color:#334155; }
+
+/* ===== Photo gallery ===== */
+.gallery{
+  border-bottom:1px solid var(--ring);
+  background:#fff;
+}
+.gallery-main{
+  width:100%;
+  height:320px;
+  object-fit:cover;
+  display:block;
+}
+@media (max-width: 680px){
+  .gallery-main{ height:240px; }
+}
+.gallery-strip{
+  display:flex;
+  gap:10px;
+  padding:10px;
+  overflow-x:auto;
+  -webkit-overflow-scrolling:touch;
+}
+.gallery-thumb{
+  width:96px;
+  height:64px;
+  border-radius:12px;
+  object-fit:cover;
+  border:1px solid var(--ring);
+  cursor:pointer;
+  opacity:.9;
+}
+.gallery-thumb.active{
+  outline:2px solid var(--brand);
+  opacity:1;
+}
+  
 
 .subsite-carousel-count{
   font-size:11px;
@@ -911,9 +1013,35 @@ function expandedCardHTML(it){
         
         ${it.subsites?.length ? `<div style="margin-top:12px">${subsiteCarouselHTML(it)}</div>` : ''}
         
-        <div style="margin-top:12px">
-          ${buildStatsTableHTML(it)}
-        </div>
+<div class="detail-grid" style="margin-top:12px">
+  <div class="detail-section">
+    <h4>Overview</h4>
+    ${it.description ? `<p class="desc" style="margin:0">${it.description}</p>` : `<p class="detail-muted">No overview yet.</p>`}
+  </div>
+
+  <div class="detail-section">
+    <h4>At a glance</h4>
+    <div class="feature-list">
+      ${atAGlanceHTML(it)}
+    </div>
+  </div>
+
+  <div class="detail-section">
+    <h4>What to expect</h4>
+    ${whatToExpectHTML(it)}
+  </div>
+
+  <div class="detail-section">
+    <h4>Additional info</h4>
+    ${additionalInfoHTML(it)}
+  </div>
+
+  <div class="detail-section">
+    <h4>What’s included</h4>
+    ${includedHTML(it)}
+  </div>
+</div>
+
 
 
       </div>
@@ -967,6 +1095,152 @@ document.addEventListener('click', (e)=>{
       }
       return score;
     }
+function getPhotosForItem(it){
+  // Supports: raw.photos (array), raw.images (array), or fallback to it.image
+  const r = it.raw || {};
+  const arr =
+    (Array.isArray(r.photos) ? r.photos :
+    (Array.isArray(r.images) ? r.images : []))
+    .map(resolveImage)
+    .filter(Boolean);
+
+  const main = resolveImage(it.image);
+  const photos = [...new Set([main, ...arr].filter(Boolean))];
+
+  // fallback
+  if(!photos.length) photos.push('images/default.jpg');
+  return photos.slice(0, 10); // keep it light
+}
+
+function photoGalleryHTML(it){
+  const photos = getPhotosForItem(it);
+  const main = photos[0];
+
+  const thumbs = photos.map((p,i)=>`
+    <img class="gallery-thumb ${i===0?'active':''}"
+      src="${p}" alt="Photo ${i+1}"
+      data-photo="${p}"
+      onerror="this.src='images/default.jpg'"/>
+  `).join('');
+
+  return `
+    <div class="gallery" data-gallery-id="${it.id}">
+      <img class="gallery-main" src="${main}" alt="${it.name} photo" onerror="this.src='images/default.jpg'"/>
+      ${photos.length>1 ? `<div class="gallery-strip">${thumbs}</div>` : ``}
+    </div>
+  `;
+}
+
+/* Click thumbs to swap main photo (works in modal) */
+document.addEventListener('click', (e)=>{
+  const thumb = e.target.closest('.gallery-thumb');
+  if(!thumb) return;
+
+  const gallery = thumb.closest('.gallery');
+  const main = gallery?.querySelector('.gallery-main');
+  if(!main) return;
+
+  const src = thumb.getAttribute('data-photo');
+  if(src) main.src = src;
+
+  gallery.querySelectorAll('.gallery-thumb').forEach(t=>t.classList.remove('active'));
+  thumb.classList.add('active');
+});
+
+function ynRow(label, yes){
+  const ok = !!yes;
+  return `
+    <div class="feature-row">
+      <div class="feature-ic ${ok?'ok':'no'}">${ok?'✓':'✕'}</div>
+      <div class="feature-text">${label}</div>
+    </div>
+  `;
+}
+
+function atAGlanceHTML(it){
+  const r = it.raw || {};
+  const hasSubsites = !!(it.subsites && it.subsites.length);
+
+  // Only show general cost/duration if NO subsites (your request)
+  const cost = !hasSubsites ? (it.costText || '').trim() : '';
+  const dur  = !hasSubsites ? (it.durationText || '').trim() : '';
+
+  const bits = [];
+  if(cost) bits.push(`<div class="feature-row"><div class="feature-ic ok">•</div><div class="feature-text"><strong>Cost:</strong> ${cost}</div></div>`);
+  if(dur)  bits.push(`<div class="feature-row"><div class="feature-ic ok">•</div><div class="feature-text"><strong>Duration:</strong> ${dur}</div></div>`);
+
+  // Categories / type
+  if(it.siteType) bits.push(`<div class="feature-row"><div class="feature-ic ok">•</div><div class="feature-text"><strong>Type:</strong> ${it.siteType}</div></div>`);
+  if(it.categories?.length) bits.push(`<div class="feature-row"><div class="feature-ic ok">•</div><div class="feature-text"><strong>Theme:</strong> ${it.categories.join(', ')}</div></div>`);
+
+  return bits.join('') || `<div class="detail-muted">No highlights yet.</div>`;
+}
+
+function bulletsFromText(s){
+  if(!s) return [];
+  // If you store bullet text like "a; b; c" or newline bullets, this makes it usable.
+  return String(s)
+    .split(/\n|•|- |\u2022|;/g)
+    .map(x=>x.trim())
+    .filter(x=>x.length>2)
+    .slice(0, 8);
+}
+
+function whatToExpectHTML(it){
+  const r = it.raw || {};
+  const arr =
+    Array.isArray(r.what_to_expect) ? r.what_to_expect :
+    bulletsFromText(r.what_to_expect || r.whatexpect || '');
+
+  if(!arr.length){
+    // sensible fallback: reuse overview if you have nothing else
+    return `<p class="detail-muted">Add a <code>what_to_expect</code> array (or text) in your JSON to show this section.</p>`;
+  }
+
+  return `<ul class="detail-bullets">${arr.map(x=>`<li>${x}</li>`).join('')}</ul>`;
+}
+
+function additionalInfoHTML(it){
+  const r = it.raw || {};
+  const arr =
+    Array.isArray(r.additional_info) ? r.additional_info :
+    bulletsFromText(r.additional_info || '');
+
+  // fallback: build from known flags
+  const fallback = [];
+  if(r.transit) fallback.push(`Transit: ${r.transit}`);
+  if(r.hours) fallback.push(`Hours: ${r.hours}`);
+
+  const out = arr.length ? arr : fallback;
+
+  if(!out.length){
+    return `<p class="detail-muted">Add an <code>additional_info</code> array (or text) in your JSON to show this section.</p>`;
+  }
+  return `<ul class="detail-bullets">${out.map(x=>`<li>${x}</li>`).join('')}</ul>`;
+}
+
+function includedHTML(it){
+  const r = it.raw || {};
+  // “Included / Not included” style booleans (Viator-ish)
+  // Map to YOUR fields:
+  const foodOnsite = !!(r.diningonsite || r.diningonsite2);
+  const transitOk = (r.transit||'').toLowerCase()==='underhalfamilefromtransit';
+
+  const rows = [
+    ynRow('Wheelchair accessible', !!r.adaaccessibility),
+    ynRow('Service animals allowed', !!r.serviceanimals),
+    ynRow('Near public transportation', transitOk),
+    ynRow('Food & beverage available on-site', foodOnsite),
+    ynRow('Gift shop', !!r.giftshop),
+    ynRow('Family-friendly', !!r.family_friendly),
+    ynRow('Pet-friendly', !!r.dogfriendly),
+    ynRow('Luggage storage', !!r.luggagestorage),
+    ynRow('Spanish translations', !!r.spanishtranslations),
+    ynRow('Public access', !!r.publicaccess),
+  ];
+
+  return `<div class="feature-list">${rows.join('')}</div>`;
+}
 
     function distanceFromUser(it){
       if(!state.geoloc) return Infinity;
@@ -1233,7 +1507,8 @@ return `<article class="card ${asPopup?'popup-card':''}" id="card-${it.id}">
   <button class="fav${state.favorites.has(it.id)?' active':''}" aria-label="Save" data-id="${it.id}">
     <svg viewBox="0 0 24 24"><path d="M12 21s-7-4.35-7-10a4 4 0 0 1 7-2 4 4 0 0 1 7 2c0 5.65-7 10-7 10z"/></svg>
   </button>
-  <img class="img" src="${img}" alt="${it.name} image" onerror="this.src='images/default.jpg'"/>
+${photoGalleryHTML(it)}
+
   <div class="inner">
     <h3 class="title">${it.name}</h3>
     <div class="meta">${metaBits.join(' • ')}</div>

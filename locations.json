@@ -11,18 +11,19 @@
         "type": "outdoor",
         "family_friendly": true,
         "localornational": "local",
-        "what_to_expect": "Expect a mix of self-guided and guided experiences including walking or biking the paved Dinosaur Ridge Trail, taking bus tours with stops at major fossil and track sites, and exploring exhibits and interpretive signage that explain the geology and prehistoric life of the area. Bring comfortable shoes, water, and layers, as much of the experience is outdoors along trails with varying elevation and limited shade."
+        "what_to_expect": "Expect a mix of self-guided and guided experiences including walking or biking the paved Dinosaur Ridge Trail, taking bus tours with stops at major fossil and track sites, and exploring exhibits and interpretive signage that explain the geology and prehistoric life of the area. Bring comfortable shoes, water, and layers, as much of the experience is outdoors along trails with varying elevation and limited shade.",
         "thematiccategory": [
             "naturalhistory"
         ],
-        "image": "images/dinosaurridge.jpg",
+        "image": "images/dinosaur_ridge.jpg",
         "photos": [
-            "images/dinosaurridge1.jpg",
-            "images/dinosaurridge2.jpg",
-            "images/dinosaurridge3.jpg",
-            "images/dinosaurridge4.jpg"
-  ]
+          "images/dinosaurridge1.jpg",
+          "images/dinosaurridge2.jpg",
+          "images/dinosaurridge3.jpg",
+          "images/dinosaurridge4.jpg"
+        ],
         "timeperiod": [
+
             "prehistoric"
         ],
         "estimatedtime": "1 hour",

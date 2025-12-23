@@ -478,7 +478,59 @@
     .leaflet-popup-content-wrapper { padding:0; border-radius:20px; overflow:hidden; border:1px solid var(--ring); box-shadow:var(--shadow); }
     .leaflet-popup-tip { display:none; }
     .leaflet-popup .fav { pointer-events:auto; }
-    .popup-card .img{ height:148px; }
+    /* ===== Map popup horizontal mini-card ===== */
+.leaflet-popup-content { margin:0; }
+.leaflet-popup-content-wrapper { padding:0; border-radius:18px; overflow:hidden; border:1px solid var(--ring); box-shadow:var(--shadow); }
+.leaflet-popup-tip { display:none; }
+
+.map-popup-card{
+  display:grid;
+  grid-template-columns: 110px 1fr;
+  gap:12px;
+  padding:12px;
+  width: 380px;
+  cursor:pointer;
+  background:#fff;
+}
+
+.map-popup-img{
+  width:110px;
+  height:90px;
+  object-fit:cover;
+  border-radius:14px;
+  border:1px solid var(--ring);
+}
+
+.map-popup-title{
+  font-weight:900;
+  font-size:15px;
+  margin:0 0 4px;
+}
+
+.map-popup-meta{
+  font-size:12px;
+  color:#64748b;
+  margin-bottom:6px;
+}
+
+.map-popup-desc{
+  font-size:13px;
+  color:#334155;
+  line-height:1.25;
+
+  display:-webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow:hidden;
+}
+
+.map-popup-cta{
+  font-size:12px;
+  font-weight:800;
+  color:#0b3a68;
+  margin-top:8px;
+}
+
 
     /* Our Data panel content (kept) */
     #ourDataPanel{position:fixed;inset:0;background:#fff;display:none;z-index:1000}
@@ -1540,6 +1592,26 @@ function includedHTML(it){
       const free = /free|\$?0\b/i.test(c);
       return `<span class="cost-badge ${free?'free':''}">${free?'FREE':c}</span>`;
     }
+function mapPopupHTML(it){
+  const img = resolveImage(it.image) || 'images/default.jpg';
+
+  const bits = [];
+  if(it.siteType) bits.push(it.siteType);
+  if(it.costText) bits.push(it.costText);
+  if(it.durationText) bits.push(it.durationText);
+
+  return `
+    <div class="map-popup-card" data-id="${it.id}">
+      <img class="map-popup-img" src="${img}" alt="${it.name}" onerror="this.src='images/default.jpg'"/>
+      <div class="map-popup-info">
+        <div class="map-popup-title">${it.name}</div>
+        <div class="map-popup-meta">${bits.filter(Boolean).join(' • ')}</div>
+        <div class="map-popup-desc">${it.description || ''}</div>
+        <div class="map-popup-cta">Click for details →</div>
+      </div>
+    </div>
+  `;
+}
 
     function cardHTML(it, score, distMiles, asPopup=false){
       const chips = filterChips(it);
@@ -1987,7 +2059,7 @@ return node;
                   if (typeof lat === 'number' && typeof lng === 'number'){
                     const m = L.marker([lat, lng], { icon: siteIconFor(it.siteType) }).addTo(favoritesMapLayer);
                     // reuse card popup
-                    m.bindPopup(cardHTML(it, scoreMatches(it), distanceFromUser(it), true));
+                    m.bindPopup(mapPopupHTML(it), { maxWidth: 420, minWidth: 380, autoPan: true });
                     bounds.push([lat, lng]);
                   }
                 });
@@ -2213,12 +2285,18 @@ function openFavorites(){
       tourLayer = L.layerGroup().addTo(map);
       buildLegend();
 
-      map.on('popupopen', (e)=>{
-        const btn = e.popup?.getElement()?.querySelector('.fav[data-id]');
-        if(btn){
-          btn.addEventListener('click',(ev)=>{ ev.stopPropagation(); toggleFavorite(btn.getAttribute('data-id')); });
-        }
-      });
+map.on('popupopen', (e)=>{
+  const card = e.popup?.getElement()?.querySelector('.map-popup-card');
+  if(!card) return;
+
+  card.addEventListener('click', ()=>{
+    const id = card.getAttribute('data-id');
+    if(!id) return;
+    openCardModalById(id);
+    map.closePopup(); // optional: closes the small popup after opening modal
+  });
+});
+
     }
 
     function buildLegend(){
@@ -2260,8 +2338,9 @@ function openFavorites(){
         const {lat,lng} = it.raw||{};
         if(typeof lat==='number' && typeof lng==='number'){
           const m = L.marker([lat,lng],{icon:siteIconFor(it.siteType)}).addTo(siteLayer);
-          const html = cardHTML(it, scoreMatches(it), distanceFromUser(it), true);
-          m.bindPopup(html);
+        const html = mapPopupHTML(it);
+        m.bindPopup(html, { maxWidth: 420, minWidth: 380, autoPan: true });
+
           bounds.push([lat,lng]);
         }
       });
@@ -2278,8 +2357,9 @@ function openFavorites(){
             weight:1,
             radius
           }).addTo(tourLayer);
-          const html = cardHTML(it, s, distanceFromUser(it), true);
-          circle.bindPopup(html);
+          const html = mapPopupHTML(it);
+          circle.bindPopup(html, { maxWidth: 420, minWidth: 380, autoPan: true });
+
           bounds.push([it.center.lat, it.center.lng]);
         }
       });

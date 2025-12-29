@@ -1325,20 +1325,6 @@ function bulletsFromText(s){
     .slice(0, 8);
 }
 
-function whatToExpectHTML(it){
-  const r = it.raw || {};
-  const arr =
-    Array.isArray(r.what_to_expect) ? r.what_to_expect :
-    bulletsFromText(r.what_to_expect || r.whatexpect || '');
-
-  if(!arr.length){
-    // sensible fallback: reuse overview if you have nothing else
-    return `<p class="detail-muted">Add a <code>what_to_expect</code> array (or text) in your JSON to show this section.</p>`;
-  }
-
-  return `<ul class="detail-bullets">${arr.map(x=>`<li>${x}</li>`).join('')}</ul>`;
-}
-
 function additionalInfoHTML(it){
   const r = it.raw || {};
   const arr =

@@ -1125,24 +1125,31 @@ function expandedCardHTML(it){
       ${modalGalleryHTML(it)}
 
       <div class="inner">
-        <h3 class="title">${it.name}</h3>
         <div class="meta">${metaBits.join(' • ')}</div>
 
         <div class="icons" style="margin-top:10px">${links.join(' ')}</div>
         <div style="margin-top:10px" class="chipbar">${chipHtml}</div>
 
-        <!-- OVERVIEW first (no duplicates elsewhere) -->
-        <div class="detail-section" style="margin-top:12px">
-          <h4>Overview</h4>
-          ${it.description ? `<p class="desc" style="margin:0">${it.description}</p>` : `<p class="detail-muted">No overview yet.</p>`}
-        </div>
-
-        <!-- Ways to Visit (subsites) AFTER overview -->
+        <!-- Ways to Visit (subsites) FIRST -->
         ${hasSubsites ? `
           <div style="margin-top:12px">
             ${subsiteCarouselHTML(it)}
           </div>
         ` : ''}
+
+        <!-- Overview + What to expect (combined) -->
+        <div class="detail-section" style="margin-top:12px">
+          <h4>Overview &amp; What to expect</h4>
+
+          ${it.description
+            ? `<p class="desc" style="margin:0">${it.description}</p>`
+            : `<p class="detail-muted" style="margin:0">No overview yet.</p>`}
+
+          <div style="margin-top:10px">
+            ${whatToExpectHTML(it)}
+          </div>
+        </div>
+
 
         <!-- Details (no duplicate overview section) -->
         <div class="detail-grid" style="margin-top:12px">
@@ -1164,9 +1171,15 @@ function expandedCardHTML(it){
           </div>
 
           <div class="detail-section">
-            <h4>What’s included</h4>
-            ${includedHTML(it)}
+            <h4>Features</h4>
+            ${featuresHTML(it)}
           </div>
+
+          <div class="detail-section">
+            <h4>Amenities</h4>
+            ${amenitiesHTML(it)}
+          </div>
+
         </div>
 
       </div>
@@ -1345,28 +1358,36 @@ function additionalInfoHTML(it){
   return `<ul class="detail-bullets">${out.map(x=>`<li>${x}</li>`).join('')}</ul>`;
 }
 
-function includedHTML(it){
+function featuresHTML(it){
   const r = it.raw || {};
-  // “Included / Not included” style booleans (Viator-ish)
-  // Map to YOUR fields:
-  const foodOnsite = !!(r.diningonsite || r.diningonsite2);
   const transitOk = (r.transit||'').toLowerCase()==='underhalfamilefromtransit';
 
   const rows = [
     ynRow('Wheelchair accessible', !!r.adaaccessibility),
     ynRow('Service animals allowed', !!r.serviceanimals),
     ynRow('Near public transportation', transitOk),
+    ynRow('Public access', !!r.publicaccess),
+  ];
+
+  return `<div class="feature-list">${rows.join('')}</div>`;
+}
+
+function amenitiesHTML(it){
+  const r = it.raw || {};
+  const foodOnsite = !!(r.diningonsite || r.diningonsite2);
+
+  const rows = [
     ynRow('Food & beverage available on-site', foodOnsite),
     ynRow('Gift shop', !!r.giftshop),
     ynRow('Family-friendly', !!r.family_friendly),
     ynRow('Pet-friendly', !!r.dogfriendly),
     ynRow('Luggage storage', !!r.luggagestorage),
     ynRow('Spanish translations', !!r.spanishtranslations),
-    ynRow('Public access', !!r.publicaccess),
   ];
 
   return `<div class="feature-list">${rows.join('')}</div>`;
 }
+
 
     function distanceFromUser(it){
       if(!state.geoloc) return Infinity;
@@ -1717,7 +1738,7 @@ function subsiteCarouselHTML(it){
 
     const desc = (s.description || '').trim();
     const websiteLine = s.website
-      ? `<a class="subsite-link" href="${s.website}" target="_blank" rel="noopener">🌐 <span>Subsite website</span></a>`
+      ? `<a class="subsite-link" href="${s.website}" target="_blank" rel="noopener">🌐 <span>Make Reservation</span></a>`
       : `<span class="detail-muted" style="font-size:12px">No subsite website.</span>`;
 
     return `

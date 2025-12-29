@@ -1089,6 +1089,16 @@ function closeCardModal(){
 function onModalEsc(e){
   if(e.key === 'Escape') closeCardModal();
 }
+function getWhatToExpectText(it){
+  const r = it.raw || {};
+  // support a few common keys (use whichever your JSON actually has)
+  return (
+    r.what_to_expect ||
+    r.whatToExpect ||
+    r.whattoexpect ||
+    ''
+  ).toString().trim();
+}
 
 function expandedCardHTML(it){
   const hasSubsites = !!(it.subsites && it.subsites.length);
@@ -1137,18 +1147,24 @@ function expandedCardHTML(it){
           </div>
         ` : ''}
 
-        <!-- Overview + What to expect (combined) -->
+        <!-- Overview (includes what-to-expect text) -->
         <div class="detail-section" style="margin-top:12px">
-          <h4>Overview &amp; What to expect</h4>
+          <h4>Overview</h4>
 
-          ${it.description
-            ? `<p class="desc" style="margin:0">${it.description}</p>`
-            : `<p class="detail-muted" style="margin:0">No overview yet.</p>`}
-
-          <div style="margin-top:10px">
-            ${whatToExpectHTML(it)}
-          </div>
+          ${
+            (() => {
+              const parts = [];
+              if(it.description) parts.push(it.description.trim());
+              const w = getWhatToExpectText(it);
+              if(w) parts.push(w);
+              const merged = parts.join(' ').trim();
+              return merged
+                ? `<p class="desc" style="margin:0">${merged}</p>`
+                : `<p class="detail-muted" style="margin:0">No overview yet.</p>`;
+            })()
+          }
         </div>
+
 
 
         <!-- Details (no duplicate overview section) -->
@@ -1158,11 +1174,6 @@ function expandedCardHTML(it){
             <div class="feature-list">
               ${atAGlanceHTML(it)}
             </div>
-          </div>
-
-          <div class="detail-section">
-            <h4>What to expect</h4>
-            ${whatToExpectHTML(it)}
           </div>
 
           <div class="detail-section">
@@ -1222,6 +1233,7 @@ document.addEventListener('click', (e)=>{
         default: return !!r[key];
       }
     }
+function whatToExpectHTML(){ return ''; }
 
     function scoreMatches(it){
       let score = 0;

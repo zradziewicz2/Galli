@@ -89,22 +89,22 @@
             {
                 "name": "Self-Guided Walk",
                 "description": "Features over 15 interpretive stops highlighting fossils, geologic formations, and dinosaur tracks. Interpretive signs lead you on this 1.1 mile (one way from gate to gate) outdoor walk along a paved road.",
-                "costText": "FREE $5 - $10, field guide, $8 audio guide",
+                "costText": "FREE, $8 audio guide",
                 "durationText": "60–90 min",
                 "website": "https://dinoridge.org/visit-dinosaur-ridge/triceratops-trail/"
             },
             {
                 "name": "Main Visitor Center",
                 "description": "At the Gift Shop: pick up maps for hiking, purchase tickets for shuttle bus tours and the Exhibit Hall, shop for unique souvenirs and buy snacks and drinks. Our Main Visitor Center Gift Shop is located at the Main Visitor Center, where you can purchase bus tour tickets, pick up a map, get more information and shop for souvenirs. Our gift shop features replicas of dinosaurs, books, posters, clothing, snacks, toys, rocks, minerals, crystals, and fossils.At the Dig Areas: small kids can dig for souvenir fossils in the Benton Seaway Box, bigger kids enjoy uncovering dinosaur fossils in the Backyard Bones pit, everyone loves taking photos with the dinosaur replicas, and giving Sluice Mining a try.",
-                "costText": "Free trail • $ optional guided",
-                "durationText": "15 min",
+                "costText": "Free",
+                "durationText": "~15 min",
                 "website": "https://dinoridge.org/visit-dinosaur-ridge/triceratops-trail/"
             },
             {
                 "name": "Exhibit Hall",
                 "description": "The Exhibit Hall features paleo-murals, fossil replicas and real fossil bones of giant long-necked dinosaurs. Designed to simulate a walk through diverse environments at different prehistoric dates, it features five sweeping, back-lit murals.",
                 "costText": "Included with Guided Bus Tour - $5.00 otherwise",
-                "durationText": "30 min",
+                "durationText": "~30 min",
                 "website": "https://dinoridge.org/visit-dinosaur-ridge/triceratops-trail/"
             }
         ]

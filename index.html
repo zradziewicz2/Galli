@@ -1143,34 +1143,51 @@ function expandedCardHTML(it){
           </div>
         ` : ''}
 
-        <!-- Overview (includes what-to-expect text) -->
-        <div class="detail-section" style="margin-top:12px">
-          <h4>Overview</h4>
+<!-- At a glance + Additional info ABOVE Overview -->
+<div class="detail-grid" style="margin-top:12px">
+  <div class="detail-section">
+    <h4>At a glance</h4>
+    <div class="feature-list">
+      ${atAGlanceHTML(it)}
+    </div>
+  </div>
 
-          ${
-            (() => {
-              const parts = [];
-              if(it.description) parts.push(it.description.trim());
-              const w = getWhatToExpectText(it);
-              if(w) parts.push(w);
-              const merged = parts.join(' ').trim();
-              return merged
-                ? `<p class="desc" style="margin:0">${merged}</p>`
-                : `<p class="detail-muted" style="margin:0">No overview yet.</p>`;
-            })()
-          }
-        </div>
+  <div class="detail-section">
+    <h4>Additional info</h4>
+    ${additionalInfoHTML(it)}
+  </div>
+</div>
 
+<!-- Overview AFTER those boxes -->
+<div class="detail-section" style="margin-top:12px">
+  <h4>Overview</h4>
+  ${
+    (() => {
+      const parts = [];
+      if(it.description) parts.push(it.description.trim());
+      const w = getWhatToExpectText(it);
+      if(w) parts.push(w);
+      const merged = parts.join(' ').trim();
+      return merged
+        ? `<p class="desc" style="margin:0">${merged}</p>`
+        : `<p class="detail-muted" style="margin:0">No overview yet.</p>`;
+    })()
+  }
+</div>
 
+<!-- Features + Amenities below (kept as a 2-column grid) -->
+<div class="detail-grid" style="margin-top:12px">
+  <div class="detail-section">
+    <h4>Features</h4>
+    ${featuresHTML(it)}
+  </div>
 
-        <!-- Details (no duplicate overview section) -->
-        <div class="detail-grid" style="margin-top:12px">
-          <div class="detail-section">
-            <h4>At a glance</h4>
-            <div class="feature-list">
-              ${atAGlanceHTML(it)}
-            </div>
-          </div>
+  <div class="detail-section">
+    <h4>Amenities</h4>
+    ${amenitiesHTML(it)}
+  </div>
+</div>
+
 
           <div class="detail-section">
             <h4>Additional info</h4>
@@ -1719,12 +1736,42 @@ function modalGalleryHTML(it){
   `;
 }
 
+function subsiteCategoryRank(s){
+  // Explicit fields win (recommended)
+  const t = (s.visitType || s.visit_type || s.category || s.kind || '').toString().toLowerCase().trim();
+
+  // Accept a few likely values
+  if (t.includes('self') || t.includes('free') || t.includes('public')) return 0;      // self-guided/free
+  if (t.includes('group')) return 1;                                                 // group
+  if (t.includes('private')) return 2;                                               // private
+  if (t.includes('special') || t.includes('occasion') || t.includes('vip')) return 3;// special occasion
+
+  // Heuristic fallback: inspect name/desc if no explicit type
+  const hay = `${s.name||''} ${s.description||''}`.toLowerCase();
+
+  if (hay.includes('self-guided') || hay.includes('self guided') || hay.includes('free')) return 0;
+  if (hay.includes('group') || hay.includes('guided tour') || hay.includes('docent')) return 1;
+  if (hay.includes('private')) return 2;
+  if (hay.includes('wedding') || hay.includes('proposal') || hay.includes('anniversary') || hay.includes('special')) return 3;
+
+  // Unknown goes last (but before special if you want; leaving last is safest)
+  return 99;
+}
+
 function subsiteCarouselHTML(it){
   if(!it.subsites?.length) return '';
 
-  const count = it.subsites.length;
+  // ORDER: self-guided/free, then group, then private, then special occasion
+  const ordered = it.subsites
+    .map((s, originalIndex) => ({ s, originalIndex, rank: subsiteCategoryRank(s) }))
+    .sort((a,b) => a.rank - b.rank || a.originalIndex - b.originalIndex)
+    .map(x => x.s);
 
-  const slides = it.subsites.map((s, i)=>{
+  // Keep active index valid after ordering
+  // (optional: reset to 0 since we're presenting “best” first)
+  it.activeSubsiteIndex = 0;
+
+  const slides = ordered.map((s, i)=>{
     const cost = (s.costText || '').trim();
     const dur  = (s.durationText || '').trim();
     const costChip = cost ? `<span class="chip hit">${cost}</span>` : '';
@@ -1757,25 +1804,23 @@ function subsiteCarouselHTML(it){
     `;
   }).join('');
 
+  // ✅ NO “Ways to Visit” header bubble
+  // ✅ NO “1 / N” counter
+  // (Prev/Next optional — I’m keeping them because they’re handy, but not in a big header bubble.)
   return `
     <div class="subsite-carousel" data-id="${it.id}">
-      <div class="subsite-carousel-head">
-        <div class="subsite-carousel-title">
-          Ways to Visit
-          <span class="subsite-carousel-count"><span class="subsite-active">1</span> / ${count}</span>
-        </div>
-        <div class="subsite-carousel-controls">
-          <button type="button" class="subsite-carousel-btn" data-act="prev" data-id="${it.id}">‹</button>
-          <button type="button" class="subsite-carousel-btn" data-act="next" data-id="${it.id}">›</button>
-        </div>
-      </div>
-
       <div class="subsite-track" data-track-id="${it.id}">
         ${slides}
+      </div>
+
+      <div class="subsite-carousel-controls" style="padding:0 12px 12px; justify-content:flex-end;">
+        <button type="button" class="subsite-carousel-btn" data-act="prev" data-id="${it.id}">‹</button>
+        <button type="button" class="subsite-carousel-btn" data-act="next" data-id="${it.id}">›</button>
       </div>
     </div>
   `;
 }
+
 
 
 function setActiveSubsiteByIndex(item, idx, cardRoot){
@@ -1783,10 +1828,6 @@ function setActiveSubsiteByIndex(item, idx, cardRoot){
 
   const clamped = Math.max(0, Math.min(idx, item.subsites.length - 1));
   item.activeSubsiteIndex = clamped;
-
-  // update "1 / N" label
-  const activeNum = cardRoot?.querySelector('.subsite-active');
-  if(activeNum) activeNum.textContent = String(clamped + 1);
 
   // refresh stats table
   const moreBody = cardRoot?.querySelector('.more-body') || cardRoot?.querySelector('.inner');

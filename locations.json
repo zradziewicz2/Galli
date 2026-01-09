@@ -51,7 +51,7 @@
         "address": "123 Main Street, Denver CO",
         "subsites": [
             {
-                "name": "Guided Bus Tour (English)"
+                "name": "Guided Bus Tour (English)",
                 "visitType": "guided",
                 "description": "Guided bus tours feature stops at the Bone Bed, the Brontosaur Bulges, and the Dinosaur Tracksite. Brief talks at each site provide context for the fossils on the ridge. Includes a short walk on along the fossil trail.",
                 "costText": "$20 adults • $14 youth",

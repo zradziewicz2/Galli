@@ -231,7 +231,7 @@
         "subsites": [
             {
                 "name": "Red Rocks Museum",
-                "description": "Learn about the music history of one of the world's most famous venues through artifacts and exhibits.",
+                "description": "Learn about the music history of one of the worlds most famous venues through artifacts and exhibits.",
                 "costText": "$20 adults • $14 youth",
                 "costDescription": "EBT discounts available; kids <3 free",
                 "durationText": "45 min - 1 hr",
@@ -902,7 +902,7 @@
         "lng": -104.9866,
         "city": "denver",
         "culture": "Specialinterest", 
-        "description": "A museum offering interactive exhibits on Colorado's history, from indigenous cultures to contemporary times.",
+        "description": "A museum offering interactive exhibits on Colorados history, from indigenous cultures to contemporary times.",
         "cost": "paid",
         "cost_description": "Guided Bus Tour: $20 for adults (ages 12+), $14 for children (3-11), ages 2 & under free. - Exhibit Hall standalone: $4 if not doing a bus tour. - Morrison Dino Pass (bus tour + exhibit hall in both Dinosaur Ridge & Morrison Natural History Museum): $34 adults, $22 children (3-11), 2 & under free.",
         "type": "indoor",
@@ -1160,7 +1160,7 @@
         "lng": -104.9987,
         "city": "denver",
         "culture": "Specialinterest", 
-        "description": "Denver's oldest bar, opened the day after Prohibition ended in 1933, featuring an art deco ambiance.",
+        "description": "Denvers oldest bar, opened the day after Prohibition ended in 1933, featuring an art deco ambiance.",
         "cost": "paid",
         "cost_description": "Guided Bus Tour: $20 for adults (ages 12+), $14 for children (3-11), ages 2 & under free. - Exhibit Hall standalone: $4 if not doing a bus tour. - Morrison Dino Pass (bus tour + exhibit hall in both Dinosaur Ridge & Morrison Natural History Museum): $34 adults, $22 children (3-11), 2 & under free.",
         "type": "indoor",
@@ -1196,7 +1196,7 @@
         "address": "123 Main Street, Denver CO"
     },
     {
-        "name": "Poet's Row",
+        "name": "Poets Row",
         "id": "site149",
         "lat": 39.7338,
         "lng": -104.9835,
@@ -1245,7 +1245,7 @@
         "lng": -105.0076,
         "city": "denver",
         "culture": "Specialinterest", 
-        "description": "Denver's oldest restaurant, established in 1893, filled with historic artifacts and taxidermy.",
+        "description": "Denvers oldest restaurant, established in 1893, filled with historic artifacts and taxidermy.",
         "cost": "paid",
         "cost_description": "Guided Bus Tour: $20 for adults (ages 12+), $14 for children (3-11), ages 2 & under free. - Exhibit Hall standalone: $4 if not doing a bus tour. - Morrison Dino Pass (bus tour + exhibit hall in both Dinosaur Ridge & Morrison Natural History Museum): $34 adults, $22 children (3-11), 2 & under free.",
         "type": "indoor",
@@ -1282,7 +1282,7 @@
         "address": "123 Main Street, Denver CO"
     },
     {
-        "name": "My Brother's Bar",
+        "name": "My Brothers Bar",
         "id": "site151",
         "lat": 39.7563,
         "lng": -105.0072,
@@ -1411,7 +1411,7 @@
         "address": "123 Main Street, Denver CO"
     },
     {
-        "name": "Fifty-Two 80's",
+        "name": "Fifty-Two 80s",
         "id": "site154",
         "lat": 39.6761,
         "lng": -104.9662,
@@ -1460,7 +1460,7 @@
         "lng": -105.2181,
         "city": "denver",
         "culture": "Specialinterest", 
-        "description": "A research facility preserving ice cores from around the world, providing insites into Earth's climatic history.",
+        "description": "A research facility preserving ice cores from around the world, providing insites into Earths climatic history.",
         "cost": "free",
         "cost_description": "Guided Bus Tour: $20 for adults (ages 12+), $14 for children (3-11), ages 2 & under free. - Exhibit Hall standalone: $4 if not doing a bus tour. - Morrison Dino Pass (bus tour + exhibit hall in both Dinosaur Ridge & Morrison Natural History Museum): $34 adults, $22 children (3-11), 2 & under free.",
         "type": "indoor",
@@ -1497,13 +1497,13 @@
         "address": "123 Main Street, Denver CO"
     },
     {
-        "name": "Big Blue Bear ('I See What You Mean')",
+        "name": "Big Blue Bear (I See What You Mean)",
         "id": "site156",
         "lat": 39.7439,
         "lng": -104.9956,
         "city": "denver",
         "culture": "Specialinterest", 
-        "description": "An iconic 40-foot-tall sculpture peering into the Colorado Convention Center, symbolizing Denver's playful spirit.",
+        "description": "An iconic 40-foot-tall sculpture peering into the Colorado Convention Center, symbolizing Denvers playful spirit.",
         "cost": "free",
         "cost_description": "Guided Bus Tour: $20 for adults (ages 12+), $14 for children (3-11), ages 2 & under free. - Exhibit Hall standalone: $4 if not doing a bus tour. - Morrison Dino Pass (bus tour + exhibit hall in both Dinosaur Ridge & Morrison Natural History Museum): $34 adults, $22 children (3-11), 2 & under free.",
         "type": "outdoor",
@@ -1626,7 +1626,7 @@
         "address": "123 Main Street, Denver CO"
     },
     {
-        "name": "Center for Colorado Women's History",
+        "name": "Center for Colorado Womens History",
         "id": "site159",
         "lat": 39.7375,
         "lng": -104.9873,
@@ -1804,7 +1804,7 @@
         "lng": -105.2211,
         "city": "Denver",
         "culture": "Specialinterest", 
-        "description": "A collection of museums showcasing Golden's rich history, including historic buildings, exhibits on the city's past, and interactive displays.",
+        "description": "A collection of museums showcasing Goldens rich history, including historic buildings, exhibits on the citys past, and interactive displays.",
         "cost": "paid",
         "cost_description": "Guided Bus Tour: $20 for adults (ages 12+), $14 for children (3-11), ages 2 & under free. - Exhibit Hall standalone: $4 if not doing a bus tour. - Morrison Dino Pass (bus tour + exhibit hall in both Dinosaur Ridge & Morrison Natural History Museum): $34 adults, $22 children (3-11), 2 & under free.",
         "type": "indoor",
@@ -1891,7 +1891,7 @@
         "lng": -105.2247,
         "city": "Golden",
         "culture": "Specialinterest", 
-        "description": "A historic 1865 Italianate-style home built by David Barnes, one of Golden's early influential figures.",
+        "description": "A historic 1865 Italianate-style home built by David Barnes, one of Goldens early influential figures.",
         "cost": "notapplicable",
         "cost_description": "Guided Bus Tour: $20 for adults (ages 12+), $14 for children (3-11), ages 2 & under free. - Exhibit Hall standalone: $4 if not doing a bus tour. - Morrison Dino Pass (bus tour + exhibit hall in both Dinosaur Ridge & Morrison Natural History Museum): $34 adults, $22 children (3-11), 2 & under free.",
         "type": "private",
@@ -2157,5 +2157,5 @@
         "adaaccessibility": true,
         "dogfriendly": true,
         "address": "123 Main Street, Denver CO"
-    },
+    }
 ]

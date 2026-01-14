@@ -1,4 +1,4 @@
-[
+   [
        {
         "name": "Dinosaur Ridge",
         "id": "site123",
@@ -231,7 +231,7 @@
         "subsites": [
             {
                 "name": "Red Rocks Museum",
-                "description": "Learn about the music history of one of the worlds most famous venues through artifacts and exhibits.",
+                "description": "Learn about the music history of one of the world's most famous venues through artifacts and exhibits.",
                 "costText": "$20 adults • $14 youth",
                 "costDescription": "EBT discounts available; kids <3 free",
                 "durationText": "45 min - 1 hr",
@@ -902,7 +902,7 @@
         "lng": -104.9866,
         "city": "denver",
         "culture": "Specialinterest", 
-        "description": "A museum offering interactive exhibits on Colorados history, from indigenous cultures to contemporary times.",
+        "description": "A museum offering interactive exhibits on Colorado's history, from indigenous cultures to contemporary times.",
         "cost": "paid",
         "cost_description": "Guided Bus Tour: $20 for adults (ages 12+), $14 for children (3-11), ages 2 & under free. - Exhibit Hall standalone: $4 if not doing a bus tour. - Morrison Dino Pass (bus tour + exhibit hall in both Dinosaur Ridge & Morrison Natural History Museum): $34 adults, $22 children (3-11), 2 & under free.",
         "type": "indoor",
@@ -1160,7 +1160,7 @@
         "lng": -104.9987,
         "city": "denver",
         "culture": "Specialinterest", 
-        "description": "Denvers oldest bar, opened the day after Prohibition ended in 1933, featuring an art deco ambiance.",
+        "description": "Denver's oldest bar, opened the day after Prohibition ended in 1933, featuring an art deco ambiance.",
         "cost": "paid",
         "cost_description": "Guided Bus Tour: $20 for adults (ages 12+), $14 for children (3-11), ages 2 & under free. - Exhibit Hall standalone: $4 if not doing a bus tour. - Morrison Dino Pass (bus tour + exhibit hall in both Dinosaur Ridge & Morrison Natural History Museum): $34 adults, $22 children (3-11), 2 & under free.",
         "type": "indoor",
@@ -1196,7 +1196,7 @@
         "address": "123 Main Street, Denver CO"
     },
     {
-        "name": "Poets Row",
+        "name": "Poet's Row",
         "id": "site149",
         "lat": 39.7338,
         "lng": -104.9835,
@@ -1245,7 +1245,7 @@
         "lng": -105.0076,
         "city": "denver",
         "culture": "Specialinterest", 
-        "description": "Denvers oldest restaurant, established in 1893, filled with historic artifacts and taxidermy.",
+        "description": "Denver's oldest restaurant, established in 1893, filled with historic artifacts and taxidermy.",
         "cost": "paid",
         "cost_description": "Guided Bus Tour: $20 for adults (ages 12+), $14 for children (3-11), ages 2 & under free. - Exhibit Hall standalone: $4 if not doing a bus tour. - Morrison Dino Pass (bus tour + exhibit hall in both Dinosaur Ridge & Morrison Natural History Museum): $34 adults, $22 children (3-11), 2 & under free.",
         "type": "indoor",
@@ -1282,7 +1282,7 @@
         "address": "123 Main Street, Denver CO"
     },
     {
-        "name": "My Brothers Bar",
+        "name": "My Brother's Bar",
         "id": "site151",
         "lat": 39.7563,
         "lng": -105.0072,
@@ -1411,7 +1411,7 @@
         "address": "123 Main Street, Denver CO"
     },
     {
-        "name": "Fifty-Two 80s",
+        "name": "Fifty-Two 80's",
         "id": "site154",
         "lat": 39.6761,
         "lng": -104.9662,
@@ -1460,7 +1460,7 @@
         "lng": -105.2181,
         "city": "denver",
         "culture": "Specialinterest", 
-        "description": "A research facility preserving ice cores from around the world, providing insites into Earths climatic history.",
+        "description": "A research facility preserving ice cores from around the world, providing insites into Earth's climatic history.",
         "cost": "free",
         "cost_description": "Guided Bus Tour: $20 for adults (ages 12+), $14 for children (3-11), ages 2 & under free. - Exhibit Hall standalone: $4 if not doing a bus tour. - Morrison Dino Pass (bus tour + exhibit hall in both Dinosaur Ridge & Morrison Natural History Museum): $34 adults, $22 children (3-11), 2 & under free.",
         "type": "indoor",
@@ -1497,13 +1497,13 @@
         "address": "123 Main Street, Denver CO"
     },
     {
-        "name": "Big Blue Bear (I See What You Mean)",
+        "name": "Big Blue Bear ('I See What You Mean')",
         "id": "site156",
         "lat": 39.7439,
         "lng": -104.9956,
         "city": "denver",
         "culture": "Specialinterest", 
-        "description": "An iconic 40-foot-tall sculpture peering into the Colorado Convention Center, symbolizing Denvers playful spirit.",
+        "description": "An iconic 40-foot-tall sculpture peering into the Colorado Convention Center, symbolizing Denver's playful spirit.",
         "cost": "free",
         "cost_description": "Guided Bus Tour: $20 for adults (ages 12+), $14 for children (3-11), ages 2 & under free. - Exhibit Hall standalone: $4 if not doing a bus tour. - Morrison Dino Pass (bus tour + exhibit hall in both Dinosaur Ridge & Morrison Natural History Museum): $34 adults, $22 children (3-11), 2 & under free.",
         "type": "outdoor",
@@ -1626,7 +1626,7 @@
         "address": "123 Main Street, Denver CO"
     },
     {
-        "name": "Center for Colorado Womens History",
+        "name": "Center for Colorado Women's History",
         "id": "site159",
         "lat": 39.7375,
         "lng": -104.9873,
@@ -1804,7 +1804,7 @@
         "lng": -105.2211,
         "city": "Denver",
         "culture": "Specialinterest", 
-        "description": "A collection of museums showcasing Goldens rich history, including historic buildings, exhibits on the citys past, and interactive displays.",
+        "description": "A collection of museums showcasing Golden's rich history, including historic buildings, exhibits on the city's past, and interactive displays.",
         "cost": "paid",
         "cost_description": "Guided Bus Tour: $20 for adults (ages 12+), $14 for children (3-11), ages 2 & under free. - Exhibit Hall standalone: $4 if not doing a bus tour. - Morrison Dino Pass (bus tour + exhibit hall in both Dinosaur Ridge & Morrison Natural History Museum): $34 adults, $22 children (3-11), 2 & under free.",
         "type": "indoor",
@@ -1891,7 +1891,7 @@
         "lng": -105.2247,
         "city": "Golden",
         "culture": "Specialinterest", 
-        "description": "A historic 1865 Italianate-style home built by David Barnes, one of Goldens early influential figures.",
+        "description": "A historic 1865 Italianate-style home built by David Barnes, one of Golden's early influential figures.",
         "cost": "notapplicable",
         "cost_description": "Guided Bus Tour: $20 for adults (ages 12+), $14 for children (3-11), ages 2 & under free. - Exhibit Hall standalone: $4 if not doing a bus tour. - Morrison Dino Pass (bus tour + exhibit hall in both Dinosaur Ridge & Morrison Natural History Museum): $34 adults, $22 children (3-11), 2 & under free.",
         "type": "private",
@@ -2088,93 +2088,5 @@
         "adaaccessibility": true,
         "dogfriendly": false,
         "address": "Golden, CO"
-    },
-       {
-        "name": "Coors Field (Colorado Rockies Stadium)",
-        "id": "site170",
-        "lat": 39.755882,
-        "lng": -104.994178,
-        "city": "denver",
-        "culture": "Local",
-        "description": "Our tours provide a behind-the-scenes look at one of the premier ballparks in Major League Baseball.",
-        "cost": "paid",
-        "cost_description": "General admission pricing; see website for details.",
-        "type": "indoor",
-        "what_to_expect": "When you visit, expect to step back in time as you explore multiple floors of period-furnished rooms and learn about the Brown family’s life and legacy—guided tours are highly recommended for deeper context. There’s no air conditioning, so dress comfortably, and plan around 1–2 hours to enjoy the house, exhibits, and gift shop fully",
-        "family_friendly": true,
-        "localornational": "local",
-        "thematiccategory": [
-            "historichomes"
-        ],
-        "image": "images/coorsfield.jpg",
-        "timeperiod": [
-            "nineteenthcentury"
-        ],
-        "estimatedtime": "1 hour",
-        "reservations": "walkins_welcome",
-        "tours": [
-            "selftours",
-            "guidedtours"
-        ],
-        "transit": "underhalfamilefromtransit",
-        "sitetype": "Landmark",
-        "website": "https://www.mlb.com/rockies/tickets/tours",
-        "subsites": [
-            {
-                "name": "Public Guided Tour (Standard)",
-               "visitType": "guided",
-                "description": "Tours are only sold a month in advance with 35 tickets per tour time. Please check back as future dates will be added. All tours begin at Gate D (20th & Blake Street). Tours cover a distance of approximately 1 mile. Please arrive 15 minutes in advance. All areas are subject to change depending upon weather, team schedule and ballpark maintenance. Only single-pocket, medical and diaper bags that are no larger than 16”x16”x8” can be brought into the ballpark and all permitted bags will be subject to search. Backpacks and other multi-pocket bags, including multi-pocket purses, are NOT permitted.",
-                "costText": "$20",
-                "costDescription": "Adults: $36.00 Seniors (55+): $21.00 Children (2-17): $11.00 Children (2 and under): FREE",
-                "durationText": "70 - 80 min",
-                "website": "https://am.ticketmaster.com/corockies/buy/ballpark-tours?tfl=Colorado_Rockies-Tickets-Tours_of_Coors_Field-button-x0-Desktop-Landscape&adobe_mc=MCMID%3D90449284665141188651898081318440958598%7CMCORGID%3DA65F776A5245B01B0A490D44%40AdobeOrg%7CTS%3D1768428023&_gl=1%2A65akh6%2A_gcl_au%2ANDcyOTQ2MjYyLjE3Njg0MjgwMjU.%2A_ga%2AMTY0OTIwMjQ1MC4xNzY4NDI4MDI1%2A_ga_N8YFCZLYSZ%2AczE3Njg0MjgwMjIkbzEkZzAkdDE3Njg0MjgwMjIkajYwJGwwJGgyMDQxMzQ5NDYx%2A_fplc%2AVm4xRndURlNObyUyRmNPYkhIaGJONXFHMlhzVzRmZnp4WXE5bDFlQ05iQ0pRJTJCcHZLS2t5V2FQJTJCcm9iVyUyRmdxNUJaZmFYdHR3clVHNThvSjVLSWVBOVo5U0FBZzF5NnFVQ2FvMHgxRURZODVTTTc5Z0RQZEJWdk0xaWxaUlN0bXclM0QlM0Q."
-            },
-            {
-                "name": "Private Guided Tour",
-                "visitType": "guided",
-                "description": " ",
-                "costText": "Start at $400.00 for up to 25 guests. Each additional Adult: $15.00. Each additional Senior: $12.00 Each additional Child: $12.00. Groups smaller than 25 will pay the flat rate of $400",
-                "durationText": "1.5 - 2 hours min",
-                "website": "email: tours@rockies.com"
-            },
-            {
-                "name": "Batting Practice Private Tour",
-                "visitType": "guided",
-                "description": "*Available on select games.",
-                "costText": "$350.00 for up to 4 guests",
-                "durationText": "Varies",
-                "website": "email: tours@rockies.com"
-            },
-            {
-                "name": "Happy Hour Private Tour",
-                "visitType": "guided",
-                "description": "This tour will end at McGregor Square and include a drink voucher at Mile Post Zero.",
-                "costText": "$750.00 for up to 30 guests",
-                "durationText": "Varies",
-                "website": "email: tours@rockies.com"
-            },,
-            {
-                "name": "Private Guided Tour",
-                "visitType": "guided",
-                "description": " ",
-                "costText": "Start at $250.00 for up to 25 guests.Each additional Adult: $10.00. Each additional Child: $7.00. Groups smaller than 25 will pay the flat rate of $250",
-                "durationText": "45 - 60 min",
-                "website": "email: tours@rockies.com"
-            },
-        ],
-           
-        "giftshop": true,
-        "diningonsite": true,
-        "diningonsite2": false,
-        "featured": true,
-        "spanishtranslations": true,
-        "hours": "Varies",
-        "luggagestorage": true,
-        "dollaramount": "0",
-        "paymentmethod": "both",
-        "publicaccess": true,
-        "adaaccessibility": true,
-        "dogfriendly": true,
-        "address": "123 Main Street, Denver CO"
     }
 ]

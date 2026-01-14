@@ -2089,4 +2089,73 @@
         "dogfriendly": false,
         "address": "Golden, CO"
     }
+       {
+        "name": "Coors Field (Colorado Rockies Stadium)",
+        "id": "site170",
+        "lat": 39.755882,
+        "lng": -104.994178,
+        "city": "denver",
+        "culture": "Local",
+        "description": "Our tours provide a behind-the-scenes look at one of the premier ballparks in Major League Baseball.",
+        "cost": "paid",
+        "cost_description": "General admission pricing; see website for details.",
+        "type": "indoor",
+        "what_to_expect": "When you visit, expect to step back in time as you explore multiple floors of period-furnished rooms and learn about the Brown family’s life and legacy—guided tours are highly recommended for deeper context. There’s no air conditioning, so dress comfortably, and plan around 1–2 hours to enjoy the house, exhibits, and gift shop fully",
+        "family_friendly": true,
+        "localornational": "local",
+        "thematiccategory": [
+            "historichomes"
+        ],
+        "image": "images/coorsfield.jpg",
+        "timeperiod": [
+            "industrialrevolution"
+        ],
+        "estimatedtime": "1 hour",
+        "reservations": "walkins_welcome",
+        "tours": [
+            "selftours",
+            "guidedtours"
+        ],
+        "transit": "underhalfamilefromtransit",
+        "sitetype": "historichome",
+        "website": "https://www.mlb.com/rockies/tickets/tours",
+        "subsites": [
+            {
+                "name": "Public Guided Tour (Standard)",
+                "description": ""Tours are only sold a month in advance with 35 tickets per tour time. Please check back as future dates will be added. All tours begin at Gate D (20th & Blake Street). Tours cover a distance of approximately 1 mile. Please arrive 15 minutes in advance. All areas are subject to change depending upon weather, team schedule and ballpark maintenance. Only single-pocket, medical and diaper bags that are no larger than 16”x16”x8” can be brought into the ballpark and all permitted bags will be subject to search. Backpacks and other multi-pocket bags, including multi-pocket purses, are NOT permitted."",
+                "costText": "$20",
+                "costDescription": ""Adults: $36.00 Seniors (55+): $21.00 Children (2-17): $11.00 Children (2 and under): FREE"",
+                "durationText": "70 - 80 min",
+                "website": "https://am.ticketmaster.com/corockies/buy/ballpark-tours?tfl=Colorado_Rockies-Tickets-Tours_of_Coors_Field-button-x0-Desktop-Landscape&adobe_mc=MCMID%3D90449284665141188651898081318440958598%7CMCORGID%3DA65F776A5245B01B0A490D44%40AdobeOrg%7CTS%3D1768428023&_gl=1%2A65akh6%2A_gcl_au%2ANDcyOTQ2MjYyLjE3Njg0MjgwMjU.%2A_ga%2AMTY0OTIwMjQ1MC4xNzY4NDI4MDI1%2A_ga_N8YFCZLYSZ%2AczE3Njg0MjgwMjIkbzEkZzAkdDE3Njg0MjgwMjIkajYwJGwwJGgyMDQxMzQ5NDYx%2A_fplc%2AVm4xRndURlNObyUyRmNPYkhIaGJONXFHMlhzVzRmZnp4WXE5bDFlQ05iQ0pRJTJCcHZLS2t5V2FQJTJCcm9iVyUyRmdxNUJaZmFYdHR3clVHNThvSjVLSWVBOVo5U0FBZzF5NnFVQ2FvMHgxRURZODVTTTc5Z0RQZEJWdk0xaWxaUlN0bXclM0QlM0Q."
+            },
+            {
+                "name": "Self-Guided Museum Visit",
+                "description": "Explore exhibits and rooms at your own pace.",
+                "costText": "$24",
+                "durationText": "1.5 - 2 hours min",
+                "website": "https://dinoridge.org/visit-dinosaur-ridge/triceratops-trail/"
+            },
+            {
+                "name": "After-Hours / Cocktail / Lecture Event",
+                "description": "Evening programs, talks, or themed events. View the link below for scheduling and availiabilites.",
+                "costText": "$50 - $75",
+                "durationText": "2 hours min",
+                "website": "https://dinoridge.org/visit-dinosaur-ridge/triceratops-trail/"
+            }
+        ],
+           
+        "giftshop": false,
+        "diningonsite": false,
+        "diningonsite2": false,
+        "featured": true,
+        "spanishtranslations": true,
+        "hours": "Varies",
+        "luggagestorage": true,
+        "dollaramount": "0",
+        "paymentmethod": "both",
+        "publicaccess": true,
+        "adaaccessibility": true,
+        "dogfriendly": true,
+        "address": "123 Main Street, Denver CO"
+    },
 ]
